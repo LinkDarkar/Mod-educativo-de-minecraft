@@ -1,0 +1,214 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "question": "¿Qué es un algoritmo?",
+      "verticalLineSpacing": 12,
+      "answers": [
+        { "text": "Un conjunto de instrucciones paso a paso para resolver un problema.",
+          "posX": 20, "posY": 160, "width": 370, "height": 30, "isCorrect": true },
+        { "text": "Un error o bug en un programa.",
+          "posX": 20, "posY": 200, "width": 370, "height": 30, "isCorrect": false },
+        { "text": "El procesador de un computador.",
+          "posX": 20, "posY": 240, "width": 370, "height": 30, "isCorrect": false },
+        { "text": "Una lista de ingredientes para una receta.",
+          "posX": 20, "posY": 280, "width": 370, "height": 30, "isCorrect": false }
+      ]
+    },
+    {
+      "id": "q2",
+      "question": "¿Qué es una variable en programación?",
+      "verticalLineSpacing": 12,
+      "answers": [
+        { "text": "Un valor fijo que nunca cambia.",
+          "posX": 20, "posY": 160, "width": 370, "height": 30, "isCorrect": false },
+        { "text": "Un contenedor en memoria para guardar un valor que puede cambiar.",
+          "posX": 20, "posY": 200, "width": 370, "height": 30, "isCorrect": true },
+        { "text": "Una acción, como 'Atacar' o 'Caminar'.",
+          "posX": 20, "posY": 240, "width": 370, "height": 30, "isCorrect": false },
+        { "text": "Un tipo de bucle.",
+          "posX": 20, "posY": 280, "width": 370, "height": 30, "isCorrect": false }
+      ]
+    },
+    {
+      "id": "q3",
+      "question": "¿Qué es una condición (o expresión booleana)?",
+      "verticalLineSpacing": 12,
+      "answers": [
+        { "text": "Un comando que hace que un personaje se mueva.",
+          "posX": 20, "posY": 160, "width": 350, "height": 30, "isCorrect": false },
+        { "text": "Una lista de todos los elementos de un inventario.",
+          "posX": 20, "posY": 200, "width": 350, "height": 30, "isCorrect": false },
+        { "text": "Una expresión que se evalúa como VERDADERO o FALSO.",
+          "posX": 20, "posY": 240, "width": 350, "height": 30, "isCorrect": true },
+        { "text": "Un bucle que se ejecuta para siempre.",
+          "posX": 20, "posY": 280, "width": 350, "height": 30, "isCorrect": false }
+      ]
+    },
+    {
+      "id": "q4",
+      "question": "¿Qué hace la instrucción IF?",
+      "verticalLineSpacing": 12,
+      "answers": [
+        { "text": "Ejecuta un bloque de código repetidamente mientras una condición sea verdadera.",
+          "posX": 20, "posY": 160, "width": 370, "height": 30, "isCorrect": false },
+        { "text": "Ejecuta un bloque de código una vez si una condición es verdadera.",
+          "posX": 20, "posY": 200, "width": 370, "height": 30, "isCorrect": true },
+        { "text": "Ejecuta un bloque de código para cada elemento de una lista.",
+          "posX": 20, "posY": 240, "width": 370, "height": 30, "isCorrect": false },
+        { "text": "Detiene la ejecución de todo el script.",
+          "posX": 20, "posY": 280, "width": 370, "height": 30, "isCorrect": false }
+      ]
+    },
+    {
+      "id": "q5",
+      "question": "¿Cuál es el propósito de una instrucción ELSE?",
+      "verticalLineSpacing": 12,
+      "answers": [
+        { "text": "Repetir un bloque de código.",
+          "posX": 20, "posY": 160, "width": 340, "height": 30, "isCorrect": false },
+        { "text": "Ejecutar código *solo si* la condición IF es FALSA.",
+          "posX": 20, "posY": 200, "width": 340, "height": 30, "isCorrect": true },
+        { "text": "Ejecutar código *solo si* la condición IF es VERDADERA.",
+          "posX": 20, "posY": 240, "width": 340, "height": 30, "isCorrect": false },
+        { "text": "Terminar el programa.",
+          "posX": 20, "posY": 280, "width": 340, "height": 30, "isCorrect": false }
+      ]
+    },
+    {
+      "id": "q6",
+      "question": "¿Qué hace la instrucción WHILE?",
+      "verticalLineSpacing": 12,
+      "answers": [
+        { "text": "Ejecuta un bloque de código una vez si una condición es verdadera.",
+          "posX": 20, "posY": 160, "width": 350, "height": 30, "isCorrect": false },
+        { "text": "Ejecuta un bloque de código repetidamente mientras una condición sea verdadera.",
+          "posX": 20, "posY": 200, "width": 350, "height": 30, "isCorrect": true },
+        { "text": "Ejecuta un bloque de código un número fijo de veces.",
+          "posX": 20, "posY": 240, "width": 350, "height": 30, "isCorrect": false },
+        { "text": "Define una nueva función o comando.",
+          "posX": 20, "posY": 280, "width": 350, "height": 30, "isCorrect": false }
+      ]
+    },
+    {
+      "id": "q7",
+      "question": "¿Qué hace la instrucción FOR?",
+      "verticalLineSpacing": 12,
+      "answers": [
+        { "text": "Ejecuta un bloque de código para cada elemento de una colección o lista.",
+          "posX": 20, "posY": 160, "width": 380, "height": 30, "isCorrect": true },
+        { "text": "Se usa para tomar decisiones (VERDADERO o FALSO).",
+          "posX": 20, "posY": 200, "width": 380, "height": 30, "isCorrect": false },
+        { "text": "Ejecuta un bloque de código mientras una condición sea verdadera.",
+          "posX": 20, "posY": 240, "width": 380, "height": 30, "isCorrect": false },
+        { "text": "Almacena un valor en memoria.",
+          "posX": 20, "posY": 280, "width": 380, "height": 30, "isCorrect": false }
+      ]
+    },
+    {
+      "id": "q8",
+      "question": "¿Cuál es la principal diferencia entre un bucle FOR y un bucle WHILE?",
+      "verticalLineSpacing": 12,
+      "answers": [
+        { "text": "FOR se usa solo para números y WHILE para todo lo demás.",
+          "posX": 20, "posY": 160, "width": 380, "height": 30, "isCorrect": false },
+        { "text": "FOR se usa para iterar sobre colecciones y WHILE para repetir basado en una condición.",
+          "posX": 20, "posY": 200, "width": 380, "height": 30, "isCorrect": true },
+        { "text": "WHILE es siempre más rápido que FOR.",
+          "posX": 20, "posY": 240, "width": 380, "height": 30, "isCorrect": false },
+        { "text": "No hay ninguna diferencia; son intercambiables.",
+          "posX": 20, "posY": 280, "width": 380, "height": 30, "isCorrect": false }
+      ]
+    },
+    {
+      "id": "q9",
+      "question": "Completa el script para que la oveja se aleje del lobo si la distancia es menor a 5.\n\n[---] ( Distancia (Oveja) (Lobo) < 5 )\n(\n    WalkAway (Lobo)\n)",
+      "verticalLineSpacing": 12,
+      "answers": [
+        { "text": "IF",
+          "posX": 20, "posY": 160, "width": 100, "height": 20, "isCorrect": true },
+        { "text": "WHILE",
+          "posX": 20, "posY": 190, "width": 100, "height": 20, "isCorrect": false },
+        { "text": "FOR",
+          "posX": 20, "posY": 220, "width": 100, "height": 20, "isCorrect": false },
+        { "text": "WalkAway",
+          "posX": 20, "posY": 250, "width": 100, "height": 20, "isCorrect": false }
+      ]
+    },
+    {
+      "id": "q10",
+      "question": "Completa el script para que el lobo se acerque a la oveja si la distancia es menor a 5.\n\nIF ( Distancia (Oveja) (Lobo) < 5 )\n(\n    [---] (Oveja)\n)",
+      "verticalLineSpacing": 12,
+      "answers": [
+        { "text": "WalkTowards",
+          "posX": 20, "posY": 160, "width": 120, "height": 20, "isCorrect": true },
+        { "text": "WalkAway",
+          "posX": 20, "posY": 190, "width": 120, "height": 20, "isCorrect": false },
+        { "text": "Attack",
+          "posX": 20, "posY": 220, "width": 120, "height": 20, "isCorrect": false },
+        { "text": "Distance",
+          "posX": 20, "posY": 250, "width": 120, "height": 20, "isCorrect": false }
+      ]
+    },
+    {
+      "id": "q11",
+      "question": "Completa el script para que el lobo solo ataque si la oveja está cerca y si tiene hambre.\n\nIF ( [---] (Lobo) (Oveja) < 2 )\n(\n    IF ( TieneHambre (Lobo) )\n    (\n        Attack (Oveja)\n    )\n)",
+      "verticalLineSpacing": 12,
+      "answers": [
+        { "text": "IF",
+          "posX": 20, "posY": 160, "width": 100, "height": 20, "isCorrect": false },
+        { "text": "WalkTowards",
+          "posX": 20, "posY": 190, "width": 100, "height": 20, "isCorrect": false },
+        { "text": "Attack",
+          "posX": 20, "posY": 220, "width": 100, "height": 20, "isCorrect": false },
+        { "text": "Distance",
+          "posX": 20, "posY": 250, "width": 100, "height": 20, "isCorrect": true }
+      ]
+    },
+    {
+      "id": "q12",
+      "question": "Completa el script para que el lobo *constantemente* persiga a la oveja y la ataque si está cerca.\n\n[---] ( Distancia (Oveja) (Lobo) < 5 )\n(\n    WalkTo (Oveja)\n    IF ( Distancia (Oveja) (Lobo) < 1 )\n    (\n        Attack (Oveja)\n    )\n)",
+      "verticalLineSpacing": 12,
+      "answers": [
+        { "text": "IF",
+          "posX": 20, "posY": 160, "width": 100, "height": 20, "isCorrect": false },
+        { "text": "WHILE",
+          "posX": 20, "posY": 190, "width": 100, "height": 20, "isCorrect": true },
+        { "text": "FOR",
+          "posX": 20, "posY": 220, "width": 100, "height": 20, "isCorrect": false },
+        { "text": "Attack",
+          "posX": 20, "posY": 250, "width": 100, "height": 20, "isCorrect": false }
+      ]
+    },
+    {
+      "id": "q13",
+      "question": "Completa el script para que un aldeano *constantemente* reaccione a un zombie cercano.\n\n[---] ( Distancia (Aldeano) (Zombie) < 5 )\n(\n    IF ( NearbyCount (Zombie) < 2 )\n    (\n        Attack (Zombie)\n    )\n    ELSE\n    (\n        WalkAway (Zombie)\n    )\n) ",
+      "verticalLineSpacing": 12,
+      "answers": [
+        { "text": "IF",
+          "posX": 20, "posY": 160, "width": 100, "height": 20, "isCorrect": false },
+        { "text": "WHILE",
+          "posX": 20, "posY": 190, "width": 100, "height": 20, "isCorrect": true },
+        { "text": "FOR",
+          "posX": 20, "posY": 220, "width": 100, "height": 20, "isCorrect": false },
+        { "text": "WalkAway",
+          "posX": 20, "posY": 250, "width": 100, "height": 20, "isCorrect": false }
+      ]
+    },
+    {
+      "id": "q14",
+      "question": "Completa el script para que un aldeano ataque a *cada una* de las 3 ovejas cercanas.\n\n[---] ( Oveja ) ( Oveja ) ( Oveja )\n(\n    Attack (Oveja)\n)",
+      "verticalLineSpacing": 12,
+      "answers": [
+        { "text": "IF",
+          "posX": 20, "posY": 160, "width": 100, "height": 20, "isCorrect": false },
+        { "text": "WHILE",
+          "posX": 20, "posY": 190, "width": 100, "height": 20, "isCorrect": false },
+        { "text": "FOR",
+          "posX": 20, "posY": 220, "width": 100, "height": 20, "isCorrect": true },
+        { "text": "Attack",
+          "posX": 20, "posY": 250, "width": 100, "height": 20, "isCorrect": false }
+      ]
+    }
+  ]
+}
