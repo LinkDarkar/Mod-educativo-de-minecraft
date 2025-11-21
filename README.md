@@ -1,2 +1,0 @@
-# Mod educativo de minecraft
-

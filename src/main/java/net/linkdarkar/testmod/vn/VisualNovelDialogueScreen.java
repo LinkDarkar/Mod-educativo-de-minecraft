@@ -24,8 +24,6 @@ public class VisualNovelDialogueScreen extends Screen {
     private int tickCounter = 0;
     private boolean waitingToContinue = false;
 
-    private int contTemp = 0;
-
     public VisualNovelDialogueScreen() {
         super(Text.literal("Dialogue"));
         System.out.println("se construye");

@@ -2,6 +2,7 @@ package net.linkdarkar.testmod.item.custom;
 
 import net.linkdarkar.testmod.block.ModBlocks;
 import net.linkdarkar.testmod.mixin.MobEntityAccessor;
+import net.linkdarkar.testmod.screen.custom.ScriptingScreen;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.MinecraftClient;
@@ -73,12 +74,17 @@ public class ChiselItem extends Item {
     public ActionResult useOnEntity(ItemStack stack, PlayerEntity user, LivingEntity entity, Hand hand) {
         MinecraftClient client = MinecraftClient.getInstance();
         ClientPlayerEntity player = client.player;
-        //Entity entity1;
 
 
         if (player != null && entity.isAlive()) {
             player.sendMessage(Text.literal("Entity UUID >> "+ entity.getUuidAsString()));
             entity.setGlowing(false);
+            if (player.isSneaking()) {
+                player.sendMessage(Text.literal("AAAAA"));
+                // sets screen to programming shit
+                client.setScreen(new ScriptingScreen());
+                return ActionResult.SUCCESS;
+            }
 
             if (entity instanceof MobEntity mobEntity) {
                 player.sendMessage(Text.literal("is path aware"));
@@ -93,19 +99,24 @@ public class ChiselItem extends Item {
                     player.sendMessage(Text.literal("disabled goals and targets"));
                 }
                 else {
-                    MobEntityAccessor mobEntityAccessor = (MobEntityAccessor) mobEntity;
-                    mobEntityAccessor.getGoalSelector().getGoals().clear();
-                    mobEntityAccessor.getGoalSelector().add(10, new LookAroundGoal(mobEntity));
+                    if (mobEntity instanceof WolfEntity wolfEntity)
+                    {
+                        MobEntityAccessor mobEntityAccessor = (MobEntityAccessor) wolfEntity;
+                        mobEntityAccessor.getGoalSelector().getGoals().clear();
+                        mobEntityAccessor.getGoalSelector().add(10, new LookAroundGoal(wolfEntity));
 
-                    WolfEntity wolf = (WolfEntity) mobEntity;
-                    wolf.setAngryAt(null);
-                    wolf.setTarget(null);
-                    wolf.setAttacker(null);
-                    wolf.setAngerTime(0);
+                        wolfEntity.setAngryAt(null);
+                        wolfEntity.setTarget(null);
+                        wolfEntity.setAttacker(null);
+                        wolfEntity.setAngerTime(0);
 
-                    mobEntityAccessor.getTargetSelector().getGoals().clear();
+                        mobEntityAccessor.getTargetSelector().getGoals().clear();
 
-                    this.setupNavigationFromPointToPointTest(mobEntity);
+                        this.setupNavigationFromPointToPointTest(mobEntity);
+                    }
+                    else {
+                        player.sendMessage(Text.literal("NOT WOLF"));
+                    }
                 }
             }
             else {
@@ -147,15 +158,18 @@ public class ChiselItem extends Item {
         Vec3d mobEntityInitialPos = mobEntity.getPos();
         String entityUUID = mobEntity.getUuidAsString();
 
-        // setup objectives
+        // sets up objectives for movement test
         /*
          * (x + 10, 0, z + 10)
          * (x + 25, 0, z + 10)
          * (x, y, z)
          */
-        this.mobPositionList.add(new Pair<String,Vec3d>(entityUUID, new Vec3d(mobEntityInitialPos.x + 10, mobEntityInitialPos.y, mobEntityInitialPos.z + 10)));
-        this.mobPositionList.add(new Pair<String,Vec3d>(entityUUID, new Vec3d(mobEntityInitialPos.x + 25, mobEntityInitialPos.y, mobEntityInitialPos.z + 10)));
-        this.mobPositionList.add(new Pair<String,Vec3d>(entityUUID, new Vec3d(mobEntityInitialPos.x, mobEntityInitialPos.y, mobEntityInitialPos.z)));
+        this.mobPositionList.add(new Pair<String,Vec3d>(entityUUID,
+                new Vec3d(mobEntityInitialPos.x + 10, mobEntityInitialPos.y, mobEntityInitialPos.z + 10)));
+        this.mobPositionList.add(new Pair<String,Vec3d>(entityUUID,
+                new Vec3d(mobEntityInitialPos.x + 25, mobEntityInitialPos.y, mobEntityInitialPos.z + 10)));
+        this.mobPositionList.add(new Pair<String,Vec3d>(entityUUID,
+                new Vec3d(mobEntityInitialPos.x, mobEntityInitialPos.y, mobEntityInitialPos.z)));
     }
 
     private MobEntity getMobEntityFromUUID(World world, String uuid) {

@@ -1,0 +1,44 @@
+{
+  "id": "test_01",
+  "Nodes": [
+    {
+      "id": "01_01",
+      "speaker": "reimu",
+      "portrait": "a",
+      "portraitCoords": [0,0,0,0],
+      "text": [
+        "Este\nAAAA",
+        "Este"
+        ],
+      "nextNodeId": "01_02"
+    },
+    {
+      "id": "01_02",
+      "speaker": "reimu",
+      "portrait": "a",
+      "portraitCoords": [0,0,0,0],
+      "text": [
+        "Este es un texto"
+      ],
+      "nextNodeId": "01_03"
+    },
+    {
+      "id": "01_03",
+      "speaker": "reimu",
+      "portrait": "a",
+      "portraitCoords": [0,0,0,0],
+      "text": [
+        "Footseps echoed through the halls of the palace. Somehow, the place looked exactly as he remembered.",
+        "It did not help to his nerves though.",
+        "He had expected this moment for years already, played the situation in his head\nhundreds of times throughout all of them,\nand even then, at this moment, he had no idea how it was going to play out.",
+        "She had broken the mirror for a reason, and he ignored that for incredibly selfish reasons.\n",
+        "  'Well they were inconsiderate before. Now it is a necessity born from desperation'\n",
+        "Would she believe him? He wasn't sure.",
+        "The only hope he had was her mastery of magic to assess his abnormal situation at a glance,\nbut even then, if he managed to find her, they were going to argue. A lot.\n",
+        "  'But we really need the help. This is way worse that what we had to fight before. This entire cycle...'\n",
+        "He took a deep breath. The kid also needed all the help they could get. This was their chance."
+      ],
+      "nextNodeId": ""
+    }
+  ]
+}

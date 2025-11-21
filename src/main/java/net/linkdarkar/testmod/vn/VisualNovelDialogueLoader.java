@@ -32,21 +32,6 @@ public class VisualNovelDialogueLoader {
     }
 
     public static void mergeTextLines(VisualNovelDialogueData dialogueData) {
-        /*
-        for (VisualNovelDialogueData.Node node : dialogueData.Nodes) {
-            int charactersAdded = 0;
-            node.totalCharacters = 0;
-            for (String string : node.text) {
-                // TODO: might have to add a +2 in case it needs to handle the delimiter like below
-                node.indexOfCharToStop.add(charactersAdded + string.length());
-                charactersAdded += string.length();
-                // node.totalCharacters += charactersAdded;
-            }
-            node.finalText = String.join("\n", node.text);
-            node.totalCharacters = node.finalText.length() - (node.text.size() - 1);
-        }
-
-         */
         for (VisualNovelDialogueData.Node node : dialogueData.Nodes) {
             node.finalText = String.join("\n", node.text);
             node.indexOfCharToStop.clear();
