@@ -13,6 +13,7 @@ public class InstructionWHILE extends ScriptLine {
 
     public InstructionWHILE() {
         this.color = 0x66FF66;
+        this.condition = new ScriptCondition();
     }
 
     @Override

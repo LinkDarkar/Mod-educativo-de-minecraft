@@ -5,49 +5,28 @@ import net.linkdarkar.testmod.scripting.enums.MathOperator;
 
 public class InstructionMath extends ScriptLine {
     public String targetVarName;
-    public ScriptVariable left;
-    public ScriptVariable right;
-    public MathOperator op;
+    public String expression;
 
-    public InstructionMath(String target, ScriptVariable l, MathOperator op, ScriptVariable r) {
+    public InstructionMath(String target, String expr) {
         this.targetVarName = target;
-        this.left = l;
-        this.op = op;
-        this.right = r;
+        this.expression = expr;
         this.color = 0xAAAAFF;
     }
 
     @Override
     public String GetAsText() {
-        return targetVarName + " = " + left.variableName + " " + op.toString() + " " + right.variableName;
+        return targetVarName + " = " + expression;
     }
 
     @Override
     public void Execute(ExecutionContext c) {
-        Object lObj = left.GetResolvedValue(c);
-        Object rObj = right.GetResolvedValue(c);
-
-        double lVal = 0;
-        double rVal = 0;
-
         try {
-            lVal = Double.parseDouble(lObj.toString());
-            rVal = Double.parseDouble(rObj.toString());
+            double result = ExpressionEvaluator.evaluate(expression, c);
+            c.SetVar(targetVarName, result);
         } catch (Exception e) {
-            // Non number math errors
+            // If it fails (e.g., assignment of string literal), fallback to raw string
+            c.SetVar(targetVarName, expression);
         }
-
-        double result = 0;
-
-        switch (op) {
-            case ADD: result = lVal + rVal; break;
-            case SUBTRACT: result = lVal - rVal; break;
-            case MULTIPLY: result = lVal * rVal; break;
-            // TODO: Return Infinite when dividing by 0
-            case DIVIDE: result = rVal == 0 ? 0 : (lVal / rVal); break;
-            case ASSIGN: result = rVal; break;
-        }
-
-        c.SetVar(targetVarName, result);
     }
 }
+
