@@ -51,13 +51,13 @@
       "verticalLineSpacing": 12,
       "answers": [
         { "text": "Ejecuta un bloque de código repetidamente mientras una condición sea verdadera.",
-          "posX": 20, "posY": 160, "width": 370, "height": 30, "isCorrect": false },
+          "posX": 20, "posY": 160, "width": 380, "height": 30, "isCorrect": false },
         { "text": "Ejecuta un bloque de código una vez si una condición es verdadera.",
-          "posX": 20, "posY": 200, "width": 370, "height": 30, "isCorrect": true },
+          "posX": 20, "posY": 200, "width": 380, "height": 30, "isCorrect": true },
         { "text": "Ejecuta un bloque de código para cada elemento de una lista.",
-          "posX": 20, "posY": 240, "width": 370, "height": 30, "isCorrect": false },
+          "posX": 20, "posY": 240, "width": 380, "height": 30, "isCorrect": false },
         { "text": "Detiene la ejecución de todo el script.",
-          "posX": 20, "posY": 280, "width": 370, "height": 30, "isCorrect": false }
+          "posX": 20, "posY": 280, "width": 380, "height": 30, "isCorrect": false }
       ]
     },
     {

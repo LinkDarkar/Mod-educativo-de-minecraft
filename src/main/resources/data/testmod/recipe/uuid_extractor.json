@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "#": {
+      "item": "testmod:chisel"
+    },
+    "0": {
+      "item": "minecraft:map"
+    }
+  },
+  "pattern": [
+    "000",
+    "0#0",
+    "000"
+  ],
+  "result": {
+    "count": 8,
+    "id": "testmod:uuid_extractor"
+  }
+}

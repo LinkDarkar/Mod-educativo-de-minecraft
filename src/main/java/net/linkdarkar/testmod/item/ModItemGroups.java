@@ -21,6 +21,7 @@ public class ModItemGroups {
 
                         entries.add(ModItems.CHISEL);
                         entries.add(ModItems.QUESTIONS_POPUP_CHISEL);
+                        entries.add(ModItems.UUID_EXTRACTOR);
                     })
                     .build());
 
