@@ -2,7 +2,6 @@ package net.linkdarkar.testmod.screen.custom;
 
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-import net.linkdarkar.testmod.screen.modPackets.ModPackets;
 import net.linkdarkar.testmod.scripting.*;
 import net.linkdarkar.testmod.scripting.enums.ComparisonOperator;
 import net.linkdarkar.testmod.scripting.instructions.*;
