@@ -30,7 +30,7 @@ public abstract class ScriptLine {
             case "MATH" -> new InstructionMath();
             case "MATH_SIMPLE" -> new InstructionMathSimple();
             case "PRINT" -> new InstructionPrint();
-            // TODO: Add other cases (WHILE, PRINT, etc.) here
+            // TODO: Add other cases here
             default -> null;
         };
 

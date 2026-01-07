@@ -36,6 +36,7 @@ public class ScriptingScreen extends Screen {
     public ScriptingScreen(UUID entityUuid) {
         super(Text.literal("opens scripting screen"));
         this.entityUuid = entityUuid;
+
         ScriptBuilder existing = ScriptActorManager.getInstance().getBuilder(entityUuid);
         if (existing != null) {
             this.builder = existing;
