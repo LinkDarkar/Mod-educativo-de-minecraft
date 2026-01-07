@@ -2,6 +2,7 @@ package net.linkdarkar.testmod.scripting;
 
 import net.linkdarkar.testmod.scripting.enums.MathOperator;
 import net.linkdarkar.testmod.scripting.instructions.*;
+import net.minecraft.nbt.NbtCompound;
 
 public class ScriptBuilder {
     public ScriptBlock mainScript = new ScriptBlock();
@@ -172,5 +173,20 @@ public class ScriptBuilder {
 
     public ScriptBlock GetScript() {
         return mainScript;
+    }
+
+    // Save NBT stuff
+    public NbtCompound toNbt() {
+        NbtCompound nbt = new NbtCompound();
+        nbt.put("main", mainScript.toNbt());
+        return nbt;
+    }
+
+    public static ScriptBuilder fromNbt(NbtCompound nbt) {
+        ScriptBuilder builder = new ScriptBuilder();
+        builder.mainScript = (ScriptBlock) ScriptLine.fromNbt(nbt.getCompound("main"));
+
+        builder.Deselect();
+        return builder;
     }
 }

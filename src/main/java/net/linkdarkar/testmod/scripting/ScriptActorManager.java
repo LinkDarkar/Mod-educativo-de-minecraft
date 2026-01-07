@@ -1,5 +1,8 @@
 package net.linkdarkar.testmod.scripting;
 
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
+import net.minecraft.server.world.ServerWorld;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -8,7 +11,7 @@ public class ScriptActorManager {
     // The 'volatile' keyword ensures that multiple threads handle the instance variable correctly when it is being initialized to the Singleton instance.
     private static volatile ScriptActorManager instance;
 
-    private ScriptActorManager() {
+    protected ScriptActorManager() {
         System.out.println("ScriptActorManager initialized.");
     }
 
@@ -41,6 +44,9 @@ public class ScriptActorManager {
     // Now the actual useful stuff -------------------------------------------------------------------------------
 
     private final Map<UUID, ScriptBuilder> actorBuilders = new HashMap<>();
+    public Map<UUID, ScriptBuilder> getActorBuilders() {
+        return actorBuilders;
+    }
 
     public ScriptBuilder getBuilder(UUID uuid) {
         return actorBuilders.get(uuid);
@@ -48,10 +54,31 @@ public class ScriptActorManager {
 
     public void saveBuilder(UUID uuid, ScriptBuilder builder) {
         actorBuilders.put(uuid, builder);
+        markDirty();
+    }
+
+    private ScriptingSaveState activeState;
+
+    public static void registerLifecycle() {
+        ServerWorldEvents.LOAD.register((server, world) -> {
+            // Only load from Overworld to avoid duplicate loading
+            if (world.getRegistryKey() == net.minecraft.world.World.OVERWORLD) {
+                ScriptActorManager.getInstance().loadFromWorld(world);
+            }
+        });
+    }
+
+    public void loadFromWorld(ServerWorld world) {
+        this.activeState = ScriptingSaveState.getServerState(world);
+    }
+
+    public void markDirty() {
+        if (this.activeState != null) {
+            this.activeState.markDirty();
+        }
     }
 
     public void removeBuilder(UUID uuid) {
         actorBuilders.remove(uuid);
     }
-
 }

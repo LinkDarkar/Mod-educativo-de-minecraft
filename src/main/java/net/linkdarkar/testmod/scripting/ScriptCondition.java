@@ -1,6 +1,7 @@
 package net.linkdarkar.testmod.scripting;
 
 import net.linkdarkar.testmod.scripting.enums.ComparisonOperator;
+import net.minecraft.nbt.NbtCompound;
 
 public class ScriptCondition {
     public ScriptVariable lVar;
@@ -49,5 +50,20 @@ public class ScriptCondition {
             case GREATER_THAN -> isNumeric && lNum > rNum;
             default -> false;
         };
+    }
+
+    // Save NBT stuff
+    public NbtCompound toNbt() {
+        NbtCompound nbt = new NbtCompound();
+        nbt.put("left", lVar.toNbt());
+        nbt.putString("op", op.name());
+        nbt.put("right", rVar.toNbt());
+        return nbt;
+    }
+
+    public void loadNbt(NbtCompound nbt) {
+        this.lVar = ScriptVariable.fromNbt(nbt.getCompound("left"));
+        this.op = ComparisonOperator.valueOf(nbt.getString("op"));
+        this.rVar = ScriptVariable.fromNbt(nbt.getCompound("right"));
     }
 }

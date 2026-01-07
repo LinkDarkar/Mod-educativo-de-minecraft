@@ -8,6 +8,7 @@ import net.linkdarkar.testmod.entity.ModEntities;
 import net.linkdarkar.testmod.entity.custom.CustomNPCEntity;
 import net.linkdarkar.testmod.item.ModItemGroups;
 import net.linkdarkar.testmod.item.ModItems;
+import net.linkdarkar.testmod.scripting.ScriptActorManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,5 +34,7 @@ public class TestMod implements ModInitializer {
 
 
         FabricDefaultAttributeRegistry.register(ModEntities.NPC_REIMU_TEST, CustomNPCEntity.createMobAttributes());
+
+        ScriptActorManager.registerLifecycle();
 	}
 }

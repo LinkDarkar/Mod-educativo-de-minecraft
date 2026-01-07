@@ -2,6 +2,7 @@ package net.linkdarkar.testmod.scripting.instructions;
 
 import net.linkdarkar.testmod.scripting.*;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.Text;
 
 public class InstructionPrint extends ScriptLine {
@@ -37,5 +38,22 @@ public class InstructionPrint extends ScriptLine {
         if (MinecraftClient.getInstance().player != null) {
             MinecraftClient.getInstance().player.sendMessage(Text.literal(finalMsg), false);
         }
+    }
+
+    @Override
+    protected String getTypeID() {
+        return "PRINT";
+    }
+
+    @Override
+    public NbtCompound toNbt() {
+        NbtCompound nbt = super.toNbt();
+        nbt.putString("msg", message);
+        return nbt;
+    }
+
+    @Override
+    public void loadNbt(NbtCompound nbt) {
+        this.message = nbt.getString("msg");
     }
 }

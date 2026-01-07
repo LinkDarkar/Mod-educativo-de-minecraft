@@ -1,12 +1,16 @@
 package net.linkdarkar.testmod.scripting;
 
 import net.linkdarkar.testmod.scripting.enums.ScriptVariableType;
+import net.minecraft.nbt.NbtCompound;
 
 public class ScriptVariable {
     public String variableName;
     public ScriptVariableType type;
     public Object value;
 
+    public ScriptVariable()
+    {
+    }
     public ScriptVariable(String rawInput) {
         UpdateValue(rawInput);
     }
@@ -32,5 +36,19 @@ public class ScriptVariable {
     public String GetOriginalValue() {
         if (type == ScriptVariableType.REFERENCE) return variableName;
         return value.toString();
+    }
+
+    // Save NBT stuff
+
+    public NbtCompound toNbt() {
+        NbtCompound nbt = new NbtCompound();
+        if (variableName != null) nbt.putString("varName", variableName);
+        if (value != null) nbt.putString("val", value.toString());
+        return nbt;
+    }
+
+    public static ScriptVariable fromNbt(NbtCompound nbt) {
+        String raw = nbt.contains("varName") ? nbt.getString("varName") : nbt.getString("val");
+        return new ScriptVariable(raw);
     }
 }
