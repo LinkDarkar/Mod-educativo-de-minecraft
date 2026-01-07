@@ -1,5 +1,8 @@
 package net.linkdarkar.testmod.screen.custom;
 
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.linkdarkar.testmod.screen.modPackets.ModPackets;
 import net.linkdarkar.testmod.scripting.*;
 import net.linkdarkar.testmod.scripting.enums.ComparisonOperator;
 import net.linkdarkar.testmod.scripting.instructions.*;
@@ -9,12 +12,15 @@ import net.minecraft.client.gui.screen.ingame.InventoryScreen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.text.Text;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class ScriptingScreen extends Screen {
+    private final UUID entityUuid;
     public ScriptBuilder builder;
 
     private final int START_Y = 20;
@@ -28,9 +34,16 @@ public class ScriptingScreen extends Screen {
 
     private record PlacedWidget(ClickableWidget widget, int originalY) {}
 
-    public ScriptingScreen() {
+    public ScriptingScreen(UUID entityUuid) {
         super(Text.literal("opens scripting screen"));
-        this.builder = new ScriptBuilder();
+        this.entityUuid = entityUuid;
+        ScriptBuilder existing = ScriptActorManager.getInstance().getBuilder(entityUuid);
+        if (existing != null) {
+            this.builder = existing;
+        } else {
+            this.builder = new ScriptBuilder();
+            ScriptActorManager.getInstance().saveBuilder(this.entityUuid, this.builder);
+        }
     }
 
     @Override
@@ -474,5 +487,12 @@ public class ScriptingScreen extends Screen {
         }
 
         return super.keyPressed(keyCode, scanCode, modifiers);
+    }
+
+    @Override
+    public void close() {
+        ScriptActorManager.getInstance().saveBuilder(entityUuid, this.builder);
+
+        super.close();
     }
 }

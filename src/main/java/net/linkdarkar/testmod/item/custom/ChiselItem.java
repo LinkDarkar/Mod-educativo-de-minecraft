@@ -82,7 +82,7 @@ public class ChiselItem extends Item {
             if (player.isSneaking()) {
                 player.sendMessage(Text.literal("AAAAA"));
                 // sets screen to programming shit
-                client.setScreen(new ScriptingScreen());
+                client.setScreen(new ScriptingScreen(entity.getUuid()));
                 return ActionResult.SUCCESS;
             }
 
