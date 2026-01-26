@@ -17,8 +17,9 @@ public class InstructionIF extends ScriptLine {
         this.color = 0xFF0000;
     }
 
+    @Override
     public String GetAsText() {
-        return "IF";
+        return "IF [" + condition.leftExpression + "] " + condition.op.name() + " [" + condition.rightExpression + "]";
     }
 
     @Override

@@ -19,7 +19,7 @@ public class InstructionWHILE extends ScriptLine {
 
     @Override
     public String GetAsText() {
-        return "WHILE (CONDITION)";
+        return "WHILE [" + condition.leftExpression + "] " + condition.op.name() + " [" + condition.rightExpression + "]";
     }
 
     @Override

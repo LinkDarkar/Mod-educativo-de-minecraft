@@ -64,7 +64,7 @@ public class ScriptBuilder {
     }
 
     public void AddPrint() {
-        Insert(new InstructionPrint("Value: {i}"));
+        Insert(new InstructionPrint("\"Value: \" + i"));
     }
 
     public void AddIf() {

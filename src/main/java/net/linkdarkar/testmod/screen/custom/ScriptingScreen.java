@@ -232,23 +232,25 @@ public class ScriptingScreen extends Screen {
         if (cond == null) return;
         final ScriptCondition finalCond = cond;
 
-        // Left Variable
-        TextFieldWidget leftField = new TextFieldWidget(this.textRenderer, startX + 40, y, 50, 20, Text.literal(""));
-        leftField.setText(cond.lVar.GetOriginalValue());
-        leftField.setChangedListener(text -> finalCond.lVar.UpdateValue(text));
+        // Left Expression Field (Slightly wider for math: 60px)
+        TextFieldWidget leftField = new TextFieldWidget(this.textRenderer, startX + 40, y, 60, 20, Text.literal(""));
+        leftField.setText(cond.leftExpression);
+        leftField.setChangedListener(text -> finalCond.leftExpression = text);
         addScrollableChild(leftField, y);
 
         // Operator Button
+        // Positioned after LeftField (40 + 60 + 5 padding = 105)
         ButtonWidget opButton = ButtonWidget.builder(Text.literal(getOpSymbol(cond.op)), button -> {
             finalCond.op = nextOperator(finalCond.op);
             button.setMessage(Text.literal(getOpSymbol(finalCond.op)));
-        }).dimensions(startX + 95, y, 25, 20).build();
+        }).dimensions(startX + 105, y, 25, 20).build();
         addScrollableChild(opButton, y);
 
-        // Right Variable
-        TextFieldWidget rightField = new TextFieldWidget(this.textRenderer, startX + 125, y, 50, 20, Text.literal(""));
-        rightField.setText(cond.rVar.GetOriginalValue());
-        rightField.setChangedListener(text -> finalCond.rVar.UpdateValue(text));
+        // Right Expression Field
+        // Positioned after OpButton (105 + 25 + 5 padding = 135)
+        TextFieldWidget rightField = new TextFieldWidget(this.textRenderer, startX + 135, y, 60, 20, Text.literal(""));
+        rightField.setText(cond.rightExpression);
+        rightField.setChangedListener(text -> finalCond.rightExpression = text);
         addScrollableChild(rightField, y);
     }
     private void createMathSimpleWidgets(InstructionMathSimple line, int y, int startX) {

@@ -14,7 +14,7 @@ public class InstructionPrint extends ScriptLine {
     }
 
     public InstructionPrint() {
-        this.message = "Value: {x}";
+        this.message = "\"Value: \" + x";
         this.color = 0xFFFFFF;
     }
 
@@ -25,14 +25,23 @@ public class InstructionPrint extends ScriptLine {
 
     @Override
     public void Execute(ExecutionContext context) {
-        String finalMsg = message;
+        String finalMsg;
 
-        // Simple interpolation: replaces {varName} with value
-        for (String key : context.variables.keySet()) {
-            String placeholder = "{" + key + "}";
-            if (finalMsg.contains(placeholder)) {
-                finalMsg = finalMsg.replace(placeholder, context.variables.get(key).toString());
+        try {
+            Object result = ExpressionEvaluator.evaluate(message, context);
+
+            if (result instanceof Double) {
+                double d = (Double) result;
+                if (d == (long) d) {
+                    finalMsg = String.format("%d", (long) d);
+                } else {
+                    finalMsg = result.toString();
+                }
+            } else {
+                finalMsg = result.toString();
             }
+        } catch (Exception e) {
+            finalMsg = "Error: " + e.getMessage();
         }
 
         if (MinecraftClient.getInstance().player != null) {
