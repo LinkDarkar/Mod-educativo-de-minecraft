@@ -19,12 +19,12 @@ public class InstructionPrint extends ScriptLine {
 
     @Override
     public String GetAsText() {
-        return "PRINT " + message;
+        return "PRINT " + this.message;
     }
 
     @Override
     public void Execute(ExecutionContext context) {
-        String finalMsg = message;
+        String finalMsg = this.message;
 
         // Simple interpolation: replaces {varName} with value
         for (String key : context.variables.keySet()) {
