@@ -2,11 +2,12 @@ package net.linkdarkar.testmod.scripting;
 
 public class ExpressionEvaluator
 {
-    public static double evaluate(String expression, ExecutionContext ctx) {
+    public static Object evaluate(String expression, ExecutionContext ctx) {
         return new Object() {
             int pos = -1, ch;
 
-            void nextChar() {
+            void nextChar()
+            {
                 ch = (++pos < expression.length()) ? expression.charAt(pos) : -1;
             }
 
@@ -19,62 +20,102 @@ public class ExpressionEvaluator
                 return false;
             }
 
-            double parse() {
+            Object parse() {
                 nextChar();
-                double x = parseExpression();
+                Object x = parseExpression();
                 if (pos < expression.length()) throw new RuntimeException("Unexpected: " + (char)ch);
                 return x;
             }
 
-            // Grammar:
-            // expression = term | expression + term | expression - term
-            // term = factor | term * factor | term / factor
-            // factor = + factor | - factor | ( expression ) | number | variable
-
-            double parseExpression() {
-                double x = parseTerm();
+            Object parseExpression() {
+                Object x = parseTerm();
                 for (;;) {
-                    if      (eat('+')) x += parseTerm(); // addition
-                    else if (eat('-')) x -= parseTerm(); // subtraction
+                    if (eat('+')) {
+                        Object y = parseTerm();
+                        // If either x or y is a String, treat + as concatenation
+                        if (x instanceof String || y instanceof String) {
+                            x = valToString(x) + valToString(y);
+                        } else {
+                            // Both are likely numbers
+                            x = asDouble(x) + asDouble(y);
+                        }
+                    }
+                    else if (eat('-')) {
+                        Object y = parseTerm();
+                        x = asDouble(x) - asDouble(y);
+                    }
                     else return x;
                 }
             }
 
-            double parseTerm() {
-                double x = parseFactor();
+            Object parseTerm() {
+                Object x = parseFactor();
                 for (;;) {
-                    if      (eat('*')) x *= parseFactor(); // multiplication
-                    else if (eat('/')) x /= parseFactor(); // division
+                    if      (eat('*')) x = asDouble(x) * asDouble(parseFactor()); // multiplication
+                    else if (eat('/')) x = asDouble(x) / asDouble(parseFactor()); // division
                     else return x;
                 }
             }
 
-            double parseFactor() {
+            Object parseFactor() {
                 if (eat('+')) return parseFactor(); // unary plus
-                if (eat('-')) return -parseFactor(); // unary minus
+                if (eat('-')) return -asDouble(parseFactor()); // unary minus
 
-                double x;
+                Object x;
                 int startPos = pos;
 
-                if (eat('(')) { // parentheses
+                if (eat('('))
+                {
                     x = parseExpression();
                     eat(')');
-                } else if ((ch >= '0' && ch <= '9') || ch == '.') { // numbers
-                    while ((ch >= '0' && ch <= '9') || ch == '.') nextChar();
-                    x = Double.parseDouble(expression.substring(startPos, pos));
-                } else if ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || ch == '_') { // variables
-                    while ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') || ch == '_' || (ch >= '0' && ch <= '9')) nextChar();
-                    String varName = expression.substring(startPos, pos);
-                    Object val = ctx.GetVar(varName);
-                    try {
-                        x = Double.parseDouble(val.toString());
-                    } catch (Exception e) {
-                        x = 0; // Default to 0 if variable is text or missing
+                }
+                else if (eat('"'))
+                {
+                    StringBuilder sb = new StringBuilder();
+                    while (ch != '"' && ch != -1)
+                    {
+                        sb.append((char)ch);
+                        nextChar();
                     }
-                } else {
+                    eat('"');
+                    x = sb.toString();
+                }
+                else if (('0' <= ch && ch <= '9') || ch == '.')
+                {
+                    while (('0' <= ch && ch <= '9') || ch == '.') nextChar();
+                    x = Double.parseDouble(expression.substring(startPos, pos));
+                }
+                else if (('a' <= ch && ch <= 'z') || ('A' <= ch && ch <= 'Z') || ch == '_')
+                {
+                    while (('a' <= ch && ch <= 'z') || ('A' <= ch && ch <= 'Z') || ch == '_' || ('0' <= ch && ch <= '9')) nextChar();
+                    String varName = expression.substring(startPos, pos);
+                    x = ctx.GetVar(varName);
+                }
+                else
+                {
                     throw new RuntimeException("Unexpected: " + (char)ch);
                 }
                 return x;
+            }
+            double asDouble(Object obj) {
+                if (obj instanceof Number) return ((Number) obj).doubleValue();
+                try {
+                    return Double.parseDouble(obj.toString());
+                } catch (Exception e) {
+                    return 0; // Default or throw error
+                }
+            }
+
+            String valToString(Object obj) {
+                if (obj instanceof Double)
+                {
+                    double d = (Double) obj;
+                    if (d == (long) d)
+                    {
+                        return String.format("%d", (long) d);
+                    }
+                }
+                return obj.toString();
             }
         }.parse();
     }

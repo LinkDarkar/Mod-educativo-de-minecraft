@@ -2,6 +2,7 @@ package net.linkdarkar.testmod.scripting.instructions;
 
 import net.linkdarkar.testmod.scripting.*;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.Text;
 
 public class InstructionPrint extends ScriptLine {
@@ -13,29 +14,55 @@ public class InstructionPrint extends ScriptLine {
     }
 
     public InstructionPrint() {
-        this.message = "Value: {x}";
+        this.message = "\"Value: \" + x";
         this.color = 0xFFFFFF;
     }
 
     @Override
     public String GetAsText() {
-        return "PRINT " + this.message;
+        return "PRINT " + message;
     }
 
     @Override
     public void Execute(ExecutionContext context) {
-        String finalMsg = this.message;
+        String finalMsg;
 
-        // Simple interpolation: replaces {varName} with value
-        for (String key : context.variables.keySet()) {
-            String placeholder = "{" + key + "}";
-            if (finalMsg.contains(placeholder)) {
-                finalMsg = finalMsg.replace(placeholder, context.variables.get(key).toString());
+        try {
+            Object result = ExpressionEvaluator.evaluate(message, context);
+
+            if (result instanceof Double) {
+                double d = (Double) result;
+                if (d == (long) d) {
+                    finalMsg = String.format("%d", (long) d);
+                } else {
+                    finalMsg = result.toString();
+                }
+            } else {
+                finalMsg = result.toString();
             }
+        } catch (Exception e) {
+            finalMsg = "Error: " + e.getMessage();
         }
 
         if (MinecraftClient.getInstance().player != null) {
             MinecraftClient.getInstance().player.sendMessage(Text.literal(finalMsg), false);
         }
+    }
+
+    @Override
+    protected String getTypeID() {
+        return "PRINT";
+    }
+
+    @Override
+    public NbtCompound toNbt() {
+        NbtCompound nbt = super.toNbt();
+        nbt.putString("msg", message);
+        return nbt;
+    }
+
+    @Override
+    public void loadNbt(NbtCompound nbt) {
+        this.message = nbt.getString("msg");
     }
 }

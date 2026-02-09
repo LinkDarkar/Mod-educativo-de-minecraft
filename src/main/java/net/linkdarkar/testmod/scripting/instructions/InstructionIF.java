@@ -2,6 +2,7 @@ package net.linkdarkar.testmod.scripting.instructions;
 
 import net.linkdarkar.testmod.scripting.*;
 import net.linkdarkar.testmod.scripting.enums.ComparisonOperator;
+import net.minecraft.nbt.NbtCompound;
 
 public class InstructionIF extends ScriptLine {
     public ScriptCondition condition;
@@ -16,8 +17,9 @@ public class InstructionIF extends ScriptLine {
         this.color = 0xFF0000;
     }
 
+    @Override
     public String GetAsText() {
-        return "IF";
+        return "IF [" + condition.leftExpression + "] " + condition.op.name() + " [" + condition.rightExpression + "]";
     }
 
     @Override
@@ -25,5 +27,27 @@ public class InstructionIF extends ScriptLine {
         if (condition != null && condition.Evaluate(context)) {
             trueBlock.Execute(context);
         }
+    }
+
+    // NBT stuff
+    @Override
+    protected String getTypeID() {
+        return "IF";
+    }
+
+    @Override
+    public NbtCompound toNbt() {
+        NbtCompound nbt = super.toNbt();
+        nbt.put("cond", condition.toNbt());
+        nbt.put("trueBlock", trueBlock.toNbt());
+        return nbt;
+    }
+
+    @Override
+    public void loadNbt(NbtCompound nbt) {
+        this.condition = new ScriptCondition();
+        this.condition.loadNbt(nbt.getCompound("cond"));
+
+        this.trueBlock = (ScriptBlock) ScriptLine.fromNbt(nbt.getCompound("trueBlock"));
     }
 }

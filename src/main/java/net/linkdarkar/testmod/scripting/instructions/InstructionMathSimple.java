@@ -4,6 +4,7 @@ import net.linkdarkar.testmod.scripting.ExecutionContext;
 import net.linkdarkar.testmod.scripting.ScriptLine;
 import net.linkdarkar.testmod.scripting.ScriptVariable;
 import net.linkdarkar.testmod.scripting.enums.MathOperator;
+import net.minecraft.nbt.NbtCompound;
 
 public class InstructionMathSimple extends ScriptLine {
     public String targetVarName;
@@ -11,6 +12,13 @@ public class InstructionMathSimple extends ScriptLine {
     public ScriptVariable right;
     public MathOperator op;
 
+    public InstructionMathSimple() {
+        this.targetVarName = "";
+        this.left = new ScriptVariable();
+        this.op = MathOperator.ADD;
+        this.right = new ScriptVariable();
+        this.color = 0xAAAAFF;
+    }
     public InstructionMathSimple(String target, ScriptVariable l, MathOperator op, ScriptVariable r) {
         this.targetVarName = target;
         this.left = l;
@@ -51,5 +59,35 @@ public class InstructionMathSimple extends ScriptLine {
         }
 
         c.SetVar(targetVarName, result);
+    }
+
+    @Override
+    protected String getTypeID() {
+        return "MATH_SIMPLE";
+    }
+
+    @Override
+    public NbtCompound toNbt() {
+        NbtCompound nbt = super.toNbt();
+        nbt.putString("target", targetVarName);
+        nbt.put("left", left.toNbt());
+        // Save Enum as String
+        nbt.putString("op", op.name());
+        nbt.put("right", right.toNbt());
+        return nbt;
+    }
+
+    @Override
+    public void loadNbt(NbtCompound nbt) {
+        this.targetVarName = nbt.getString("target");
+        this.left = ScriptVariable.fromNbt(nbt.getCompound("left"));
+
+        try {
+            this.op = MathOperator.valueOf(nbt.getString("op"));
+        } catch (IllegalArgumentException e) {
+            this.op = MathOperator.ADD;
+        }
+
+        this.right = ScriptVariable.fromNbt(nbt.getCompound("right"));
     }
 }

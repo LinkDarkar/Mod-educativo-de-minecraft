@@ -1,53 +1,64 @@
 package net.linkdarkar.testmod.scripting;
 
 import net.linkdarkar.testmod.scripting.enums.ComparisonOperator;
+import net.minecraft.nbt.NbtCompound;
 
 public class ScriptCondition {
-    public ScriptVariable lVar;
+    public String leftExpression;
     public ComparisonOperator op;
-    public ScriptVariable rVar;
+    public String rightExpression;
 
     public ScriptCondition() {
-        this.lVar = new ScriptVariable("");
+        this.leftExpression = "";
         this.op = ComparisonOperator.EQUALS;
-        this.rVar = new ScriptVariable("");
+        this.rightExpression = "";
     }
-    public ScriptCondition(ScriptVariable lVar, ComparisonOperator op, ScriptVariable rVar) {
-        this.lVar = lVar;
+    public ScriptCondition(String lExp, ComparisonOperator op, String rExp) {
+        this.leftExpression = lExp;
         this.op = op;
-        this.rVar = rVar;
+        this.rightExpression = rExp;
     }
 
     public boolean Evaluate(ExecutionContext ctx) {
-        if (lVar.GetOriginalValue().isEmpty() || rVar.GetOriginalValue().isEmpty()) {
+        if (leftExpression.isEmpty() || rightExpression.isEmpty()) {
             return false;
         }
-        Object leftObj = lVar.GetResolvedValue(ctx);
-        Object rightObj = rVar.GetResolvedValue(ctx);
 
-        double lNum = 0, rNum = 0;
-        boolean isNumeric = false;
+        Object leftObj = ExpressionEvaluator.evaluate(leftExpression, ctx);
+        Object rightObj = ExpressionEvaluator.evaluate(rightExpression, ctx);
 
-        try {
-            lNum = Double.parseDouble(leftObj.toString());
-            rNum = Double.parseDouble(rightObj.toString());
-            isNumeric = true;
-        } catch (NumberFormatException e) {
-            isNumeric = false;
-        }
+        boolean areNumbers = (leftObj instanceof Number) && (rightObj instanceof Number);
+        double lNum = areNumbers ? ((Number) leftObj).doubleValue() : 0;
+        double rNum = areNumbers ? ((Number) rightObj).doubleValue() : 0;
 
-        return switch (op) {
+        return switch (op)
+        {
             case EQUALS -> {
-                if (isNumeric) yield Math.abs(lNum - rNum) < 0.0001;
-                yield leftObj.equals(rightObj);
+                if (areNumbers) yield Math.abs(lNum - rNum) < 0.0001;
+                yield leftObj.toString().equals(rightObj.toString());
             }
             case DIFFERENT -> {
-                if (isNumeric) yield 0.0001 < Math.abs(lNum - rNum);
-                yield !leftObj.equals(rightObj);
+                if (areNumbers) yield 0.0001 < Math.abs(lNum - rNum);
+                yield !leftObj.toString().equals(rightObj.toString());
             }
-            case LESS_THAN -> isNumeric && lNum < rNum;
-            case GREATER_THAN -> isNumeric && lNum > rNum;
+            case LESS_THAN -> areNumbers && lNum < rNum;
+            case GREATER_THAN -> areNumbers && lNum > rNum;
             default -> false;
         };
+    }
+
+    // Save NBT stuff
+    public NbtCompound toNbt() {
+        NbtCompound nbt = new NbtCompound();
+        nbt.putString("left", leftExpression);
+        nbt.putString("op", op.name());
+        nbt.putString("right", rightExpression);
+        return nbt;
+    }
+
+    public void loadNbt(NbtCompound nbt) {
+        this.leftExpression = nbt.getString("left");
+        this.op = ComparisonOperator.valueOf(nbt.getString("op"));
+        this.rightExpression = nbt.getString("right");
     }
 }

@@ -1,5 +1,7 @@
 package net.linkdarkar.testmod.screen.custom;
 
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.linkdarkar.testmod.scripting.*;
 import net.linkdarkar.testmod.scripting.enums.ComparisonOperator;
 import net.linkdarkar.testmod.scripting.instructions.*;
@@ -9,12 +11,15 @@ import net.minecraft.client.gui.screen.ingame.InventoryScreen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.text.Text;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class ScriptingScreen extends Screen {
+    private final UUID entityUuid;
     public ScriptBuilder builder;
 
     private final int START_Y = 20;
@@ -28,9 +33,17 @@ public class ScriptingScreen extends Screen {
 
     private record PlacedWidget(ClickableWidget widget, int originalY) {}
 
-    public ScriptingScreen() {
+    public ScriptingScreen(UUID entityUuid) {
         super(Text.literal("opens scripting screen"));
-        this.builder = new ScriptBuilder();
+        this.entityUuid = entityUuid;
+
+        ScriptBuilder existing = ScriptActorManager.getInstance().getBuilder(entityUuid);
+        if (existing != null) {
+            this.builder = existing;
+        } else {
+            this.builder = new ScriptBuilder();
+            ScriptActorManager.getInstance().saveBuilder(this.entityUuid, this.builder);
+        }
     }
 
     @Override
@@ -219,23 +232,25 @@ public class ScriptingScreen extends Screen {
         if (cond == null) return;
         final ScriptCondition finalCond = cond;
 
-        // Left Variable
-        TextFieldWidget leftField = new TextFieldWidget(this.textRenderer, startX + 40, y, 50, 20, Text.literal(""));
-        leftField.setText(cond.lVar.GetOriginalValue());
-        leftField.setChangedListener(text -> finalCond.lVar.UpdateValue(text));
+        // Left Expression Field (Slightly wider for math: 60px)
+        TextFieldWidget leftField = new TextFieldWidget(this.textRenderer, startX + 40, y, 60, 20, Text.literal(""));
+        leftField.setText(cond.leftExpression);
+        leftField.setChangedListener(text -> finalCond.leftExpression = text);
         addScrollableChild(leftField, y);
 
         // Operator Button
+        // Positioned after LeftField (40 + 60 + 5 padding = 105)
         ButtonWidget opButton = ButtonWidget.builder(Text.literal(getOpSymbol(cond.op)), button -> {
             finalCond.op = nextOperator(finalCond.op);
             button.setMessage(Text.literal(getOpSymbol(finalCond.op)));
-        }).dimensions(startX + 95, y, 25, 20).build();
+        }).dimensions(startX + 105, y, 25, 20).build();
         addScrollableChild(opButton, y);
 
-        // Right Variable
-        TextFieldWidget rightField = new TextFieldWidget(this.textRenderer, startX + 125, y, 50, 20, Text.literal(""));
-        rightField.setText(cond.rVar.GetOriginalValue());
-        rightField.setChangedListener(text -> finalCond.rVar.UpdateValue(text));
+        // Right Expression Field
+        // Positioned after OpButton (105 + 25 + 5 padding = 135)
+        TextFieldWidget rightField = new TextFieldWidget(this.textRenderer, startX + 135, y, 60, 20, Text.literal(""));
+        rightField.setText(cond.rightExpression);
+        rightField.setChangedListener(text -> finalCond.rightExpression = text);
         addScrollableChild(rightField, y);
     }
     private void createMathSimpleWidgets(InstructionMathSimple line, int y, int startX) {
@@ -474,5 +489,12 @@ public class ScriptingScreen extends Screen {
         }
 
         return super.keyPressed(keyCode, scanCode, modifiers);
+    }
+
+    @Override
+    public void close() {
+        ScriptActorManager.getInstance().saveBuilder(entityUuid, this.builder);
+
+        super.close();
     }
 }
