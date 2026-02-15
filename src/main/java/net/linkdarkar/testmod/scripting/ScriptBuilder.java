@@ -2,15 +2,23 @@ package net.linkdarkar.testmod.scripting;
 
 import net.linkdarkar.testmod.scripting.enums.MathOperator;
 import net.linkdarkar.testmod.scripting.instructions.*;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.nbt.NbtCompound;
 
 public class ScriptBuilder {
+    public LivingEntity entity;
     public ScriptBlock mainScript = new ScriptBlock();
 
     public ScriptBlock parentBlockOfSelection;
     public ScriptLine selectedLine;
 
     public ScriptBuilder() {
+        entity = null;
+        parentBlockOfSelection = mainScript;
+        selectedLine = null;
+    }
+    public ScriptBuilder(LivingEntity entity) {
+        this.entity = entity;
         parentBlockOfSelection = mainScript;
         selectedLine = null;
     }
@@ -68,13 +76,19 @@ public class ScriptBuilder {
     }
 
     public void AddIf() {
-        InstructionIF instr = new InstructionIF();
-        Insert(instr);
+        Insert(new InstructionIF());
     }
 
     public void AddWhile() {
-        InstructionWHILE instr = new InstructionWHILE();
-        Insert(instr);
+        Insert(new InstructionWHILE());
+    }
+
+    public void AddFollowEntity() {
+        Insert(new InstructionEntity_FollowEntity());
+    }
+
+    public void AddPlaceBlock() {
+        Insert(new InstructionBlock_Place("0", "0", "0"));
     }
 
     public void DeleteSelected() {
@@ -83,7 +97,7 @@ public class ScriptBuilder {
         int index = parentBlockOfSelection.blockLines.indexOf(selectedLine);
         parentBlockOfSelection.blockLines.remove(selectedLine);
 
-        if (index > 0) {
+        if (0 < index) {
             Select(parentBlockOfSelection, parentBlockOfSelection.blockLines.get(index - 1));
         } else {
             selectedLine = null;
@@ -93,7 +107,7 @@ public class ScriptBuilder {
     public void MoveUp() {
         if (selectedLine == null || parentBlockOfSelection == null) return;
         int index = parentBlockOfSelection.blockLines.indexOf(selectedLine);
-        if (index > 0) {
+        if (0 < index) {
             ScriptLine temp = parentBlockOfSelection.blockLines.remove(index);
             parentBlockOfSelection.blockLines.add(index - 1, temp);
         }
@@ -115,12 +129,12 @@ public class ScriptBuilder {
         // Find the parent of the current parentBlock
         ScriptBlock grandParent = FindParentBlock(mainScript, parentBlockOfSelection);
         if (grandParent != null) {
-            // Find where the current parentBlock is located in the grandparent
+            // Finds where the current parentBlock is located in the grandparent
             // We need to find the Instruction (IF/WHILE) that owns the current block
             ScriptLine ownerInstruction = FindInstructionOwningBlock(grandParent, parentBlockOfSelection);
             int ownerIndex = grandParent.blockLines.indexOf(ownerInstruction);
 
-            // Move selected line to grandparent
+            // Moves selected line to grandparent
             parentBlockOfSelection.blockLines.remove(selectedLine);
             grandParent.blockLines.add(ownerIndex + 1, selectedLine);
 
@@ -132,7 +146,7 @@ public class ScriptBuilder {
         if (selectedLine == null || parentBlockOfSelection == null) return;
         int index = parentBlockOfSelection.blockLines.indexOf(selectedLine);
 
-        if (index > 0) {
+        if (0 < index) {
             ScriptLine prevLine = parentBlockOfSelection.blockLines.get(index - 1);
             ScriptBlock targetBlock = null;
 

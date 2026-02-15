@@ -27,4 +27,15 @@ public final class FunctionCaller {
         return true;
     }
 
+    public static boolean follow(Entity followerEntity, Entity targetEntity, double speed) {
+
+        if (!(followerEntity instanceof MobEntity mobEntity)) return false;
+        if (!(targetEntity instanceof LivingEntity target)) return false;
+        if(!(target.isAlive())) return false;
+
+        MobEntityAccessor mobEntityAccessor = (MobEntityAccessor) followerEntity;
+        mobEntityAccessor.getGoalSelector().add(1, new FollowEntityGoal(mobEntity, target, speed));
+        return true;
+    }
+
 }

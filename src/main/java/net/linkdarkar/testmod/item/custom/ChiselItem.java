@@ -72,62 +72,72 @@ public class ChiselItem extends Item {
 
     @Override
     public ActionResult useOnEntity(ItemStack stack, PlayerEntity user, LivingEntity entity, Hand hand) {
-        MinecraftClient client = MinecraftClient.getInstance();
-        ClientPlayerEntity player = client.player;
+        World world = user.getWorld();
 
+        // Things like opening the screen must happen only if it's the client
+        if (world.isClient()) {
+            MinecraftClient client = MinecraftClient.getInstance();
 
-        if (player != null && entity.isAlive()) {
-            player.sendMessage(Text.literal("Entity UUID >> "+ entity.getUuidAsString()));
+            if (user.isSneaking() && entity.isAlive()) {
+                // Should call this to avoid crash
+                client.execute(() -> {
+                    client.setScreen(new ScriptingScreen(entity));
+                });
+                return ActionResult.SUCCESS;
+            }
+            return ActionResult.PASS;
+        }
+
+        // (Everything below this point only runs on the Server)
+
+        if (entity.isAlive()) {
+            // user.sendMessage(Text.literal("Entity UUID >> " + entity.getUuidAsString()));
             entity.setGlowing(false);
-            if (player.isSneaking()) {
-                player.sendMessage(Text.literal("AAAAA"));
-                // sets screen to programming shit
-                client.setScreen(new ScriptingScreen(entity.getUuid()));
+
+            if (user.isSneaking()) {
                 return ActionResult.SUCCESS;
             }
 
             if (entity instanceof MobEntity mobEntity) {
-                player.sendMessage(Text.literal("is path aware"));
+                user.sendMessage(Text.literal("is path aware"));
+
                 if (entity instanceof SheepEntity sheepEntity) {
                     MobEntityAccessor mobEntityAccessor = (MobEntityAccessor) sheepEntity;
                     mobEntityAccessor.getGoalSelector().getGoals().clear();
                     mobEntityAccessor.getTargetSelector().getGoals().clear();
-                    sheepEntity.addStatusEffect(new StatusEffectInstance(StatusEffects.ABSORPTION,999999, 4000));
-                    sheepEntity.addStatusEffect(new StatusEffectInstance(StatusEffects.RESISTANCE, 999999, 200));
-                    user.playSound(SoundEvents.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
 
-                    player.sendMessage(Text.literal("disabled goals and targets"));
+                    sheepEntity.addStatusEffect(new StatusEffectInstance(StatusEffects.ABSORPTION, 999999, 4000));
+                    sheepEntity.addStatusEffect(new StatusEffectInstance(StatusEffects.RESISTANCE, 999999, 200));
+
+                    world.playSound(null, user.getX(), user.getY(), user.getZ(),
+                            SoundEvents.ENTITY_PLAYER_LEVELUP, SoundCategory.PLAYERS, 1.0f, 1.0f);
+
+                    user.sendMessage(Text.literal("disabled goals and targets"));
+                }
+                else if (mobEntity instanceof WolfEntity wolfEntity) {
+                    MobEntityAccessor mobEntityAccessor = (MobEntityAccessor) wolfEntity;
+                    mobEntityAccessor.getGoalSelector().getGoals().clear();
+                    mobEntityAccessor.getGoalSelector().add(10, new LookAroundGoal(wolfEntity));
+
+                    wolfEntity.setAngryAt(null);
+                    wolfEntity.setTarget(null);
+                    wolfEntity.setAttacker(null);
+                    wolfEntity.setAngerTime(0);
+
+                    mobEntityAccessor.getTargetSelector().getGoals().clear();
+
+                    this.setupNavigationFromPointToPointTest(mobEntity);
                 }
                 else {
-                    if (mobEntity instanceof WolfEntity wolfEntity)
-                    {
-                        MobEntityAccessor mobEntityAccessor = (MobEntityAccessor) wolfEntity;
-                        mobEntityAccessor.getGoalSelector().getGoals().clear();
-                        mobEntityAccessor.getGoalSelector().add(10, new LookAroundGoal(wolfEntity));
-
-                        wolfEntity.setAngryAt(null);
-                        wolfEntity.setTarget(null);
-                        wolfEntity.setAttacker(null);
-                        wolfEntity.setAngerTime(0);
-
-                        mobEntityAccessor.getTargetSelector().getGoals().clear();
-
-                        this.setupNavigationFromPointToPointTest(mobEntity);
-                    }
-                    else {
-                        player.sendMessage(Text.literal("NOT WOLF"));
-                    }
+                    user.sendMessage(Text.literal("NOT WOLF"));
                 }
+            } else {
+                user.sendMessage(Text.literal("is NOT path aware"));
             }
-            else {
-                player.sendMessage(Text.literal("is NOT path aware"));
-            }
-        }
-        else if (!entity.isAlive()) {
-            player.sendMessage(Text.literal("is NOT alive???"));
+        } else {
+            user.sendMessage(Text.literal("is NOT alive???"));
         }
 
-        // return super.useOnEntity(stack, user, entity, hand);
         return ActionResult.SUCCESS;
     }
 
