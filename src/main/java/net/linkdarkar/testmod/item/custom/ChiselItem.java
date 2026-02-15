@@ -3,6 +3,7 @@ package net.linkdarkar.testmod.item.custom;
 import net.linkdarkar.testmod.block.ModBlocks;
 import net.linkdarkar.testmod.mixin.MobEntityAccessor;
 import net.linkdarkar.testmod.screen.custom.ScriptingScreen;
+import net.linkdarkar.testmod.scripting.functionCaller.FunctionCaller;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.MinecraftClient;
@@ -31,6 +32,7 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Pair;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
@@ -106,13 +108,16 @@ public class ChiselItem extends Item {
                     mobEntityAccessor.getGoalSelector().getGoals().clear();
                     mobEntityAccessor.getTargetSelector().getGoals().clear();
 
-                    sheepEntity.addStatusEffect(new StatusEffectInstance(StatusEffects.ABSORPTION, 999999, 4000));
-                    sheepEntity.addStatusEffect(new StatusEffectInstance(StatusEffects.RESISTANCE, 999999, 200));
+//                    sheepEntity.addStatusEffect(new StatusEffectInstance(StatusEffects.ABSORPTION, 999999, 4000));
+//                    sheepEntity.addStatusEffect(new StatusEffectInstance(StatusEffects.RESISTANCE, 999999, 200));
 
                     world.playSound(null, user.getX(), user.getY(), user.getZ(),
                             SoundEvents.ENTITY_PLAYER_LEVELUP, SoundCategory.PLAYERS, 1.0f, 1.0f);
 
-                    user.sendMessage(Text.literal("disabled goals and targets"));
+//                    user.sendMessage(Text.literal("disabled goals and targets"));
+                    user.sendMessage(Text.literal("Setting 39a08231-a22e-467f-902b-3d6759d35461 to follow 5389ae3c-4ef9-4d3d-b7a4-a24c183c5fec"));
+//                    FunctionCaller.follow((ServerWorld) world, UUID.fromString("39a08231-a22e-467f-902b-3d6759d35461"), UUID.fromString("5389ae3c-4ef9-4d3d-b7a4-a24c183c5fec"), 1);
+                    FunctionCaller.breakBlock((ServerWorld) world, UUID.fromString("39a08231-a22e-467f-902b-3d6759d35461"), new BlockPos(-1, -60, -1));
                 }
                 else if (mobEntity instanceof WolfEntity wolfEntity) {
                     MobEntityAccessor mobEntityAccessor = (MobEntityAccessor) wolfEntity;

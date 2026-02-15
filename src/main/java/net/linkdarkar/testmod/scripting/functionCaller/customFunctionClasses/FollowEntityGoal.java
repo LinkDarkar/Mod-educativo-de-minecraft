@@ -17,12 +17,22 @@ public class FollowEntityGoal extends Goal {
 
     @Override
     public boolean canStart() {
-        return this.target.isAlive() && this.mobEntity.squaredDistanceTo(target) > 4.0;
+        return this.target.isAlive() && this.mobEntity.squaredDistanceTo(target) > 7.0;
+    }
+    @Override
+    public boolean shouldContinue() {
+        return this.target.isAlive() && this.mobEntity.squaredDistanceTo(target) > 7.0;
+    }
+
+    @Override
+    public void stop() {
+        mobEntity.getNavigation().stop();
     }
 
     @Override
     public void tick() {
         this.mobEntity.getLookControl().lookAt(this.target, 10.0f, this.mobEntity.getMaxLookPitchChange());
         this.mobEntity.getNavigation().startMovingTo(this.target, speed);
+        System.out.println("squared distance to target: "+ this.mobEntity.squaredDistanceTo(target));
     }
 }
