@@ -24,10 +24,6 @@ public class ScriptBlock extends ScriptLine {
         return "BLOCK";
     }
 
-    public void ExecuteLines (ExecutionContext context) {
-        this.Execute(context);
-    }
-
     // NBT stuff
     @Override
     protected String getTypeID() {

@@ -2,6 +2,7 @@ package net.linkdarkar.testmod.screen.custom;
 
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.linkdarkar.testmod.networking.ModNetworking;
 import net.linkdarkar.testmod.scripting.*;
 import net.linkdarkar.testmod.scripting.enums.ComparisonOperator;
 import net.linkdarkar.testmod.scripting.instructions.*;
@@ -11,15 +12,22 @@ import net.minecraft.client.gui.screen.ingame.InventoryScreen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.network.PacketByteBuf;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.Text;
+import net.minecraft.item.ItemStack;
+import net.linkdarkar.testmod.networking.ModNetworking.ExecuteOncePayload;
+import net.linkdarkar.testmod.networking.ModNetworking.SetTickingPayload;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 public class ScriptingScreen extends Screen {
     private final UUID entityUuid;
+    private final LivingEntity entity;
     public ScriptBuilder builder;
 
     private final int START_Y = 20;
@@ -33,15 +41,16 @@ public class ScriptingScreen extends Screen {
 
     private record PlacedWidget(ClickableWidget widget, int originalY) {}
 
-    public ScriptingScreen(UUID entityUuid) {
+    public ScriptingScreen(LivingEntity entity) {
         super(Text.literal("opens scripting screen"));
-        this.entityUuid = entityUuid;
+        this.entity = entity;
+        this.entityUuid = entity.getUuid();
 
         ScriptBuilder existing = ScriptActorManager.getInstance().getBuilder(entityUuid);
         if (existing != null) {
             this.builder = existing;
         } else {
-            this.builder = new ScriptBuilder();
+            this.builder = new ScriptBuilder(entity);
             ScriptActorManager.getInstance().saveBuilder(this.entityUuid, this.builder);
         }
     }
@@ -80,18 +89,85 @@ public class ScriptingScreen extends Screen {
             this.rebuildUI();
         }).dimensions(leftOffset, btnY + 75, btnWidth, 20).build());
 
-        // EXECUTE
-        this.addDrawableChild(ButtonWidget.builder(Text.literal("EXECUTE"), b -> {
-            ExecutionContext ctx = new ExecutionContext();
-            this.builder.GetScript().Execute(ctx);
-            this.close();
+        // ADD FOLLOW_ENTITY
+        this.addDrawableChild(ButtonWidget.builder(Text.literal("Follow Entity"), b -> {
+            this.builder.AddFollowEntity();
+            this.rebuildUI();
         }).dimensions(leftOffset, btnY + 100, btnWidth, 20).build());
+
+        // ADD PLACE_BLOCK
+        this.addDrawableChild(ButtonWidget.builder(Text.literal("Place Block"), b -> {
+            this.builder.AddPlaceBlock();
+            this.rebuildUI();
+        }).dimensions(leftOffset, btnY + 125, btnWidth, 20).build());
+
+        // EXECUTE ONCE
+        this.addDrawableChild(ButtonWidget.builder(Text.literal("EXECUTE ONCE"), b -> {
+            NbtCompound scriptNbt = this.builder.toNbt();
+
+            // New way: Send the object directly
+            ClientPlayNetworking.send(new ExecuteOncePayload(this.entityUuid, scriptNbt));
+
+            this.close();
+        }).dimensions(leftOffset, btnY + 150, btnWidth, 20).build());
+
+        // START LOOP
+        this.addDrawableChild(ButtonWidget.builder(Text.literal("START LOOP"), b -> {
+            NbtCompound scriptNbt = this.builder.toNbt();
+
+            // New way: Send the object directly
+            ClientPlayNetworking.send(new SetTickingPayload(this.entityUuid, true, scriptNbt));
+
+            this.close();
+        }).dimensions(leftOffset, btnY + 175, btnWidth, 20).build());
+
+        // STOP LOOP
+        this.addDrawableChild(ButtonWidget.builder(Text.literal("STOP LOOP"), b -> {
+            // New way: Send the object directly (sending empty NBT since we are stopping)
+            ClientPlayNetworking.send(new SetTickingPayload(this.entityUuid, false, new NbtCompound()));
+
+            this.close();
+        }).dimensions(leftOffset, btnY + 200, btnWidth, 20).build());
+
+        // UUID stuff
+        // ------------------------------
+
+        List<String> entityUUIDs = scanInventoryForEntityUUIDs();
+
+        int listX = this.width - 110;
+        int listY = 40;
+
+        this.addDrawableChild(ButtonWidget.builder(Text.literal("UUIDs in Inventory"), b -> {})
+                .dimensions(listX, 20, 100, 20).build()).active = false; // Inactive button acts as a label
+
+        for (String uuidStr : entityUUIDs) {
+            String labelText;
+            Entity entity = findEntityByUUID(uuidStr);
+
+            if (entity != null) {
+                String type = entity.getType().getName().getString(); // e.g. "Sheep"
+
+                if (entity.hasCustomName()) {
+                    labelText = Objects.requireNonNull(entity.getCustomName()).getString() + " (" + type + ")";
+                } else {
+                    labelText = type + " " + uuidStr.substring(0, 4) + "..";
+                }
+            } else {
+                labelText = "Unknown " + uuidStr.substring(0, 8) + "..";
+            }
+
+            // Create the button with the new label
+            this.addDrawableChild(ButtonWidget.builder(Text.literal(labelText), b -> {
+                insertUUID(uuidStr);
+            }).dimensions(listX, listY, 100, 20).build());
+
+            listY += 25;
+        }
 
         int finalY = generateWidgetsRecursive(this.builder.GetScript(), START_Y, 0);
 
         this.contentHeight = finalY - START_Y;
 
-        // Apply the current scroll immediately to position widgets correctly
         updateScroll();
     }
     private void rebuildUI() {
@@ -137,10 +213,10 @@ public class ScriptingScreen extends Screen {
     }
 
     private int generateWidgetsRecursive(ScriptBlock block, int currentY, int indent) {
-        for (ScriptLine line : block.blockLines) {
-            int baseX = SCRIPT_X + (indent * 20);
+        int contentStartX = SCRIPT_X + (indent * 20);
 
-            int contentStartX = baseX;
+        for (ScriptLine line : block.blockLines) {
+
 
             if (builder.selectedLine == line) {
                 createSelectionButtons(currentY);
@@ -162,10 +238,17 @@ public class ScriptingScreen extends Screen {
             } else if (line instanceof InstructionPrint printLine) {
                 createPrintWidgets(printLine, currentY, contentStartX);
                 currentY += LINE_HEIGHT;
+            } else if (line instanceof InstructionEntity_FollowEntity followLine) {
+                createFollowEntityWidgets(followLine, currentY, contentStartX);
+                currentY += LINE_HEIGHT;
+            } else if (line instanceof InstructionBlock_Place placeLine) {
+                createPlaceBlockWidgets(placeLine, currentY, contentStartX);
+                currentY += LINE_HEIGHT;
             }
         }
         return currentY;
     }
+
     private void createPrintWidgets(InstructionPrint line, int y, int startX) {
         TextFieldWidget msgField = new TextFieldWidget(this.textRenderer, startX + 40, y, 150, 20, Text.literal(""));
         msgField.setText(line.message);
@@ -189,10 +272,41 @@ public class ScriptingScreen extends Screen {
         exprField.setChangedListener(text -> line.expression = text);
         addScrollableChild(exprField, y);
     }
+
+    private void createPlaceBlockWidgets(InstructionBlock_Place line, int y, int startX) {
+        int fieldWidth = 35;
+        int gap = 5;
+
+        int currentX = startX + 40;
+
+        // X Field
+        TextFieldWidget xField = new TextFieldWidget(this.textRenderer, currentX, y, fieldWidth, 20, Text.literal(""));
+        xField.setText(line.xExp);
+        xField.setChangedListener(text -> line.xExp = text);
+        addScrollableChild(xField, y);
+
+        currentX += fieldWidth + gap;
+
+        // Y Field
+        TextFieldWidget yField = new TextFieldWidget(this.textRenderer, currentX, y, fieldWidth, 20, Text.literal(""));
+        yField.setText(line.yExp);
+        yField.setChangedListener(text -> line.yExp = text);
+        addScrollableChild(yField, y);
+
+        currentX += fieldWidth + gap;
+
+        // Z Field
+        TextFieldWidget zField = new TextFieldWidget(this.textRenderer, currentX, y, fieldWidth, 20, Text.literal(""));
+        zField.setText(line.zExp);
+        zField.setChangedListener(text -> line.zExp = text);
+        addScrollableChild(zField, y);
+    }
+
     private <T extends ClickableWidget> void addScrollableChild(T widget, int originalY) {
         this.addDrawableChild(widget);
         this.scrollableWidgets.add(new PlacedWidget(widget, originalY));
     }
+
     private void createSelectionButtons(int y) {
         int navX = 80;
         int navW = 20;
@@ -263,6 +377,14 @@ public class ScriptingScreen extends Screen {
         valueField.setText(line.right.GetOriginalValue());
         valueField.setChangedListener(text -> line.right.UpdateValue(text));
         addScrollableChild(valueField, y);
+    }
+    private void createFollowEntityWidgets(InstructionEntity_FollowEntity line, int y, int startX) {
+        int labelWidth = 85;
+
+        TextFieldWidget targetField = new TextFieldWidget(this.textRenderer, startX + labelWidth, y, 100, 20, Text.literal(""));
+        targetField.setText(line.targetUUID);
+        targetField.setChangedListener(text -> line.targetUUID = text);
+        addScrollableChild(targetField, y);
     }
     private ComparisonOperator nextOperator(ComparisonOperator current) {
         int nextOrdinal = (current.ordinal() + 1) % ComparisonOperator.values().length;
@@ -354,7 +476,7 @@ public class ScriptingScreen extends Screen {
             int textY = currentY + 6;
 
             // Safety check to ensure we don't render text off-screen
-            if (textY > 0 && textY < this.height) {
+            if (0 < textY && textY < this.height) {
                 if (line instanceof InstructionIF) {
                     context.drawTextWithShadow(this.textRenderer, "IF", SCRIPT_X + xOffset, textY, 0xFF0000);
                 } else if (line instanceof InstructionWHILE) {
@@ -365,10 +487,13 @@ public class ScriptingScreen extends Screen {
                     context.drawTextWithShadow(this.textRenderer, "=", SCRIPT_X + xOffset + extraPadding, textY, 0xFFFFFF);
                 } else if (line instanceof InstructionPrint) {
                     context.drawTextWithShadow(this.textRenderer, "PRINT", SCRIPT_X + xOffset, textY, 0xAAAAAA);
+                } else if (line instanceof InstructionEntity_FollowEntity) {
+                    context.drawTextWithShadow(this.textRenderer, "FollowEntity", SCRIPT_X + xOffset, textY, 0x55FFFF);
+                } else if (line instanceof InstructionBlock_Place) {
+                    context.drawTextWithShadow(this.textRenderer, "Place", SCRIPT_X + xOffset, textY, 0x55FFFF);
                 }
             }
 
-            // increment Y for the current line
             currentY += LINE_HEIGHT;
 
             if (line instanceof InstructionIF) {
@@ -496,5 +621,72 @@ public class ScriptingScreen extends Screen {
         ScriptActorManager.getInstance().saveBuilder(entityUuid, this.builder);
 
         super.close();
+    }
+
+    // UUID AND INVENTORY STUFF
+
+    private Entity findEntityByUUID(String uuidString) {
+        if (this.client == null || this.client.world == null) return null;
+
+        try {
+            UUID uuid = UUID.fromString(uuidString);
+            for (Entity entity : this.client.world.getEntities()) {
+                if (entity.getUuid().equals(uuid)) {
+                    return entity;
+                }
+            }
+        } catch (IllegalArgumentException e) {
+            // Invalid UUID string
+            return null;
+        }
+        // Entity not found or not loaded on client
+        return null;
+    }
+
+    private List<String> scanInventoryForEntityUUIDs() {
+        List<String> foundUUIDs = new ArrayList<>();
+        if (this.client == null || this.client.player == null) return foundUUIDs;
+
+        for (ItemStack stack : this.client.player.getInventory().main) {
+            if (stack.isEmpty()) continue;
+
+            String name = stack.getName().getString();
+
+            // Check if the name is a valid UUID
+            try {
+                UUID.fromString(name);
+                // If no exception was thrown, it's valid
+                if (!foundUUIDs.contains(name)) {
+                    foundUUIDs.add(name);
+                }
+            } catch (IllegalArgumentException e) {
+                // Not a UUID, ignore this item
+            }
+        }
+        return foundUUIDs;
+    }
+
+    // puts the clicked entity into the function
+    private void insertUUID(String uuid) {
+        String formattedUUID = "\"" + uuid + "\"";
+
+        // Scenario 1: User has a specific Text Field focused
+        if (this.getFocused() instanceof TextFieldWidget tf) {
+            tf.write(formattedUUID);
+            return;
+        }
+
+        // Scenario 2: User has a line selected in the script
+        if (builder.selectedLine != null) {
+            if (builder.selectedLine instanceof InstructionEntity_FollowEntity followInstr) {
+                followInstr.targetUUID = formattedUUID;
+                this.rebuildUI();
+            }
+            // TODO: Other future instructions
+            else if (builder.selectedLine instanceof InstructionMath mathInstr) {
+                mathInstr.expression = formattedUUID;
+                this.rebuildUI();
+            }
+        }
     }
 }

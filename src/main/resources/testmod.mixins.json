@@ -4,7 +4,8 @@
 	"compatibilityLevel": "JAVA_21",
 	"mixins": [
 		"ExampleMixin",
-        "MobEntityAccessor"
+        "MobEntityAccessor",
+        "MobEntityScriptingMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

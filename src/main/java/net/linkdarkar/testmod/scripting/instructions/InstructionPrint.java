@@ -2,8 +2,10 @@ package net.linkdarkar.testmod.scripting.instructions;
 
 import net.linkdarkar.testmod.scripting.*;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.Text;
+import net.minecraft.world.World;
 
 public class InstructionPrint extends ScriptLine {
     public String message;
@@ -46,6 +48,21 @@ public class InstructionPrint extends ScriptLine {
 
         if (MinecraftClient.getInstance().player != null) {
             MinecraftClient.getInstance().player.sendMessage(Text.literal(finalMsg), false);
+        }
+
+        if (context.executorEntity != null)
+        {
+            World world = context.executorEntity.getWorld();
+
+            if (!world.isClient)
+            {
+                Text textObj = Text.literal((finalMsg));
+
+                for (PlayerEntity player : world.getPlayers())
+                {
+                    player.sendMessage(textObj, false);
+                }
+            }
         }
     }
 
