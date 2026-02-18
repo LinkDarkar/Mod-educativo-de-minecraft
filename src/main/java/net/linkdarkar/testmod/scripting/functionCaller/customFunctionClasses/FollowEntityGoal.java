@@ -1,5 +1,6 @@
 package net.linkdarkar.testmod.scripting.functionCaller.customFunctionClasses;
 
+import net.linkdarkar.testmod.TestMod;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.mob.MobEntity;
@@ -33,6 +34,6 @@ public class FollowEntityGoal extends Goal {
     public void tick() {
         this.mobEntity.getLookControl().lookAt(this.target, 10.0f, this.mobEntity.getMaxLookPitchChange());
         this.mobEntity.getNavigation().startMovingTo(this.target, speed);
-        System.out.println("squared distance to target: "+ this.mobEntity.squaredDistanceTo(target));
+        TestMod.LOGGER.info("squared distance to target: "+ this.mobEntity.squaredDistanceTo(target));
     }
 }

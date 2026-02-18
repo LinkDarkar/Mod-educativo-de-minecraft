@@ -1,5 +1,6 @@
 package net.linkdarkar.testmod.scripting;
 
+import net.linkdarkar.testmod.TestMod;
 import net.linkdarkar.testmod.scripting.instructions.*;
 import net.minecraft.nbt.NbtCompound;
 
@@ -30,13 +31,17 @@ public abstract class ScriptLine {
             case "MATH" -> new InstructionMath();
             case "MATH_SIMPLE" -> new InstructionMathSimple();
             case "PRINT" -> new InstructionPrint();
-            case "FOLLOW_ENTITY" -> new InstructionEntity_FollowEntity();
+            case "E_FOLLOW_ENTITY" -> new InstructionEntity_FollowEntity();
             // TODO: Add other cases here
             default -> null;
         };
 
         if (line != null) {
             line.loadNbt(nbt);
+        }
+        else
+        {
+            TestMod.LOGGER.info("Failed to load from NBT, type not recognized.");
         }
         return line;
     }

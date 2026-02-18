@@ -1,5 +1,6 @@
 package net.linkdarkar.testmod.mixin;
 
+import net.linkdarkar.testmod.TestMod;
 import net.linkdarkar.testmod.scripting.*;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
@@ -26,13 +27,13 @@ public abstract class MobEntityScriptingMixin extends LivingEntity implements IS
     @Override
     public void setStoredScript(ScriptBlock script) {
         this.storedScript = script;
-        System.out.println("Mixin: Script stored on " + this.getUuidAsString());
+        TestMod.LOGGER.info("Mixin: Script stored on " + this.getUuidAsString());
     }
 
     @Override
     public void setScriptRunning(boolean running) {
         this.isScriptRunning = running;
-        System.out.println("Mixin: ticking set to " + running);
+        TestMod.LOGGER.info("Mixin: ticking set to " + running);
     }
 
     @Override

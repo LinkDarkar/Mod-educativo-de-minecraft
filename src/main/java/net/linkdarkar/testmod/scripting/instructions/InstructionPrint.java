@@ -46,9 +46,9 @@ public class InstructionPrint extends ScriptLine {
             finalMsg = "Error: " + e.getMessage();
         }
 
-        if (MinecraftClient.getInstance().player != null) {
-            MinecraftClient.getInstance().player.sendMessage(Text.literal(finalMsg), false);
-        }
+        // if (MinecraftClient.getInstance().player != null) {
+        //     MinecraftClient.getInstance().player.sendMessage(Text.literal(finalMsg), false);
+        // }
 
         if (context.executorEntity != null)
         {

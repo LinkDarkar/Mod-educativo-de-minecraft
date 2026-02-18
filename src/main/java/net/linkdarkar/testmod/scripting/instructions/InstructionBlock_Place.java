@@ -1,5 +1,6 @@
 package net.linkdarkar.testmod.scripting.instructions;
 
+import net.linkdarkar.testmod.TestMod;
 import net.linkdarkar.testmod.scripting.*;
 import net.minecraft.block.Blocks;
 import net.minecraft.nbt.NbtCompound;
@@ -48,10 +49,10 @@ public class InstructionBlock_Place extends ScriptLine {
             // The flag '3' means: Update neighbors (1) + Notify clients (2)
             world.setBlockState(pos, Blocks.GRASS_BLOCK.getDefaultState(), 3);
 
-            System.out.println("Placed block");
+            TestMod.LOGGER.info("Placed block");
 
         } catch (Exception e) {
-            System.err.println("Failed to place block: " + e.getMessage());
+            TestMod.LOGGER.info("Failed to place block: " + e.getMessage());
         }
     }
 

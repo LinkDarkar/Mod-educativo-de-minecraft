@@ -1,5 +1,6 @@
 package net.linkdarkar.testmod.scripting.instructions;
 
+import net.linkdarkar.testmod.TestMod;
 import net.linkdarkar.testmod.scripting.*;
 import net.linkdarkar.testmod.scripting.functionCaller.FunctionCaller;
 import net.minecraft.client.MinecraftClient;
@@ -17,6 +18,11 @@ public class InstructionEntity_FollowEntity extends ScriptLine {
 
     public InstructionEntity_FollowEntity() {
         this.color = 0x999999;
+        this.targetUUID = "";
+    }
+    public InstructionEntity_FollowEntity(String target) {
+        this.color = 0x999999;
+        this.targetUUID = target;
     }
 
     @Override
@@ -26,22 +32,30 @@ public class InstructionEntity_FollowEntity extends ScriptLine {
 
     @Override
     public void Execute(ExecutionContext context) {
+        if (targetUUID == null || targetUUID.isEmpty()) return;
+
+        TestMod.LOGGER.info("Executing Follow Entity Instruction...");
 
         World world = context.executorEntity.getWorld();
-        System.out.println("Trying to follow");
-        if (world instanceof ServerWorld serverWorld)
-        {
-            System.out.println("Following");
-            FunctionCaller.follow(serverWorld, context.executorEntity.getUuid(), UUID.fromString(targetUUID), 1.0);
+
+        if (world instanceof ServerWorld serverWorld) {
+            try {
+                String cleanUUID = targetUUID.replace("\"", "");
+
+                UUID uuid = UUID.fromString(cleanUUID);
+
+                boolean success = FunctionCaller.follow(serverWorld, context.executorEntity.getUuid(), uuid, 1.0);
+
+                TestMod.LOGGER.info("Follow command sent. Success: {}", success);
+
+            } catch (IllegalArgumentException e) {
+                TestMod.LOGGER.error("Invalid UUID format in script: {}", targetUUID);
+            } catch (Exception e) {
+                TestMod.LOGGER.error("Error executing follow: {}", e.getMessage());
+            }
         }
         else {
-            Entity followedEntity = findEntityByUUID(targetUUID);
-            System.out.println("Checking if entity exists");
-            if (followedEntity != null)
-            {
-                System.out.println("Following");
-                FunctionCaller.follow(context.executorEntity, followedEntity, 1.0);
-            }
+            TestMod.LOGGER.warn("Script tried to run on Client Side. Ignoring.");
         }
     }
 
@@ -69,18 +83,18 @@ public class InstructionEntity_FollowEntity extends ScriptLine {
     // NBT stuff
     @Override
     protected String getTypeID() {
-        return "E_FOLLOW";
+        return "E_FOLLOW_ENTITY";
     }
 
     @Override
     public NbtCompound toNbt() {
         NbtCompound nbt = super.toNbt();
-        nbt.putString("targetUID", targetUUID);
+        nbt.putString("targetUUID", targetUUID != null ? targetUUID : "");
         return nbt;
     }
 
     @Override
     public void loadNbt(NbtCompound nbt) {
-        this.targetUUID = nbt.getString("targetUID");
+        this.targetUUID = nbt.getString("targetUUID");
     }
 }

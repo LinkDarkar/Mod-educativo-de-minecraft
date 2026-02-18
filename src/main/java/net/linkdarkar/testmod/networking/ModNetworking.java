@@ -2,6 +2,7 @@ package net.linkdarkar.testmod.networking;
 
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.linkdarkar.testmod.TestMod;
 import net.linkdarkar.testmod.scripting.*;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.mob.MobEntity;
@@ -22,9 +23,9 @@ public class ModNetworking {
     public record ExecuteOncePayload(UUID entityUuid, NbtCompound scriptNbt) implements CustomPayload {
         public static final CustomPayload.Id<ExecuteOncePayload> ID = new CustomPayload.Id<>(Identifier.of("testmod", "execute_once"));
         public static final PacketCodec<RegistryByteBuf, ExecuteOncePayload> CODEC = PacketCodec.tuple(
-                Uuids.PACKET_CODEC, ExecuteOncePayload::entityUuid,
-                PacketCodecs.NBT_COMPOUND, ExecuteOncePayload::scriptNbt,
-                ExecuteOncePayload::new
+            Uuids.PACKET_CODEC, ExecuteOncePayload::entityUuid,
+            PacketCodecs.NBT_COMPOUND, ExecuteOncePayload::scriptNbt,
+            ExecuteOncePayload::new
         );
         @Override
         public CustomPayload.Id<? extends CustomPayload> getId() { return ID; }
@@ -33,10 +34,10 @@ public class ModNetworking {
     public record SetTickingPayload(UUID entityUuid, boolean shouldRun, NbtCompound scriptNbt) implements CustomPayload {
         public static final CustomPayload.Id<SetTickingPayload> ID = new CustomPayload.Id<>(Identifier.of("testmod", "set_ticking"));
         public static final PacketCodec<RegistryByteBuf, SetTickingPayload> CODEC = PacketCodec.tuple(
-                Uuids.PACKET_CODEC, SetTickingPayload::entityUuid,
-                PacketCodecs.BOOL, SetTickingPayload::shouldRun,
-                PacketCodecs.NBT_COMPOUND, SetTickingPayload::scriptNbt,
-                SetTickingPayload::new
+            Uuids.PACKET_CODEC, SetTickingPayload::entityUuid,
+            PacketCodecs.BOOL, SetTickingPayload::shouldRun,
+            PacketCodecs.NBT_COMPOUND, SetTickingPayload::scriptNbt,
+            SetTickingPayload::new
         );
         @Override
         public CustomPayload.Id<? extends CustomPayload> getId() { return ID; }
@@ -67,21 +68,20 @@ public class ModNetworking {
             context.server().execute(() -> {
                 Entity entity = ((net.minecraft.server.world.ServerWorld) context.player().getWorld()).getEntity(payload.entityUuid());
 
-                if (!(entity instanceof IScriptableEntity)) {
-                    System.out.println("ERROR: Entity " + entity.getName().getString() + " is NOT scriptable! Mixin failed.");
+                if (!(entity instanceof IScriptableEntity scriptable)) {
+                    assert entity != null;
+                    TestMod.LOGGER.info("ERROR: Entity {} is NOT scriptable! Mixin failed.", entity.getName().getString());
                     return;
                 }
 
-                if (entity instanceof IScriptableEntity scriptable) {
-                    if (payload.shouldRun()) {
-                        ScriptBuilder builder = ScriptBuilder.fromNbt(payload.scriptNbt());
-                        scriptable.setStoredScript(builder.GetScript());
-                        scriptable.setScriptRunning(true);
-                        context.player().sendMessage(net.minecraft.text.Text.literal("Script Loop STARTED"), false);
-                    } else {
-                        scriptable.setScriptRunning(false);
-                        context.player().sendMessage(net.minecraft.text.Text.literal("Script Loop STOPPED"), false);
-                    }
+                if (payload.shouldRun()) {
+                    ScriptBuilder builder = ScriptBuilder.fromNbt(payload.scriptNbt());
+                    scriptable.setStoredScript(builder.GetScript());
+                    scriptable.setScriptRunning(true);
+                    context.player().sendMessage(net.minecraft.text.Text.literal("Script Loop STARTED"), false);
+                } else {
+                    scriptable.setScriptRunning(false);
+                    context.player().sendMessage(net.minecraft.text.Text.literal("Script Loop STOPPED"), false);
                 }
             });
         });

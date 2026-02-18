@@ -1,5 +1,6 @@
 package net.linkdarkar.testmod.vn;
 
+import net.linkdarkar.testmod.TestMod;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.sound.SoundEvents;
@@ -26,7 +27,7 @@ public class VisualNovelDialogueScreen extends Screen {
 
     public VisualNovelDialogueScreen() {
         super(Text.literal("Dialogue"));
-        System.out.println("se construye");
+        TestMod.LOGGER.info("se construye");
         this.dialogueData = VisualNovelDialogueLoader.loadDialogue("testDialogue/dialogue_test_01.json");
         for (VisualNovelDialogueData.Node node : dialogueData.Nodes) {
             dialogueNodeMap.put(node.id, node);
@@ -38,7 +39,7 @@ public class VisualNovelDialogueScreen extends Screen {
     protected void init() {
         super.init();
         // this.setupForCurrent();  // this should be the thing that sets up buttons on the screen and stuff? in any case, it is not what draws the dialogue, that goes in render
-        System.out.println("se inicia");
+        TestMod.LOGGER.info("se inicia");
         this.currentNode = this.dialogueData.Nodes.getFirst();
         this.currentPointToStop = this.currentNode.indexOfCharToStop.getFirst();
 
@@ -74,15 +75,15 @@ public class VisualNovelDialogueScreen extends Screen {
         if (this.latestCharIndex < this.currentNode.finalText.length()) {
             if (this.tickCounter % 3 == 0) {
                 // TODO make this configurable
-                // System.out.println("AAAA");
+                // TestMod.LOGGER.info("AAAA");
                 int advance = 1;
 
-                // System.out.println("latestcharhaisnt"+ this.latestCharIndex);
+                // TestMod.LOGGER.info("latestcharhaisnt"+ this.latestCharIndex);
                 this.latestCharIndex = Math.min(
                         Math.min(this.currentNode.finalText.length(), this.currentPointToStop),
                         this.latestCharIndex + advance
                 );
-                // System.out.println("latestcharhaisnt"+ this.latestCharIndex);
+                // TestMod.LOGGER.info("latestcharhaisnt"+ this.latestCharIndex);
 
                 if (latestCharIndex >= this.currentPointToStop) {
                     this.waitingToContinue = true;
@@ -137,12 +138,12 @@ public class VisualNovelDialogueScreen extends Screen {
         if (this.latestCharIndex >= this.currentPointToStop) {
             // TODO fix this because it will break
             if (this.latestCharIndex >= this.currentNode.finalText.length()) {
-                System.out.println("Page end");
+                TestMod.LOGGER.info("Page end");
                 this.advanceNode();
             }
             else
             {
-                System.out.println("Paragraph end");
+                TestMod.LOGGER.info("Paragraph end");
                 this.currentPointToStopIndex += 1;
                 if (this.currentPointToStopIndex < this.currentNode.indexOfCharToStop.size()) {
                     this.currentPointToStop = this.currentNode.indexOfCharToStop.get(this.currentPointToStopIndex);

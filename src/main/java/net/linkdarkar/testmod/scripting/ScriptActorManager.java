@@ -1,6 +1,7 @@
 package net.linkdarkar.testmod.scripting;
 
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
+import net.linkdarkar.testmod.TestMod;
 import net.minecraft.server.world.ServerWorld;
 
 import java.util.HashMap;
@@ -12,7 +13,7 @@ public class ScriptActorManager {
     private static volatile ScriptActorManager instance;
 
     protected ScriptActorManager() {
-        System.out.println("ScriptActorManager initialized.");
+        TestMod.LOGGER.info("ScriptActorManager initialized.");
     }
 
     public static ScriptActorManager getInstance() {
