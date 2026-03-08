@@ -1,0 +1,34 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "question": "¿Qué es un algoritmo?",
+      "type": 1,
+      "verticalLineSpacing": 12,
+      "public int textBoxXPos" : 30,
+      "public int textBoxYPos" : 150,
+      "public int textBoxWidth" : 300,
+      "public int textBoxHeight" : 20
+    },
+    {
+      "id": "q2",
+      "question": "¿Entre qué caracteres deben estar escritos los strings?2",
+      "type": 1,
+      "verticalLineSpacing": 12,
+      "public int textBoxXPos" : 30,
+      "public int textBoxYPos" : 150,
+      "public int textBoxWidth" : 300,
+      "public int textBoxHeight" : 20
+    },
+    {
+      "id": "q3",
+      "question": "¿Cuál es el sentido de la vida?3",
+      "type": 1,
+      "verticalLineSpacing": 12,
+      "public int textBoxXPos" : 30,
+      "public int textBoxYPos" : 150,
+      "public int textBoxWidth" : 300,
+      "public int textBoxHeight" : 20
+    }
+  ]
+}

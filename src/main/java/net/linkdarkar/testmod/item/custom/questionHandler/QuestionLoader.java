@@ -17,7 +17,7 @@ public class QuestionLoader {
 
     public static List<QuestionData> LoadQuestions() {
         try (InputStream stream = QuestionLoader.class.getClassLoader()
-                .getResourceAsStream("assets/testmod/questions/questionsTest.json")) {
+                .getResourceAsStream("assets/testmod/questions/questionsTest_desall.json")) {
             if (stream == null) {
                 throw new RuntimeException("Resource not found!");
             }
@@ -39,5 +39,12 @@ public class QuestionLoader {
 
         Random random = new Random();
         return questionList.get(random.nextInt(questionList.size()));
+    }
+
+    public static QuestionData getQuestion(List<QuestionData> questionList, int index) {
+        if (questionList.isEmpty() || index >= questionList.size())
+            return null;
+
+        return questionList.get(index);
     }
 }
