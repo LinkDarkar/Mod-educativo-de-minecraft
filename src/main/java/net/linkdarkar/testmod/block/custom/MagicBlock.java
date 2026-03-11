@@ -1,7 +1,6 @@
 package net.linkdarkar.testmod.block.custom;
 
 import net.linkdarkar.testmod.item.ModItems;
-import net.linkdarkar.testmod.item.custom.ChiselItem;
 import net.linkdarkar.testmod.screen.custom.QuestionsPopupChiselScreen;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -11,7 +10,6 @@ import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.item.MinecartItem;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.ActionResult;

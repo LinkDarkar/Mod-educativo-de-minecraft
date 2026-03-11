@@ -3,7 +3,6 @@ package net.linkdarkar.testmod.item.custom;
 import net.linkdarkar.testmod.block.ModBlocks;
 import net.linkdarkar.testmod.mixin.MobEntityAccessor;
 import net.linkdarkar.testmod.screen.custom.ScriptingDebugScreen;
-import net.linkdarkar.testmod.screen.custom.ScriptingScreen;
 import net.linkdarkar.testmod.scripting.functionCaller.FunctionCaller;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
@@ -38,11 +37,11 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 import java.util.*;
+public class ScriptingDebugWandItem extends Item {
 
-public class ChiselItem extends Item {
     private List<Pair<String, Vec3d>> mobPositionList = new ArrayList<>();
 
-    public ChiselItem(Settings settings) {
+    public ScriptingDebugWandItem(Settings settings) {
         super(settings);
     }
 
@@ -63,7 +62,7 @@ public class ChiselItem extends Item {
                 {
                     // Should call this to avoid crash
                     client.execute(() -> {
-                        client.setScreen(new ScriptingScreen(entity));
+                        client.setScreen(new ScriptingDebugScreen(entity));
                     });
                     return ActionResult.SUCCESS;
                 }

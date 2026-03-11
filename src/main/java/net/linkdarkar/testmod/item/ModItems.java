@@ -4,6 +4,7 @@ import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.linkdarkar.testmod.TestMod;
 import net.linkdarkar.testmod.item.custom.ChiselItem;
 import net.linkdarkar.testmod.item.custom.QuestionsPopupChiselItem;
+import net.linkdarkar.testmod.item.custom.ScriptingDebugWandItem;
 import net.linkdarkar.testmod.item.custom.UUIDExtractorItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroups;
@@ -16,6 +17,7 @@ public class ModItems {
     public static final Item RAW_PINK_GARNET = registerItem("raw_pink_garnet", new Item (new Item.Settings()));
     public static final Item CHISEL = registerItem("chisel", new ChiselItem (new Item.Settings().maxDamage(128)));
     public static final Item QUESTIONS_POPUP_CHISEL = registerItem("questions_popup_chisel", new QuestionsPopupChiselItem(new Item.Settings().maxDamage(128)));
+    public static final Item SCRIPTING_DEBUG_WAND = registerItem("scripting_debug_wand", new ScriptingDebugWandItem(new Item.Settings().maxDamage(0)));
     public static final Item UUID_EXTRACTOR = registerItem("uuid_extractor", new UUIDExtractorItem(new Item.Settings()));
 
     private static Item registerItem(String name, Item item) {
@@ -35,6 +37,7 @@ public class ModItems {
         ItemGroupEvents.modifyEntriesEvent(ItemGroups.TOOLS).register( fabricItemGroupEntries -> {
             fabricItemGroupEntries.add(CHISEL);
             fabricItemGroupEntries.add(QUESTIONS_POPUP_CHISEL);
+            fabricItemGroupEntries.add(SCRIPTING_DEBUG_WAND);
             fabricItemGroupEntries.add(UUID_EXTRACTOR);
         });
     }
