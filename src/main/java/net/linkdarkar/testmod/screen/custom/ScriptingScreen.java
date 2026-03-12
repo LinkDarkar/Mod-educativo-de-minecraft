@@ -39,7 +39,7 @@ public class ScriptingScreen extends Screen {
 
     protected final List<PlacedWidget> scrollableWidgets = new ArrayList<>();
 
-    protected record PlacedWidget(ClickableWidget widget, int originalX, int originalY) {}
+    protected record PlacedWidget(ClickableWidget widget, int originalX, int originalY, boolean pinX) {}
 
     public ScriptingScreen(LivingEntity entity) {
         super(Text.literal("opens scripting screen"));
@@ -61,14 +61,15 @@ public class ScriptingScreen extends Screen {
         this.scrollableWidgets.clear();
 
         // Add Control Buttons (Left Side)
-        int btnY = 50;
-        int btnWidth = 60;
+        int btnY = 20;
+        int btnWidth = 80;
         int leftOffset = 10;
 
         this.addDrawableChild(ButtonWidget.builder(Text.literal("Reset Script"), b -> {
             this.resetToDefaultScript();
             this.rebuildUI();
-        }).dimensions(leftOffset, 10, btnWidth, 20).build());
+        }).dimensions(leftOffset, btnY, btnWidth, 20).build());
+        btnY += 25;
 
         ScriptingConfigManager.ScriptingConfig config = ScriptingConfigManager.getInstance().getConfig(this.entityUuid);
 
@@ -78,7 +79,7 @@ public class ScriptingScreen extends Screen {
                 this.builder.AddMath();
                 this.rebuildUI();
             }).dimensions(leftOffset, btnY, btnWidth, 20).build());
-            btnY += 25; // Increase Y position for the next button
+            btnY += 25;
         }
 
         // ADD IF
@@ -126,27 +127,27 @@ public class ScriptingScreen extends Screen {
             btnY += 25;
         }
 
+        int execY = this.height - 80;
+
         // EXECUTE ONCE
         this.addDrawableChild(ButtonWidget.builder(Text.literal("EXECUTE ONCE"), b -> {
             NbtCompound scriptNbt = this.builder.toNbt();
             ClientPlayNetworking.send(new ExecuteOncePayload(this.entityUuid, scriptNbt));
             this.close();
-        }).dimensions(leftOffset, btnY, btnWidth, 20).build());
-        btnY += 25;
+        }).dimensions(leftOffset, execY, btnWidth, 20).build());
 
         // START LOOP
         this.addDrawableChild(ButtonWidget.builder(Text.literal("START LOOP"), b -> {
             NbtCompound scriptNbt = this.builder.toNbt();
             ClientPlayNetworking.send(new SetTickingPayload(this.entityUuid, true, scriptNbt));
             this.close();
-        }).dimensions(leftOffset, btnY, btnWidth, 20).build());
-        btnY += 25;
+        }).dimensions(leftOffset, execY + 25, btnWidth, 20).build());
 
         // STOP LOOP
         this.addDrawableChild(ButtonWidget.builder(Text.literal("STOP LOOP"), b -> {
             ClientPlayNetworking.send(new SetTickingPayload(this.entityUuid, false, new NbtCompound()));
             this.close();
-        }).dimensions(leftOffset, btnY, btnWidth, 20).build());
+        }).dimensions(leftOffset, execY + 50, btnWidth, 20).build());
 
         // UUID stuff
         // ------------------------------
@@ -161,13 +162,13 @@ public class ScriptingScreen extends Screen {
 
         for (String uuidStr : entityUUIDs) {
             String labelText;
-            Entity entity = findEntityByUUID(uuidStr);
+            Entity foundEntity = findEntityByUUID(uuidStr);
 
-            if (entity != null) {
-                String type = entity.getType().getName().getString();
+            if (foundEntity != null) {
+                String type = foundEntity.getType().getName().getString();
 
-                if (entity.hasCustomName()) {
-                    labelText = Objects.requireNonNull(entity.getCustomName()).getString() + " (" + type + ")";
+                if (foundEntity.hasCustomName()) {
+                    labelText = Objects.requireNonNull(foundEntity.getCustomName()).getString() + " (" + type + ")";
                 } else {
                     labelText = type + " " + uuidStr.substring(0, 4) + "..";
                 }
@@ -188,6 +189,7 @@ public class ScriptingScreen extends Screen {
 
         updateScroll();
     }
+
     protected void rebuildUI() {
         this.clearChildren();
         this.init();
@@ -235,7 +237,6 @@ public class ScriptingScreen extends Screen {
 
         for (ScriptLine line : block.blockLines) {
 
-
             if (builder.selectedLine == line) {
                 createSelectionButtons(contentStartX, currentY);
             }
@@ -268,23 +269,18 @@ public class ScriptingScreen extends Screen {
     }
 
     protected void createPrintWidgets(InstructionPrint line, int y, int startX) {
-        TextFieldWidget msgField = new TextFieldWidget(this.textRenderer, startX + 40, y, 150, 20, Text.literal(""));
+        TextFieldWidget msgField = new TextFieldWidget(this.textRenderer, startX + 45, y, 150, 20, Text.literal(""));
         msgField.setText(line.message);
         msgField.setChangedListener(text -> line.message = text);
-        addScrollableChild(msgField, startX + 40, y);
+        addScrollableChild(msgField, startX + 45, y);
     }
 
     protected void createMathWidgets(InstructionMath line, int y, int startX) {
-        // [Target] = [Expression]
-
-        // Target Variable
         TextFieldWidget targetField = new TextFieldWidget(this.textRenderer, startX, y, 50, 20, Text.literal(""));
         targetField.setText(line.targetVarName);
         targetField.setChangedListener(text -> line.targetVarName = text);
         addScrollableChild(targetField, startX, y);
 
-        // Expression Field
-        // Positioned after the "=" sign (approx 60px)
         TextFieldWidget exprField = new TextFieldWidget(this.textRenderer, startX + 65, y, 120, 20, Text.literal(""));
         exprField.setText(line.expression);
         exprField.setChangedListener(text -> line.expression = text);
@@ -295,7 +291,7 @@ public class ScriptingScreen extends Screen {
         int fieldWidth = 35;
         int gap = 5;
 
-        int currentX = startX + 40;
+        int currentX = startX + 35;
 
         // X Field
         TextFieldWidget xField = new TextFieldWidget(this.textRenderer, currentX, y, fieldWidth, 20, Text.literal(""));
@@ -309,7 +305,7 @@ public class ScriptingScreen extends Screen {
         TextFieldWidget yField = new TextFieldWidget(this.textRenderer, currentX, y, fieldWidth, 20, Text.literal(""));
         yField.setText(line.yExp);
         yField.setChangedListener(text -> line.yExp = text);
-        addScrollableChild(xField, currentX, y);
+        addScrollableChild(yField, currentX, y);
 
         currentX += fieldWidth + gap;
 
@@ -317,72 +313,75 @@ public class ScriptingScreen extends Screen {
         TextFieldWidget zField = new TextFieldWidget(this.textRenderer, currentX, y, fieldWidth, 20, Text.literal(""));
         zField.setText(line.zExp);
         zField.setChangedListener(text -> line.zExp = text);
-        addScrollableChild(xField, currentX, y);
+        addScrollableChild(zField, currentX, y);
     }
 
+    // Default Helper function (scrolls with the code)
     protected <T extends ClickableWidget> void addScrollableChild(T widget, int originalX, int originalY) {
-        this.addDrawableChild(widget);
-        this.scrollableWidgets.add(new PlacedWidget(widget, originalX, originalY));
+        this.addSelectableChild(widget);
+        this.scrollableWidgets.add(new PlacedWidget(widget, originalX, originalY, false));
+    }
+
+    protected <T extends ClickableWidget> void addScrollableChildPinned(T widget, int originalX, int originalY) {
+        this.addSelectableChild(widget);
+        this.scrollableWidgets.add(new PlacedWidget(widget, originalX, originalY, true));
     }
 
     protected void createSelectionButtons(int startX, int y) {
-        int navX = startX - 25;
-        int navW = 10;
+        int rightColBoundary = this.width - 110;
 
-        // Left [←]
-        addScrollableChild(ButtonWidget.builder(Text.literal("<"), b -> {
-            builder.MoveLeft(); rebuildUI();
-        }).dimensions(navX, y, navW, 20).build(), navX, y);
-
-        // Right [→]
-        addScrollableChild(ButtonWidget.builder(Text.literal(">"), b -> {
-            builder.MoveRight(); rebuildUI();
-        }).dimensions(navX + 12, y, navW, 20).build(), navX + 12, y);
-
-        int rightEdge = startX + 220;
-
-        // Delete [×]
-        addScrollableChild(ButtonWidget.builder(Text.literal("×"), b -> {
-            builder.DeleteSelected(); rebuildUI();
-        }).dimensions(rightEdge - 20, y, 20, 20).build(), rightEdge - 20, y);
-
-        // Vertical Movement
-        int moveX = rightEdge - 45;
-
-        // Up [↑]
-        addScrollableChild(ButtonWidget.builder(Text.literal("↑"), b -> {
+        // Vertical Movement (Placed left of UUID list)
+        int moveX = rightColBoundary - 25;
+        addScrollableChildPinned(ButtonWidget.builder(Text.literal("↑"), b -> {
             builder.MoveUp(); rebuildUI();
         }).dimensions(moveX, y, 20, 10).build(), moveX, y);
 
-        // Down [↓]
-        addScrollableChild(ButtonWidget.builder(Text.literal("↓"), b -> {
+        addScrollableChildPinned(ButtonWidget.builder(Text.literal("↓"), b -> {
             builder.MoveDown(); rebuildUI();
         }).dimensions(moveX, y + 10, 20, 10).build(), moveX, y + 10);
+
+        // Delete [×] (Placed left of movement arrows)
+        int delX = moveX - 25;
+        addScrollableChildPinned(ButtonWidget.builder(Text.literal("×"), b -> {
+            builder.DeleteSelected(); rebuildUI();
+        }).dimensions(delX, y, 20, 20).build(), delX, y);
+
+        // Nesting Controls [<] [>] (Placed left of delete)
+        int nestX = delX - 45;
+        addScrollableChildPinned(ButtonWidget.builder(Text.literal("<"), b -> {
+            builder.MoveLeft(); rebuildUI();
+        }).dimensions(nestX, y, 20, 20).build(), nestX, y);
+
+        addScrollableChildPinned(ButtonWidget.builder(Text.literal(">"), b -> {
+            builder.MoveRight(); rebuildUI();
+        }).dimensions(nestX + 22, y, 20, 20).build(), nestX + 22, y);
     }
 
     protected void createConditionWidgets(ScriptCondition cond, int y, int startX) {
         if (cond == null) return;
         final ScriptCondition finalCond = cond;
 
+
         // Left Expression Field
-        TextFieldWidget leftField = new TextFieldWidget(this.textRenderer, startX + 40, y, 60, 20, Text.literal(""));
+        TextFieldWidget leftField = new TextFieldWidget(this.textRenderer, startX + 20, y, 60, 20, Text.literal(""));
         leftField.setText(cond.leftExpression);
         leftField.setChangedListener(text -> finalCond.leftExpression = text);
-        addScrollableChild(leftField, startX + 40, y);
+        addScrollableChild(leftField, startX + 20, y);
 
         // Operator Button
         ButtonWidget opButton = ButtonWidget.builder(Text.literal(getOpSymbol(cond.op)), button -> {
             finalCond.op = nextOperator(finalCond.op);
             button.setMessage(Text.literal(getOpSymbol(finalCond.op)));
-        }).dimensions(startX + 105, y, 25, 20).build();
-        addScrollableChild(opButton, startX + 105, y);
+        }).dimensions(startX + 85, y, 25, 20).build();
+        addScrollableChild(opButton, startX + 85, y);
 
         // Right Expression Field
-        TextFieldWidget rightField = new TextFieldWidget(this.textRenderer, startX + 135, y, 60, 20, Text.literal(""));
+        TextFieldWidget rightField = new TextFieldWidget(this.textRenderer, startX + 115, y, 60, 20, Text.literal(""));
         rightField.setText(cond.rightExpression);
         rightField.setChangedListener(text -> finalCond.rightExpression = text);
-        addScrollableChild(opButton, startX + 135, y);
+        addScrollableChild(rightField, startX + 115, y);
     }
+
     protected void createMathSimpleWidgets(InstructionMathSimple line, int y, int startX) {
         TextFieldWidget targetField = new TextFieldWidget(this.textRenderer, startX, y, 60, 20, Text.literal(""));
         targetField.setText(line.targetVarName);
@@ -392,20 +391,21 @@ public class ScriptingScreen extends Screen {
         TextFieldWidget valueField = new TextFieldWidget(this.textRenderer, startX + 80, y, 60, 20, Text.literal(""));
         valueField.setText(line.right.GetOriginalValue());
         valueField.setChangedListener(text -> line.right.UpdateValue(text));
-        addScrollableChild(targetField, startX + 80, y);
+        addScrollableChild(valueField, startX + 80, y);
     }
-    protected void createFollowEntityWidgets(InstructionEntity_FollowEntity line, int y, int startX) {
-        int labelWidth = 85;
 
-        TextFieldWidget targetField = new TextFieldWidget(this.textRenderer, startX + labelWidth, y, 100, 20, Text.literal(""));
+    protected void createFollowEntityWidgets(InstructionEntity_FollowEntity line, int y, int startX) {
+        TextFieldWidget targetField = new TextFieldWidget(this.textRenderer, startX + 45, y, 100, 20, Text.literal(""));
         targetField.setText(line.targetUUID);
         targetField.setChangedListener(text -> line.targetUUID = text);
-        addScrollableChild(targetField, startX + labelWidth, y);
+        addScrollableChild(targetField, startX + 45, y);
     }
+
     protected ComparisonOperator nextOperator(ComparisonOperator current) {
         int nextOrdinal = (current.ordinal() + 1) % ComparisonOperator.values().length;
         return ComparisonOperator.values()[nextOrdinal];
     }
+
     protected String getOpSymbol(ComparisonOperator op) {
         return switch (op) {
             case EQUALS -> "==";
@@ -425,6 +425,7 @@ public class ScriptingScreen extends Screen {
         }
         return height;
     }
+
     protected int drawBlockBackgrounds(DrawContext context, ScriptBlock block, int currentY, int indent) {
         for (ScriptLine line : block.blockLines) {
             int xOffset = indent * 20;
@@ -455,6 +456,7 @@ public class ScriptingScreen extends Screen {
         }
         return currentY;
     }
+
     protected int drawIndentationLines(DrawContext context, ScriptBlock block, int currentY, int indent) {
         for (ScriptLine line : block.blockLines) {
             int xOffset = indent * 20;
@@ -464,9 +466,7 @@ public class ScriptingScreen extends Screen {
                 int actualX = SCRIPT_X + xOffset - (int)horizontalScrollOffset;
 
                 int bracketColor = 0xFFFF0000;
-                context.enableScissor(SCRIPT_X, 0, this.width - 110, this.height);
                 context.fill(actualX + 5, currentY + LINE_HEIGHT, actualX + 7, currentY + LINE_HEIGHT + innerHeight, bracketColor);
-                context.disableScissor();
 
                 currentY += LINE_HEIGHT;
                 currentY = drawIndentationLines(context, ifLine.trueBlock, currentY, indent + 1);
@@ -476,9 +476,7 @@ public class ScriptingScreen extends Screen {
                 int actualX = SCRIPT_X + xOffset - (int)horizontalScrollOffset;
 
                 int bracketColor = 0xFF00FF00;
-                context.enableScissor(SCRIPT_X, 0, this.width - 110, this.height);
                 context.fill(actualX + 5, currentY + LINE_HEIGHT, actualX + 7, currentY + LINE_HEIGHT + innerHeight, bracketColor);
-                context.disableScissor();
 
                 currentY += LINE_HEIGHT;
                 currentY = drawIndentationLines(context, whileLine.loopBlock, currentY, indent + 1);
@@ -490,45 +488,58 @@ public class ScriptingScreen extends Screen {
         return currentY;
     }
 
-    protected int drawLabelsRecursive(DrawContext context, ScriptBlock block, int currentY, int indent, int[] lineNum) {
+    protected int drawLineNumbersRecursive(DrawContext context, ScriptBlock block, int currentY, int[] lineNum) {
+        for (ScriptLine line : block.blockLines) {
+            int textY = currentY + 6;
+
+            int currentNum = lineNum[0]++;
+
+            if (0 < textY && textY < this.height) {
+                int numColor = (line == builder.selectedLine) ? 0xFFFFFF : 0x555555;
+                int fixedLineNumX = SCRIPT_X - 20;
+
+                context.drawTextWithShadow(this.textRenderer, String.valueOf(currentNum), fixedLineNumX, textY, numColor);
+            }
+
+            currentY += LINE_HEIGHT;
+
+            if (line instanceof InstructionIF) {
+                currentY = drawLineNumbersRecursive(context, ((InstructionIF) line).trueBlock, currentY, lineNum);
+            } else if (line instanceof InstructionWHILE) {
+                currentY = drawLineNumbersRecursive(context, ((InstructionWHILE) line).loopBlock, currentY, lineNum);
+            }
+        }
+        return currentY;
+    }
+
+    protected int drawScriptTextRecursive(DrawContext context, ScriptBlock block, int currentY, int indent) {
         for (ScriptLine line : block.blockLines) {
             int xOffset = indent * 20;
             int actualX = SCRIPT_X + xOffset - (int)horizontalScrollOffset;
             int textY = currentY + 6;
 
             if (0 < textY && textY < this.height) {
-
-                int currentNum = lineNum[0]++;
-                int numColor = (line == builder.selectedLine) ? 0xFFFFFF : 0x555555;
-                context.drawTextWithShadow(this.textRenderer, String.valueOf(currentNum), actualX - 15, textY, numColor);
-
-                context.enableScissor(SCRIPT_X, 0, this.width - 110, this.height);
-
                 if (line instanceof InstructionIF) {
                     context.drawTextWithShadow(this.textRenderer, "IF", actualX, textY, 0xFF0000);
                 } else if (line instanceof InstructionWHILE) {
                     context.drawTextWithShadow(this.textRenderer, "WHILE", actualX, textY, 0x66FF66);
                 } else if (line instanceof InstructionMath) {
-                    // I HAD TO ADJUST THIS VALUE MANUALLY 1 PIXEL AND RECOMPILE THE THING 6+ TIMES
-                    int extraPadding = 55;
-                    context.drawTextWithShadow(this.textRenderer, "=", actualX + extraPadding, textY, 0xFFFFFF);
+                    context.drawTextWithShadow(this.textRenderer, "=", actualX + 55, textY, 0xFFFFFF);
                 } else if (line instanceof InstructionPrint) {
                     context.drawTextWithShadow(this.textRenderer, "PRINT", actualX, textY, 0xAAAAAA);
                 } else if (line instanceof InstructionEntity_FollowEntity) {
-                    context.drawTextWithShadow(this.textRenderer, "FollowEntity", actualX, textY, 0x55FFFF);
+                    context.drawTextWithShadow(this.textRenderer, "Follow", actualX, textY, 0x55FFFF);
                 } else if (line instanceof InstructionBlock_Place) {
                     context.drawTextWithShadow(this.textRenderer, "Place", actualX, textY, 0x55FFFF);
                 }
-
-                context.disableScissor();
             }
 
             currentY += LINE_HEIGHT;
 
             if (line instanceof InstructionIF) {
-                currentY = drawLabelsRecursive(context, ((InstructionIF) line).trueBlock, currentY, indent + 1, lineNum);
+                currentY = drawScriptTextRecursive(context, ((InstructionIF) line).trueBlock, currentY, indent + 1);
             } else if (line instanceof InstructionWHILE) {
-                currentY = drawLabelsRecursive(context, ((InstructionWHILE) line).loopBlock, currentY, indent + 1, lineNum);
+                currentY = drawScriptTextRecursive(context, ((InstructionWHILE) line).loopBlock, currentY, indent + 1);
             }
         }
         return currentY;
@@ -558,37 +569,44 @@ public class ScriptingScreen extends Screen {
         }
         return false;
     }
+
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
-        this.renderBackground(context, mouseX, mouseY, delta);
+        super.render(context, mouseX, mouseY, delta);
 
         int drawY = (int) (START_Y - scrollOffset);
+        int rightBound = this.width - 110;
 
-        // Draw Backgrounds
-        // drawBlockBackgrounds(context, this.builder.GetScript(), drawY, 0);
+        drawLineNumbersRecursive(context, this.builder.GetScript(), drawY, new int[]{1});
+
+        context.enableScissor(SCRIPT_X, 0, rightBound, this.height);
 
         // Draw HIGHLIGHT for Selected Line
         drawSelectionHighlight(context, this.builder.GetScript(), drawY, 0);
 
-        // Draw Widgets (Buttons/Fields)
-        super.render(context, mouseX, mouseY, delta);
-
         // Draw Indentation Lines
         drawIndentationLines(context, this.builder.GetScript(), drawY, 0);
 
-        // Draw Text Labels
-        drawLabelsRecursive(context, this.builder.GetScript(), drawY, 0, new int[]{1});
+        // Draw Script Instruction Text (IF, WHILE, etc)
+        drawScriptTextRecursive(context, this.builder.GetScript(), drawY, 0);
+
+        for (PlacedWidget pw : scrollableWidgets) {
+            if (pw.widget.visible) {
+                pw.widget.render(context, mouseX, mouseY, delta);
+            }
+        }
+
+        context.disableScissor();
     }
+
     protected int drawSelectionHighlight(DrawContext context, ScriptBlock block, int currentY, int indent) {
         for (ScriptLine line : block.blockLines) {
             if (line == builder.selectedLine) {
                 if (0 < currentY && currentY < this.height) {
                     int highlightColor = 0x55FFFFFF;
-                    int actualX = SCRIPT_X + (indent * 20) - (int)horizontalScrollOffset;
 
-                    context.enableScissor(SCRIPT_X, 0, this.width - 110, this.height);
-                    context.fill(actualX - 20, currentY, actualX + 300, currentY + LINE_HEIGHT, highlightColor);
-                    context.disableScissor();
+                    int rightBound = this.width - 110;
+                    context.fill(SCRIPT_X, currentY, rightBound, currentY + LINE_HEIGHT, highlightColor);
                 }
             }
 
@@ -605,7 +623,6 @@ public class ScriptingScreen extends Screen {
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
-
         // Adjust scroll offset
         double scrollSpeed = verticalAmount * 20;
         if (Screen.hasShiftDown()) {
@@ -622,21 +639,19 @@ public class ScriptingScreen extends Screen {
         updateScroll();
         return super.mouseScrolled(mouseX, mouseY, horizontalAmount, verticalAmount);
     }
-    protected void updateScroll() {
-        int rightBound = this.width - 110;
 
+    protected void updateScroll() {
         for (PlacedWidget pw : scrollableWidgets) {
             int newY = (int) (pw.originalY - scrollOffset);
-            int newX = (int) (pw.originalX - horizontalScrollOffset);
+
+            int newX = pw.pinX ? pw.originalX : (int) (pw.originalX - horizontalScrollOffset);
 
             pw.widget.setY(newY);
             pw.widget.setX(newX);
 
             boolean visibleVertically = 10 < newY && newY < this.height - 10;
 
-            boolean visibleHorizontally = (SCRIPT_X < newX + pw.widget.getWidth()) && (newX < rightBound);
-
-            pw.widget.visible = visibleVertically && visibleHorizontally;
+            pw.widget.visible = visibleVertically;
         }
     }
 
@@ -644,20 +659,6 @@ public class ScriptingScreen extends Screen {
     public boolean shouldPause() {
         return false;
     }
-//    @Override
-//    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-//        assert this.client != null;
-//        assert this.client.player != null;
-//
-//        // TODO asegurarse de que el usuario no esté escribiendo en una caja de texto para abrir el inventario
-//        if (this.client.options.inventoryKey.matchesKey(keyCode, scanCode)) {
-//            ScreenReturnHandler.returnScreen = this;
-//            this.client.setScreen(new InventoryScreen(this.client.player));
-//            return true;
-//        }
-//
-//        return super.keyPressed(keyCode, scanCode, modifiers);
-//    }
 
     protected void resetToDefaultScript() {
         this.builder = new ScriptBuilder(this.entity);
@@ -674,7 +675,6 @@ public class ScriptingScreen extends Screen {
     @Override
     public void close() {
         ScriptActorManager.getInstance().saveBuilder(entityUuid, this.builder);
-
         super.close();
     }
 
