@@ -1,9 +1,11 @@
 package net.linkdarkar.testmod.vn;
 
 import net.linkdarkar.testmod.TestMod;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.text.OrderedText;
 import net.minecraft.text.Text;
 
 import java.util.ArrayList;
@@ -47,6 +49,23 @@ public class VisualNovelDialogueScreen extends Screen {
     }
 
     @Override
+    public void resize(MinecraftClient client, int width, int height) {
+        VisualNovelDialogueData.Node savedCurrNode = this.currentNode;
+        int savedLatestCharIndex = this.latestCharIndex;
+        int savedCurrentPointToStop = this.currentPointToStop;
+        int savedCurrentPointToStopIndex = this.currentPointToStopIndex;
+        boolean savedWaitingToContinue = this.waitingToContinue;
+
+        super.resize(client, width, height);
+
+        this.currentNode = savedCurrNode;
+        this.latestCharIndex = savedLatestCharIndex;
+        this.currentPointToStop = savedCurrentPointToStop;
+        this.currentPointToStopIndex = savedCurrentPointToStopIndex;
+        this.waitingToContinue = savedWaitingToContinue;
+    }
+
+    @Override
     public void render (DrawContext context, int mouseX, int mouseY, float delta) {
         super.render(context, mouseX, mouseY, delta);
         // draw portrait
@@ -61,10 +80,8 @@ public class VisualNovelDialogueScreen extends Screen {
     private void drawDialogueBox (DrawContext context) {
         // TODO change shit
         int boxX = 20;
-        // int boxY = this.height - 140;
         int boxY = 20;
         int boxW = this.width - 40;
-        // int boxH = 120;
         int boxH = this.height - 40;
 
         // draws the box following the "coordinates" on the screen, could get more creative with this
@@ -75,15 +92,12 @@ public class VisualNovelDialogueScreen extends Screen {
         if (this.latestCharIndex < this.currentNode.finalText.length()) {
             if (this.tickCounter % 3 == 0) {
                 // TODO make this configurable
-                // TestMod.LOGGER.info("AAAA");
                 int advance = 1;
 
-                // TestMod.LOGGER.info("latestcharhaisnt"+ this.latestCharIndex);
                 this.latestCharIndex = Math.min(
                         Math.min(this.currentNode.finalText.length(), this.currentPointToStop),
                         this.latestCharIndex + advance
                 );
-                // TestMod.LOGGER.info("latestcharhaisnt"+ this.latestCharIndex);
 
                 if (latestCharIndex >= this.currentPointToStop) {
                     this.waitingToContinue = true;
@@ -99,18 +113,28 @@ public class VisualNovelDialogueScreen extends Screen {
         String visibleText = this.currentNode.finalText.substring(0, safeIndex);
         String[] lines = visibleText.split("\n");
 
+        // After manually splitting the lines, we split them again according to the screen width
+        List<OrderedText> linesToWrap = new ArrayList<>();
+        for (String line : lines) {
+            linesToWrap.addAll(
+                    textRenderer.wrapLines(Text.literal(line), this.width - 60)
+            );
+        }
+
         // TODO replace magical numbers with real shit
         int textStartX = 20 + 12;
-        int textStartY = 20 + 30;
+        int textY = 20 + 30;
 
-        for (int i = 0; i < lines.length; i += 1) {
+        for (OrderedText line : linesToWrap) {
             context.drawTextWithShadow(
                     this.textRenderer,
-                    lines[i],
+                    line,
                     textStartX,
-                    textStartY + (i * 12), // TODO need to replace the magical number (12) with a variable like on the other item
+                    textY, // TODO need to replace the magical number (12) with a variable like on the other item
                     0xFFFFFF
             );
+
+            textY += this.textRenderer.fontHeight;
         }
     }
 
