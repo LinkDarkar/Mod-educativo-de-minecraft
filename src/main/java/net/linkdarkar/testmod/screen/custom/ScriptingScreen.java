@@ -16,11 +16,9 @@ import net.minecraft.text.Text;
 import net.minecraft.item.ItemStack;
 import net.linkdarkar.testmod.networking.ModNetworking.ExecuteOncePayload;
 import net.linkdarkar.testmod.networking.ModNetworking.SetTickingPayload;
+import net.minecraft.util.Formatting;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 public class ScriptingScreen extends Screen {
     protected final UUID entityUuid;
@@ -41,6 +39,8 @@ public class ScriptingScreen extends Screen {
 
     protected record PlacedWidget(ClickableWidget widget, int originalX, int originalY, boolean pinX) {}
 
+    protected Map<ScriptLine, List<String>> currentErrors = new HashMap<>();
+
     public ScriptingScreen(LivingEntity entity) {
         super(Text.literal("opens scripting screen"));
         this.entity = entity;
@@ -60,6 +60,8 @@ public class ScriptingScreen extends Screen {
         super.init();
         this.scrollableWidgets.clear();
 
+        this.currentErrors = this.builder.GetScriptErrors();
+
         // Add Control Buttons (Left Side)
         int btnY = 20;
         int btnWidth = 80;
@@ -77,6 +79,15 @@ public class ScriptingScreen extends Screen {
         if (config.allowVar) {
             this.addDrawableChild(ButtonWidget.builder(Text.literal("Add VAR"), b -> {
                 this.builder.AddMath();
+                this.rebuildUI();
+            }).dimensions(leftOffset, btnY, btnWidth, 20).build());
+            btnY += 25;
+        }
+
+        // ADD VAR = FUNCTION
+        if (config.allowVar) {
+            this.addDrawableChild(ButtonWidget.builder(Text.literal("Add VARF"), b -> {
+                this.builder.AddVarAssign();
                 this.rebuildUI();
             }).dimensions(leftOffset, btnY, btnWidth, 20).build());
             btnY += 25;
@@ -212,6 +223,11 @@ public class ScriptingScreen extends Screen {
                 if (foundInChild != null) return foundInChild;
                 currentY += getBlockHeight(((InstructionWHILE) line).loopBlock);
             }
+            else if (line instanceof InstructionVarAssign) {
+                ScriptLine foundInChild = findLineAt(mouseY, ((InstructionVarAssign) line).valueBlock, currentY);
+                if (foundInChild != null) return foundInChild;
+                currentY += getBlockHeight(((InstructionVarAssign) line).valueBlock);
+            }
         }
         return null;
     }
@@ -223,6 +239,7 @@ public class ScriptingScreen extends Screen {
             ScriptBlock child = null;
             if (line instanceof InstructionIF) child = ((InstructionIF) line).trueBlock;
             if (line instanceof InstructionWHILE) child = ((InstructionWHILE) line).loopBlock;
+            if (line instanceof InstructionVarAssign) child = ((InstructionVarAssign) line).valueBlock;
 
             if (child != null) {
                 ScriptBlock res = findParentOfLine(child, target);
@@ -254,6 +271,10 @@ public class ScriptingScreen extends Screen {
             } else if (line instanceof InstructionMath mathLine) {
                 createMathWidgets(mathLine, currentY, contentStartX);
                 currentY += LINE_HEIGHT;
+            } else if (line instanceof InstructionVarAssign varLine) {
+                createVarAssignWidgets(varLine, currentY, contentStartX);
+                currentY += LINE_HEIGHT;
+                currentY = generateWidgetsRecursive(varLine.valueBlock, currentY, indent + 1);
             } else if (line instanceof InstructionPrint printLine) {
                 createPrintWidgets(printLine, currentY, contentStartX);
                 currentY += LINE_HEIGHT;
@@ -285,6 +306,13 @@ public class ScriptingScreen extends Screen {
         exprField.setText(line.expression);
         exprField.setChangedListener(text -> line.expression = text);
         addScrollableChild(exprField, startX + 65, y);
+    }
+
+    protected void createVarAssignWidgets(InstructionVarAssign line, int y, int startX) {
+        TextFieldWidget targetField = new TextFieldWidget(this.textRenderer, startX, y, 60, 20, Text.literal(""));
+        targetField.setText(line.targetVarName);
+        targetField.setChangedListener(text -> line.targetVarName = text);
+        addScrollableChild(targetField, startX, y);
     }
 
     protected void createPlaceBlockWidgets(InstructionBlock_Place line, int y, int startX) {
@@ -382,18 +410,6 @@ public class ScriptingScreen extends Screen {
         addScrollableChild(rightField, startX + 115, y);
     }
 
-    protected void createMathSimpleWidgets(InstructionMathSimple line, int y, int startX) {
-        TextFieldWidget targetField = new TextFieldWidget(this.textRenderer, startX, y, 60, 20, Text.literal(""));
-        targetField.setText(line.targetVarName);
-        targetField.setChangedListener(text -> line.targetVarName = text);
-        addScrollableChild(targetField, startX, y);
-
-        TextFieldWidget valueField = new TextFieldWidget(this.textRenderer, startX + 80, y, 60, 20, Text.literal(""));
-        valueField.setText(line.right.GetOriginalValue());
-        valueField.setChangedListener(text -> line.right.UpdateValue(text));
-        addScrollableChild(valueField, startX + 80, y);
-    }
-
     protected void createFollowEntityWidgets(InstructionEntity_FollowEntity line, int y, int startX) {
         TextFieldWidget targetField = new TextFieldWidget(this.textRenderer, startX + 45, y, 100, 20, Text.literal(""));
         targetField.setText(line.targetUUID);
@@ -422,6 +438,7 @@ public class ScriptingScreen extends Screen {
             height += LINE_HEIGHT;
             if (line instanceof InstructionIF) height += getBlockHeight(((InstructionIF) line).trueBlock);
             else if (line instanceof InstructionWHILE) height += getBlockHeight(((InstructionWHILE) line).loopBlock);
+            else if (line instanceof InstructionVarAssign) height += getBlockHeight(((InstructionVarAssign) line).valueBlock);
         }
         return height;
     }
@@ -450,6 +467,15 @@ public class ScriptingScreen extends Screen {
                 currentY += LINE_HEIGHT;
                 currentY = drawBlockBackgrounds(context, whileLine.loopBlock, currentY, indent + 1);
 
+            } else if (line instanceof InstructionVarAssign varLine) {
+                int innerHeight = getBlockHeight(varLine.valueBlock);
+                int startX = SCRIPT_X + xOffset;
+
+                int bgColor = 0x22FFFF00;
+                context.fill(startX + 10, currentY + LINE_HEIGHT, this.width, currentY + LINE_HEIGHT + innerHeight, bgColor);
+
+                currentY += LINE_HEIGHT;
+                currentY = drawBlockBackgrounds(context, varLine.valueBlock, currentY, indent + 1);
             } else {
                 currentY += LINE_HEIGHT;
             }
@@ -481,6 +507,15 @@ public class ScriptingScreen extends Screen {
                 currentY += LINE_HEIGHT;
                 currentY = drawIndentationLines(context, whileLine.loopBlock, currentY, indent + 1);
 
+            } else if (line instanceof InstructionVarAssign varLine) {
+                int innerHeight = getBlockHeight(varLine.valueBlock);
+                int actualX = SCRIPT_X + xOffset - (int)horizontalScrollOffset;
+
+                int bracketColor = 0xFFFFFF00;
+                context.fill(actualX + 5, currentY + LINE_HEIGHT, actualX + 7, currentY + LINE_HEIGHT + innerHeight, bracketColor);
+
+                currentY += LINE_HEIGHT;
+                currentY = drawIndentationLines(context, varLine.valueBlock, currentY, indent + 1);
             } else {
                 currentY += LINE_HEIGHT;
             }
@@ -495,7 +530,8 @@ public class ScriptingScreen extends Screen {
             int currentNum = lineNum[0]++;
 
             if (0 < textY && textY < this.height) {
-                int numColor = (line == builder.selectedLine) ? 0xFFFFFF : 0x555555;
+                int numColor = (line == builder.selectedLine) ? (currentErrors.containsKey(line) ? 0xFF5555 : 0xFFFFFF) : (currentErrors.containsKey(line) ? 0xB4403E : 0x555555);
+
                 int fixedLineNumX = SCRIPT_X - 20;
 
                 context.drawTextWithShadow(this.textRenderer, String.valueOf(currentNum), fixedLineNumX, textY, numColor);
@@ -507,6 +543,8 @@ public class ScriptingScreen extends Screen {
                 currentY = drawLineNumbersRecursive(context, ((InstructionIF) line).trueBlock, currentY, lineNum);
             } else if (line instanceof InstructionWHILE) {
                 currentY = drawLineNumbersRecursive(context, ((InstructionWHILE) line).loopBlock, currentY, lineNum);
+            } else if (line instanceof InstructionVarAssign) {
+                currentY = drawLineNumbersRecursive(context, ((InstructionVarAssign) line).valueBlock, currentY, lineNum);
             }
         }
         return currentY;
@@ -531,6 +569,8 @@ public class ScriptingScreen extends Screen {
                     context.drawTextWithShadow(this.textRenderer, "Follow", actualX, textY, 0x55FFFF);
                 } else if (line instanceof InstructionBlock_Place) {
                     context.drawTextWithShadow(this.textRenderer, "Place", actualX, textY, 0x55FFFF);
+                } else if (line instanceof InstructionVarAssign) {
+                    context.drawTextWithShadow(this.textRenderer, "VARF", actualX, textY, 0xFFFF55);
                 }
             }
 
@@ -540,6 +580,8 @@ public class ScriptingScreen extends Screen {
                 currentY = drawScriptTextRecursive(context, ((InstructionIF) line).trueBlock, currentY, indent + 1);
             } else if (line instanceof InstructionWHILE) {
                 currentY = drawScriptTextRecursive(context, ((InstructionWHILE) line).loopBlock, currentY, indent + 1);
+            } else if (line instanceof InstructionVarAssign) {
+                currentY = drawScriptTextRecursive(context, ((InstructionVarAssign) line).valueBlock, currentY, indent + 1);
             }
         }
         return currentY;
@@ -597,13 +639,28 @@ public class ScriptingScreen extends Screen {
         }
 
         context.disableScissor();
+        if (SCRIPT_X <= mouseX && mouseX <= rightBound && START_Y <= mouseY) {
+            double virtualY = mouseY + scrollOffset;
+            ScriptLine hoveredLine = findLineAt((int) virtualY, this.builder.GetScript(), START_Y);
+
+            if (hoveredLine != null && currentErrors.containsKey(hoveredLine)) {
+                List<String> errors = currentErrors.get(hoveredLine);
+                List<Text> tooltipTexts = new ArrayList<>();
+
+                for (String error : errors) {
+                    tooltipTexts.add(Text.literal(error).formatted(Formatting.RED));
+                }
+
+                context.drawTooltip(this.textRenderer, tooltipTexts, mouseX, mouseY);
+            }
+        }
     }
 
     protected int drawSelectionHighlight(DrawContext context, ScriptBlock block, int currentY, int indent) {
         for (ScriptLine line : block.blockLines) {
             if (line == builder.selectedLine) {
                 if (0 < currentY && currentY < this.height) {
-                    int highlightColor = 0x55FFFFFF;
+                    int highlightColor = currentErrors.containsKey(line) ? 0xFF998F : 0x55FFFFFF;
 
                     int rightBound = this.width - 110;
                     context.fill(SCRIPT_X, currentY, rightBound, currentY + LINE_HEIGHT, highlightColor);
@@ -616,6 +673,8 @@ public class ScriptingScreen extends Screen {
                 currentY = drawSelectionHighlight(context, ((InstructionIF) line).trueBlock, currentY, indent + 1);
             } else if (line instanceof InstructionWHILE) {
                 currentY = drawSelectionHighlight(context, ((InstructionWHILE) line).loopBlock, currentY, indent + 1);
+            } else if (line instanceof InstructionVarAssign) {
+                currentY = drawSelectionHighlight(context, ((InstructionVarAssign) line).valueBlock, currentY, indent + 1);
             }
         }
         return currentY;

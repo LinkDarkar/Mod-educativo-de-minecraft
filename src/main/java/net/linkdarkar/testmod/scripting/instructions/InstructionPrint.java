@@ -7,6 +7,9 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.Text;
 import net.minecraft.world.World;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class InstructionPrint extends ScriptLine {
     public String message;
 
@@ -26,7 +29,22 @@ public class InstructionPrint extends ScriptLine {
     }
 
     @Override
-    public void Execute(ExecutionContext context) {
+    public List<String> Validate() {
+        List<String> errors = new ArrayList<>();
+        if (message == null || message.trim().isEmpty()) {
+            errors.add("Print message cannot be empty.");
+        } else {
+            try {
+                ExpressionEvaluator.evaluate(message, new ExecutionContext(null));
+            } catch (Exception e) {
+                errors.add("Invalid print syntax: " + e.getMessage());
+            }
+        }
+        return errors;
+    }
+
+    @Override
+    public Object Execute(ExecutionContext context) {
         String finalMsg;
 
         try {
@@ -64,6 +82,8 @@ public class InstructionPrint extends ScriptLine {
                 }
             }
         }
+
+        return null;
     }
 
     @Override

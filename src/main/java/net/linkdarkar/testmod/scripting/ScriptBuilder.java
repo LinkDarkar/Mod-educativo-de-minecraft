@@ -5,6 +5,10 @@ import net.linkdarkar.testmod.scripting.instructions.*;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.nbt.NbtCompound;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 public class ScriptBuilder {
     public LivingEntity entity;
     public ScriptBlock mainScript = new ScriptBlock();
@@ -61,14 +65,13 @@ public class ScriptBuilder {
     public void DeclareVar(String name, Object initialValue) {
         Insert(new InstructionMath(name, initialValue.toString()));
     }
-    public void DeclareVarSimple(String name, Object initialValue) {
-        ScriptVariable left = new ScriptVariable("0");
-        ScriptVariable right = new ScriptVariable(initialValue.toString());
-        Insert(new InstructionMathSimple(name, left, MathOperator.ASSIGN, right));
-    }
 
     public void AddMath() {
         Insert(new InstructionMath("var", "0"));
+    }
+
+    public void AddVarAssign() {
+        Insert(new InstructionVarAssign());
     }
 
     public void AddPrint() {
@@ -152,6 +155,7 @@ public class ScriptBuilder {
 
             if (prevLine instanceof InstructionIF) targetBlock = ((InstructionIF) prevLine).trueBlock;
             else if (prevLine instanceof InstructionWHILE) targetBlock = ((InstructionWHILE) prevLine).loopBlock;
+            else if (prevLine instanceof InstructionVarAssign) targetBlock = ((InstructionVarAssign) prevLine).valueBlock;
 
             if (targetBlock != null) {
                 parentBlockOfSelection.blockLines.remove(selectedLine);
@@ -166,6 +170,7 @@ public class ScriptBuilder {
             ScriptBlock childBlock = null;
             if (line instanceof InstructionIF) childBlock = ((InstructionIF) line).trueBlock;
             if (line instanceof InstructionWHILE) childBlock = ((InstructionWHILE) line).loopBlock;
+            if (line instanceof InstructionVarAssign) childBlock = ((InstructionVarAssign) line).valueBlock;
 
             if (childBlock == target) return currentScope;
 
@@ -181,12 +186,32 @@ public class ScriptBuilder {
         for (ScriptLine line : scope.blockLines) {
             if (line instanceof InstructionIF && ((InstructionIF) line).trueBlock == targetBlock) return line;
             if (line instanceof InstructionWHILE && ((InstructionWHILE) line).loopBlock == targetBlock) return line;
+            if (line instanceof InstructionVarAssign && ((InstructionVarAssign) line).valueBlock == targetBlock) return line;
         }
         return null;
     }
 
     public ScriptBlock GetScript() {
         return mainScript;
+    }
+
+    public Map<ScriptLine, List<String>> GetScriptErrors() {
+        Map<ScriptLine, List<String>> errorMap = new HashMap<>();
+        collectErrors(mainScript, errorMap);
+        return errorMap;
+    }
+
+    private void collectErrors(ScriptBlock block, Map<ScriptLine, List<String>> errorMap) {
+        for (ScriptLine line : block.blockLines) {
+            List<String> lineErrors = line.Validate();
+            if (lineErrors != null && !lineErrors.isEmpty()) {
+                errorMap.put(line, lineErrors);
+            }
+
+            for (ScriptBlock childBlock : line.getChildBlocks()) {
+                collectErrors(childBlock, errorMap);
+            }
+        }
     }
 
     // Save NBT stuff

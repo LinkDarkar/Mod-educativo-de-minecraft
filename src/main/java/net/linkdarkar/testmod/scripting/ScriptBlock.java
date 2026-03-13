@@ -13,15 +13,26 @@ public class ScriptBlock extends ScriptLine {
     }
 
     @Override
-    public void Execute(ExecutionContext context) {
+    public Object Execute(ExecutionContext context) {
+        Object lastVal = null;
         for (ScriptLine scriptLine : blockLines) {
-            scriptLine.Execute(context);
+            lastVal = scriptLine.Execute(context);
         }
+        return lastVal;
     }
 
     @Override
     public String GetAsText() {
         return "BLOCK";
+    }
+
+    @Override
+    public List<String> Validate() {
+        List<String> errors = new ArrayList<>();
+        for (ScriptLine line : blockLines) {
+            errors.addAll(line.Validate());
+        }
+        return errors;
     }
 
     // NBT stuff

@@ -4,6 +4,9 @@ import net.linkdarkar.testmod.TestMod;
 import net.linkdarkar.testmod.scripting.instructions.*;
 import net.minecraft.nbt.NbtCompound;
 
+import java.util.List;
+import java.util.ArrayList;
+
 public abstract class ScriptLine {
     public Object instruction;
     public String text;
@@ -11,7 +14,13 @@ public abstract class ScriptLine {
 
     public abstract String GetAsText();
 
-    public abstract void Execute(ExecutionContext context);
+    public abstract Object Execute(ExecutionContext context);
+
+    public abstract List<String> Validate();
+
+    public List<ScriptBlock> getChildBlocks() {
+        return new ArrayList<>();
+    }
 
     // Save to NBT stuff
     public NbtCompound toNbt() {
@@ -29,7 +38,7 @@ public abstract class ScriptLine {
             case "IF" -> new InstructionIF();
             case "WHILE" -> new InstructionWHILE();
             case "MATH" -> new InstructionMath();
-            case "MATH_SIMPLE" -> new InstructionMathSimple();
+            case "VAR_ASSIGN" -> new InstructionVarAssign();
             case "PRINT" -> new InstructionPrint();
             case "E_FOLLOW_ENTITY" -> new InstructionEntity_FollowEntity();
             // TODO: Add other cases here

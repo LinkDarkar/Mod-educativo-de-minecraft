@@ -11,6 +11,8 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.world.World;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 public class InstructionEntity_FollowEntity extends ScriptLine {
@@ -31,8 +33,27 @@ public class InstructionEntity_FollowEntity extends ScriptLine {
     }
 
     @Override
-    public void Execute(ExecutionContext context) {
-        if (targetUUID == null || targetUUID.isEmpty()) return;
+    public List<String> Validate() {
+        List<String> errors = new ArrayList<>();
+
+        if (targetUUID == null || targetUUID.trim().isEmpty()) {
+            errors.add("Target UUID cannot be empty.");
+            return errors;
+        }
+
+        try {
+            String cleanUUID = targetUUID.replace("\"", "");
+            java.util.UUID.fromString(cleanUUID);
+        } catch (IllegalArgumentException e) {
+            errors.add("Invalid UUID format: " + targetUUID);
+        }
+
+        return errors;
+    }
+
+    @Override
+    public Object Execute(ExecutionContext context) {
+        if (targetUUID == null || targetUUID.isEmpty()) return null;
 
         TestMod.LOGGER.info("Executing Follow Entity Instruction...");
 
@@ -57,6 +78,7 @@ public class InstructionEntity_FollowEntity extends ScriptLine {
         else {
             TestMod.LOGGER.warn("Script tried to run on Client Side. Ignoring.");
         }
+        return null;
     }
 
 
