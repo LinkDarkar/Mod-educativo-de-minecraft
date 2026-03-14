@@ -38,7 +38,7 @@ public class ScriptVerifier {
             }
 
             if (!found) {
-                return new VerificationResult(false, "Missing or out-of-order PRINT output: '" + expectedMsg + "'");
+                return new VerificationResult(false, "Wrong PRINT output. Expected output: '" + expectedMsg + "'");
             }
         }
 
@@ -58,7 +58,7 @@ public class ScriptVerifier {
             }
 
             if (!expectedValue.toString().equals(userValue.toString())) {
-                return new VerificationResult(false, "Variable '" + varName + "' - Expected: " + expectedValue + ", Got: " + userValue);
+                return new VerificationResult(false, "Variable '" + varName + "' has the wrong value. Expected value: " + expectedValue + ", Got: " + userValue);
             }
         }
 
@@ -76,7 +76,7 @@ public class ScriptVerifier {
             }
 
             if (!expectedValue.toString().equals(userValue.toString())) {
-                return new VerificationResult(false, "Variable '" + varName + "' - Expected: " + expectedValue + ", Got: " + userValue);
+                return new VerificationResult(false, "Variable '" + varName + "' has the wrong value. Expected value: " + expectedValue + ", Got: " + userValue);
             }
         }
 
