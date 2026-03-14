@@ -3,6 +3,8 @@ package net.linkdarkar.testmod.scripting.instructions;
 import net.linkdarkar.testmod.scripting.*;
 import net.minecraft.nbt.NbtCompound;
 
+import java.util.List;
+
 public class InstructionWHILE extends ScriptLine {
     public ScriptCondition condition;
     public ScriptBlock loopBlock = new ScriptBlock();
@@ -23,13 +25,25 @@ public class InstructionWHILE extends ScriptLine {
     }
 
     @Override
-    public void Execute(ExecutionContext context) {
+    public List<String> Validate() {
+        return condition.Validate();
+    }
+
+    @Override
+    public List<ScriptBlock> getChildBlocks() {
+        return List.of(loopBlock);
+    }
+
+    @Override
+    public Object Execute(ExecutionContext context) {
         int safety = 0;
         while (condition != null && condition.Evaluate(context)) {
             safety++;
-            if (1000 < safety) break;
+            context.incrementSteps();
+            if (10000 < safety) break;
             loopBlock.Execute(context);
         }
+        return null;
     }
 
     @Override

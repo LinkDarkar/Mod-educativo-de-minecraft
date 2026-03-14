@@ -6,6 +6,9 @@ import net.minecraft.block.Blocks;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.math.BlockPos;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class InstructionBlock_Place extends ScriptLine {
     public String xExp;
     public String yExp;
@@ -31,12 +34,39 @@ public class InstructionBlock_Place extends ScriptLine {
     }
 
     @Override
-    public void Execute(ExecutionContext context) {
-        if (context.executorEntity == null) return;
+    public List<String> Validate() {
+        List<String> errors = new ArrayList<>();
+        ExecutionContext dummyCtx = new ExecutionContext(null);
+
+        String[] fields = {xExp, yExp, zExp};
+        String[] labels = {"X", "Y", "Z"};
+
+        for (int i = 0; i < fields.length; i++) {
+            if (fields[i] == null || fields[i].trim().isEmpty()) {
+                errors.add("Coordinate " + labels[i] + " cannot be empty.");
+            } else {
+                try {
+                    ExpressionEvaluator.evaluate(fields[i], dummyCtx);
+                } catch (Exception e) {
+                    errors.add("Invalid syntax in " + labels[i] + " coordinate: " + e.getMessage());
+                }
+            }
+        }
+        return errors;
+    }
+
+    @Override
+    public Object Execute(ExecutionContext context) {
+        if (context.executorEntity == null) return null;
+
+        // If it's a simulation, skips changing the world
+        if (context.isSimulation) {
+            return null;
+        }
 
         // Thwe block placement must happen on the server. If done on the client, it creates a "ghost block"
         net.minecraft.world.World world = context.executorEntity.getWorld();
-        if (world.isClient()) return;
+        if (world.isClient()) return null;
 
         try {
             double xVal = getDouble(context, xExp);
@@ -54,6 +84,7 @@ public class InstructionBlock_Place extends ScriptLine {
         } catch (Exception e) {
             TestMod.LOGGER.info("Failed to place block: " + e.getMessage());
         }
+        return null;
     }
 
     private double getDouble(ExecutionContext ctx, String exp) {

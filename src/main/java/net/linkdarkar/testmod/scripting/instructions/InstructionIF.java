@@ -4,6 +4,8 @@ import net.linkdarkar.testmod.scripting.*;
 import net.linkdarkar.testmod.scripting.enums.ComparisonOperator;
 import net.minecraft.nbt.NbtCompound;
 
+import java.util.List;
+
 public class InstructionIF extends ScriptLine {
     public ScriptCondition condition;
     public ScriptBlock trueBlock = new ScriptBlock();
@@ -23,10 +25,22 @@ public class InstructionIF extends ScriptLine {
     }
 
     @Override
-    public void Execute(ExecutionContext context) {
+    public List<String> Validate() {
+        return condition.Validate();
+    }
+
+    @Override
+    public List<ScriptBlock> getChildBlocks() {
+        return List.of(trueBlock);
+    }
+
+    @Override
+    public Object Execute(ExecutionContext context) {
         if (condition != null && condition.Evaluate(context)) {
             trueBlock.Execute(context);
+            return true;
         }
+        return false;
     }
 
     // NBT stuff

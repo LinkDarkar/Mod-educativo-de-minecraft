@@ -4,6 +4,9 @@ import net.linkdarkar.testmod.scripting.*;
 import net.linkdarkar.testmod.scripting.enums.MathOperator;
 import net.minecraft.nbt.NbtCompound;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class InstructionMath extends ScriptLine {
     public String targetVarName;
     public String expression;
@@ -25,7 +28,26 @@ public class InstructionMath extends ScriptLine {
     }
 
     @Override
-    public void Execute(ExecutionContext c) {
+    public List<String> Validate() {
+        List<String> errors = new ArrayList<>();
+        if (targetVarName == null || targetVarName.trim().isEmpty()) {
+            errors.add("Target variable name cannot be empty.");
+        }
+        if (expression == null || expression.trim().isEmpty()) {
+            errors.add("Math expression cannot be empty.");
+        } else {
+            try {
+                ExpressionEvaluator.evaluate(expression, new ExecutionContext(null));
+            } catch (Exception e) {
+                errors.add("Invalid math syntax: " + e.getMessage());
+            }
+        }
+
+        return errors;
+    }
+
+    @Override
+    public Object Execute(ExecutionContext c) {
         try {
             Object result = ExpressionEvaluator.evaluate(expression, c);
             c.SetVar(targetVarName, result);
@@ -33,6 +55,7 @@ public class InstructionMath extends ScriptLine {
             // If it fails (e.g.: assignment of string literal), fallback to raw string
             c.SetVar(targetVarName, expression);
         }
+        return null;
     }
 
     // NBT stuff
