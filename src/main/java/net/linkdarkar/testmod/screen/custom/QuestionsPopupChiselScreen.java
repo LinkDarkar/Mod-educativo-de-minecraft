@@ -2,6 +2,7 @@ package net.linkdarkar.testmod.screen.custom;
 
 import net.linkdarkar.testmod.item.custom.questionHandler.QuestionData;
 import net.linkdarkar.testmod.item.custom.questionHandler.QuestionLoader;
+import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
@@ -145,12 +146,12 @@ public class QuestionsPopupChiselScreen extends Screen {
         if (this.question.answer.equals(answer)) {
             this.textInput.setUneditableColor(0x00FF00);
             client.player.playSound(SoundEvents.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
-            client.player.sendMessage(Text.literal("TEST SUCCESSFUL -> The answer was: " + answer));
+            client.player.sendMessage(Text.literal("Respuesta correcta!: " + answer));
         }
         else {
             this.textInput.setUneditableColor(0xFF0000);
             client.player.playSound(SoundEvents.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
-            client.player.sendMessage(Text.literal("fuck you"));
+            client.player.sendMessage(Text.literal("Respuesta equivocada"));
         }
 
         this.showExplanation = true;
@@ -173,15 +174,24 @@ public class QuestionsPopupChiselScreen extends Screen {
         super.render(context, mouseX, mouseY, delta);
 
         // shows question text
-        String[] lines = this.question.question.split("\n");
-        for (int i = 0; i < lines.length; i += 1) {
+        String[] questionLines = this.question.question.split("\n");
+        List<OrderedText> questionLinesToWrap = new ArrayList<>();
+        for (String line : questionLines) {
+            questionLinesToWrap.addAll(
+                    textRenderer.wrapLines(Text.literal(line), this.width - 60)
+            );
+        }
+
+        int questionTextY = this.question.startYPos;
+        for (OrderedText questionLine : questionLinesToWrap) {
             context.drawTextWithShadow(
                     this.textRenderer,
-                    lines[i],
+                    questionLine,
                     this.question.startXPos,
-                    this.question.startYPos + (i * this.question.verticalLineSpacing),
+                    questionTextY,
                     0xFFFFFF
             );
+            questionTextY += this.question.verticalLineSpacing;
         }
 
         // TODO show current progress with images
@@ -197,7 +207,6 @@ public class QuestionsPopupChiselScreen extends Screen {
         // we then show the explanation
         if (this.showExplanation) {
             String[] explanationLines = this.question.explanation.split("\n");
-
             List<OrderedText> linesToWrap = new ArrayList<>();
             for (String line : explanationLines) {
                 linesToWrap.addAll(

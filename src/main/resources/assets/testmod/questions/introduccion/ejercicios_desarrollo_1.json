@@ -1,0 +1,76 @@
+{
+  "questions": [
+    {
+      "id": "1",
+      "question": "PRINT \"Hola\" + \"que tal estás?\"",
+      "answer": "Holaque tal estás?",
+      "explanation": "Explicación: Cuando concatenamos strings estos se van a unir sin espacios de por medio. Así que se los tendremos que dar manualmente.",
+      "type": 1,
+      "verticalLineSpacing": 12,
+      "public int textBoxXPos" : 30,
+      "public int textBoxYPos" : 150,
+      "public int textBoxWidth" : 300,
+      "public int textBoxHeight" : 20
+    },
+    {
+      "id": "2",
+      "question": "varTexto = \"Hello World!\" \n \n PRINT varTexto",
+      "answer": "Hello World!",
+      "explanation": "Explicación: Para imprimir los contenidos de una variable, solo tenemos que poner el nombre de la variable en el print sin que este entre comillas. Así el computador la va a interpretar como una variable y mostrará lo que hayamos guardado dentro de esta.",
+      "type": 1,
+      "verticalLineSpacing": 12,
+      "public int textBoxXPos" : 30,
+      "public int textBoxYPos" : 150,
+      "public int textBoxWidth" : 300,
+      "public int textBoxHeight" : 20
+    },
+    {
+      "id": "3",
+      "question": "textoDisculpa = \"Lo siento, estoy ocupado\" \n \n PRINT \"textoDisculpa\"",
+      "answer": "\"textoDisculpa\"",
+      "explanation": "Explicación: Aquí hay un ejemplo de lo que mencioné antes sobre tener cuidado con que los nombres de las variables no estén entre comillas. En este print, \"textoDisculpa\" se toma directamente como un string al estar rodeado entre comillas.",
+      "type": 1,
+      "verticalLineSpacing": 12,
+      "public int textBoxXPos" : 30,
+      "public int textBoxYPos" : 150,
+      "public int textBoxWidth" : 300,
+      "public int textBoxHeight" : 20
+    },
+    {
+      "id": "4",
+      "question": "saludo = \"Buenos días!\" \n \n PRINT saludo + \" quieres tradear?\"",
+      "answer": "Buenos días! quieres tradear?",
+      "explanation": "Explicación: Ahora aquí si hay un espacio entre *días!* y *quieres*, pero porque el segundo string ya comienza con un espacio. También, la variable saludo no está entre comillas, por lo que el computador lo interpreta como que es una variable.",
+      "type": 1,
+      "verticalLineSpacing": 12,
+      "public int textBoxXPos" : 30,
+      "public int textBoxYPos" : 150,
+      "public int textBoxWidth" : 300,
+      "public int textBoxHeight" : 20
+    },
+    {
+      "id": "5",
+      "question": "edad = 20 \n \n PRINT \"Tengo \" + edad + \" años\"",
+      "answer": "Tengo 20 años",
+      "explanation": "Explicación: Las concatenaciones no tienen por qué ser solo con strings, también podemos poner números, como el de la variable edad.",
+      "type": 1,
+      "verticalLineSpacing": 12,
+      "public int textBoxXPos" : 30,
+      "public int textBoxYPos" : 150,
+      "public int textBoxWidth" : 300,
+      "public int textBoxHeight" : 20
+    },
+    {
+      "id": "6",
+      "question": "pitchDeVenta = \"Te vendo este libro encantado por\" \n \n precio = 20 \n \n item = \"esmeraldas\" \n \n PRINT pitchDeVenta + \" \" + precio + \" \" + item",
+      "answer": "Te vendo este libro encantado por 20 esmeraldas",
+      "explanation": "",
+      "type": 1,
+      "verticalLineSpacing": 12,
+      "public int textBoxXPos" : 30,
+      "public int textBoxYPos" : 150,
+      "public int textBoxWidth" : 300,
+      "public int textBoxHeight" : 20
+    }
+  ]
+}
