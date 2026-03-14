@@ -29,8 +29,17 @@ public class VisualNovelDialogueScreen extends Screen {
 
     public VisualNovelDialogueScreen() {
         super(Text.literal("Dialogue"));
-        TestMod.LOGGER.info("se construye");
         this.dialogueData = VisualNovelDialogueLoader.loadDialogue("testDialogue/dialogue_test_01.json");
+        for (VisualNovelDialogueData.Node node : dialogueData.Nodes) {
+            dialogueNodeMap.put(node.id, node);
+        }
+        VisualNovelDialogueLoader.mergeTextLines(this.dialogueData);
+    }
+
+    public VisualNovelDialogueScreen(String path) {
+        super(Text.literal("Dialogue"));
+        System.out.println(path);
+        this.dialogueData = VisualNovelDialogueLoader.loadDialogue(path);
         for (VisualNovelDialogueData.Node node : dialogueData.Nodes) {
             dialogueNodeMap.put(node.id, node);
         }

@@ -1,0 +1,27 @@
+{
+  "id": "test_01",
+  "Nodes": [
+    {
+      "id": "01_01",
+      "speaker": "reimu",
+      "text": [
+        "--Ahora vas a comenzar escribiendo scripts en los mobs para darles órdenes.",
+        "--Que ¿Qué es un script? -- dice con una risa incómoda.-- No te preocupes por eso. Considéralo como una lista de instrucciones realizadas en orden."
+      ],
+      "nextNodeId": "01_02"
+    },
+    {
+      "id": "01_02",
+      "speaker": "reimu",
+      "text": [
+        "--Al principio la interfaz puede resultar complicada de entender pero sólo concéntrate en los botones de Print y Execute Once.",
+        "Print es una instrucción que va a \"imprimir\" un texto en la pantalla, mientras que Execute Once es el botón que vas a apretar cuando vayas a ejecutar las instrucciones.",
+        "Por ejemplo la línea:\n \n \nPRINT \"Hello\" \n \n \n",
+        "--Es una instrucción que va a imprimir el texto Hello en el chat luego de que aprietes Execute Once.",
+        "De la misma forma que lo puedes ver en el ejemplo, el texto que vayas a poner en las instrucciones Print tiene que estar entre comillas."
+
+      ],
+      "nextNodeId": ""
+    }
+  ]
+}

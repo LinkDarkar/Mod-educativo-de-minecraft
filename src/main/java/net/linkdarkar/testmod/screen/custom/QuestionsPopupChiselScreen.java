@@ -7,8 +7,10 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.text.OrderedText;
 import net.minecraft.text.Text;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class QuestionsPopupChiselScreen extends Screen {
@@ -17,6 +19,15 @@ public class QuestionsPopupChiselScreen extends Screen {
     private final List<QuestionData> questionList;
 
     float progress;
+
+    private boolean showExplanation = false;
+
+    // this is here because the process to clear it kinda requires it?
+    // idk what I'm doing but maybe just the killChildren is enough?
+    // I don't want to try it, it's a pain
+    private TextFieldWidget textInput;
+    private ButtonWidget submitButton;
+    private ButtonWidget nextQuestionButton;
 
     public QuestionsPopupChiselScreen() {
         super(Text.literal("Quiz"));
@@ -29,7 +40,6 @@ public class QuestionsPopupChiselScreen extends Screen {
     protected void init() {
         super.init();
         try {
-            // TODO call function prepareQuestion? so we can call it when pressing the button too
             this.prepareQuestion();
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -59,7 +69,7 @@ public class QuestionsPopupChiselScreen extends Screen {
             }
         }
         else {
-            TextFieldWidget input = new TextFieldWidget(
+            this.textInput = new TextFieldWidget(
                     textRenderer,
                     this.question.textBoxXPos,
                     this.question.textBoxYPos,
@@ -67,21 +77,30 @@ public class QuestionsPopupChiselScreen extends Screen {
                     this.question.textBoxHeight,
                     Text.literal("Answer")
             );
-            input.setMaxLength(256);
-            this.addDrawableChild(input);
+            this.textInput.setMaxLength(256);
+            this.addDrawableChild(this.textInput);
 
-            // TODO make the dimensions easier on the eyes by making the parameters be calculated inside the QuestionData class?
-            this.addDrawableChild(
-                    ButtonWidget.builder(
-                                    Text.literal("submitTest"),
-                                    button -> {
-                                        this.onSubmitClicked();
-                                    }
-                            )
-                            .dimensions(this.question.textBoxXPos + this.question.textBoxWidth + 10, this.question.textBoxYPos, 100, 20)
-                            .build()
-            );
+            this.submitButton = ButtonWidget.builder(
+                    Text.literal("submit"),
+                    button -> {
+                        this.onSubmitClicked(this.textInput.getText());
+                    }
+            )
+            .dimensions(this.question.textBoxXPos + this.question.textBoxWidth + 10, this.question.textBoxYPos, 100, 20)
+            .build();
+            this.addDrawableChild(this.submitButton);
         }
+
+        this.nextQuestionButton = ButtonWidget.builder(
+                Text.literal("Next Question"),
+                button -> {
+                    this.onNextQuestionClicked();
+                }
+        )
+        .dimensions(this.width - 120, this.height - 40, 100, 20)
+        .build();
+        this.addDrawableChild(this.nextQuestionButton);
+        this.nextQuestionButton.active = false;
     }
 
     private void onAnswerClicked(boolean isCorrect) {
@@ -99,30 +118,58 @@ public class QuestionsPopupChiselScreen extends Screen {
             client.player.playSound(SoundEvents.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
         }
 
-        this.currentQuestion += 1;
-        this.prepareQuestion();
+        this.nextQuestionButton.active = true;
     }
 
-    private void onSubmitClicked() {
+    private void onSubmitClicked(String answer) {
         assert this.client != null;
         if (client.player == null) {
             return;
         }
+        if (this.textInput == null) {
+            return;
+        }
+        if (this.submitButton == null) {
+            return;
+        }
+        if (answer.isEmpty()) {
+            return;
+        }
+
+        this.textInput.setEditable(false);
+        this.submitButton.active = false;
+
+        if (this.question.answer.equals(answer)) {
+            this.textInput.setUneditableColor(0x00FF00);
+            client.player.playSound(SoundEvents.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
+            client.player.sendMessage(Text.literal("TEST SUCCESSFUL -> The answer was: " + answer));
+        }
+        else {
+            this.textInput.setUneditableColor(0xFF0000);
+            client.player.playSound(SoundEvents.ENTITY_VILLAGER_NO, 1.0f, 1.0f);
+            client.player.sendMessage(Text.literal("fuck you"));
+        }
+
+        this.showExplanation = true;
+        this.nextQuestionButton.active = true;
+    }
+
+    private void onNextQuestionClicked() {
+        if (this.textInput != null) {
+            this.textInput.setText("");
+        }
 
         this.currentQuestion += 1;
+        this.showExplanation = false;
+        this.clearChildren();
         this.prepareQuestion();
-
-        // TODO add check to see if answer is correct or not
-        client.player.playSound(SoundEvents.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
-
-        client.player.sendMessage(Text.literal("TEST SUCCESSFUL"));
     }
 
     @Override
-    public void render (DrawContext context, int mouseX, int mouseY, float delta) {
+    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
         super.render(context, mouseX, mouseY, delta);
 
-        // renders the question text wow
+        // shows question text
         String[] lines = this.question.question.split("\n");
         for (int i = 0; i < lines.length; i += 1) {
             context.drawTextWithShadow(
@@ -132,6 +179,41 @@ public class QuestionsPopupChiselScreen extends Screen {
                     this.question.startYPos + (i * this.question.verticalLineSpacing),
                     0xFFFFFF
             );
+        }
+
+        // TODO show current progress with images
+        // show current progress
+        context.drawTextWithShadow(
+                this.textRenderer,
+                (this.currentQuestion + 1) + " / " + this.questionList.size(),
+                this.width - 60,
+                20,
+                0xFFFFFF
+        );
+
+        // we then show the explanation
+        if (this.showExplanation) {
+            String[] explanationLines = this.question.explanation.split("\n");
+
+            List<OrderedText> linesToWrap = new ArrayList<>();
+            for (String line : explanationLines) {
+                linesToWrap.addAll(
+                        textRenderer.wrapLines(Text.literal(line), this.width - 60)
+                );
+            }
+
+            int textY = this.question.textBoxYPos;
+            for (OrderedText line : linesToWrap) {
+                context.drawTextWithShadow(
+                        this.textRenderer,
+                        line,
+                        this.question.textBoxXPos,
+                        textY + 50,
+                        0xFFFFFF
+                );
+
+                textY += this.textRenderer.fontHeight;
+            }
         }
     }
 

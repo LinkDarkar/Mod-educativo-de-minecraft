@@ -14,6 +14,7 @@ public class QuestionData {
     public int textBoxYPos = 150;
     public int textBoxWidth = 300;
     public int textBoxHeight = 20;
-    public String answer;
+    public String answer = "";
+    public String explanation = "there is no...\nexplanation";
     public List<AnswerData> answers = new ArrayList<>();
 }

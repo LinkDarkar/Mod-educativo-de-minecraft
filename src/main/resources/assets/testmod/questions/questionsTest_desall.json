@@ -3,6 +3,8 @@
     {
       "id": "q1",
       "question": "¿Qué es un algoritmo?",
+      "answer": "asdf",
+      "explanation": "asdf1",
       "type": 1,
       "verticalLineSpacing": 12,
       "public int textBoxXPos" : 30,
@@ -23,6 +25,7 @@
     {
       "id": "q3",
       "question": "¿Cuál es el sentido de la vida?3",
+      "explanation": "asdf1",
       "type": 1,
       "verticalLineSpacing": 12,
       "public int textBoxXPos" : 30,
