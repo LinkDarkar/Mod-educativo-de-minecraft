@@ -59,6 +59,11 @@ public class InstructionBlock_Place extends ScriptLine {
     public Object Execute(ExecutionContext context) {
         if (context.executorEntity == null) return null;
 
+        // If it's a simulation, skips changing the world
+        if (context.isSimulation) {
+            return null;
+        }
+
         // Thwe block placement must happen on the server. If done on the client, it creates a "ghost block"
         net.minecraft.world.World world = context.executorEntity.getWorld();
         if (world.isClient()) return null;

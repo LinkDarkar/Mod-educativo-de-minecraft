@@ -55,6 +55,11 @@ public class InstructionEntity_FollowEntity extends ScriptLine {
     public Object Execute(ExecutionContext context) {
         if (targetUUID == null || targetUUID.isEmpty()) return null;
 
+        // If it's a simulation, skips changing the world
+        if (context.isSimulation) {
+            return null;
+        }
+
         TestMod.LOGGER.info("Executing Follow Entity Instruction...");
 
         World world = context.executorEntity.getWorld();

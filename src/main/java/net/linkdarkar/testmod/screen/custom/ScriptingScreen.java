@@ -41,6 +41,9 @@ public class ScriptingScreen extends Screen {
 
     protected Map<ScriptLine, List<String>> currentErrors = new HashMap<>();
 
+    protected String verificationMessage = "";
+    protected int verificationColor = 0xFFFFFF;
+
     public ScriptingScreen(LivingEntity entity) {
         super(Text.literal("opens scripting screen"));
         this.entity = entity;
@@ -139,6 +142,23 @@ public class ScriptingScreen extends Screen {
         }
 
         int execY = this.height - 80;
+
+        // VERIFY CODE
+        this.addDrawableChild(ButtonWidget.builder(Text.literal("VERIFY"), b -> {
+            UUID targetCorrectUuid = new UUID(this.entityUuid.getMostSignificantBits(), ~this.entityUuid.getLeastSignificantBits());
+            ScriptBuilder correctBuilder = ScriptActorManager.getInstance().getBuilder(targetCorrectUuid);
+
+            if (correctBuilder == null || correctBuilder.GetScript().blockLines.isEmpty()) {
+                this.verificationMessage = "No correct answer defined by teacher!";
+                this.verificationColor = 0xFF5555;
+                return;
+            }
+
+            ScriptVerifier.VerificationResult result = ScriptVerifier.verify(this.builder.GetScript(), correctBuilder.GetScript(), this.entity);
+            this.verificationMessage = result.message();
+            this.verificationColor = result.isCorrect() ? 0x55FF55 : 0xFF5555;
+
+        }).dimensions(leftOffset, execY - 25, btnWidth, 20).build());
 
         // EXECUTE ONCE
         this.addDrawableChild(ButtonWidget.builder(Text.literal("EXECUTE ONCE"), b -> {
@@ -290,39 +310,44 @@ public class ScriptingScreen extends Screen {
     }
 
     protected void createPrintWidgets(InstructionPrint line, int y, int startX) {
-        TextFieldWidget msgField = new TextFieldWidget(this.textRenderer, startX + 45, y, 150, 20, Text.literal(""));
+        TextFieldWidget msgField = new TextFieldWidget(this.textRenderer, startX + 45, y, 250, 20, Text.literal(""));
+        msgField.setMaxLength(256);
         msgField.setText(line.message);
         msgField.setChangedListener(text -> line.message = text);
         addScrollableChild(msgField, startX + 45, y);
     }
 
     protected void createMathWidgets(InstructionMath line, int y, int startX) {
-        TextFieldWidget targetField = new TextFieldWidget(this.textRenderer, startX, y, 50, 20, Text.literal(""));
+        TextFieldWidget targetField = new TextFieldWidget(this.textRenderer, startX, y, 80, 20, Text.literal(""));
+        targetField.setMaxLength(256);
         targetField.setText(line.targetVarName);
         targetField.setChangedListener(text -> line.targetVarName = text);
         addScrollableChild(targetField, startX, y);
 
-        TextFieldWidget exprField = new TextFieldWidget(this.textRenderer, startX + 65, y, 120, 20, Text.literal(""));
+        TextFieldWidget exprField = new TextFieldWidget(this.textRenderer, startX + 95, y, 200, 20, Text.literal(""));
+        exprField.setMaxLength(256);
         exprField.setText(line.expression);
         exprField.setChangedListener(text -> line.expression = text);
-        addScrollableChild(exprField, startX + 65, y);
+        addScrollableChild(exprField, startX + 95, y);
     }
 
     protected void createVarAssignWidgets(InstructionVarAssign line, int y, int startX) {
-        TextFieldWidget targetField = new TextFieldWidget(this.textRenderer, startX, y, 60, 20, Text.literal(""));
+        TextFieldWidget targetField = new TextFieldWidget(this.textRenderer, startX, y, 120, 20, Text.literal(""));
+        targetField.setMaxLength(256);
         targetField.setText(line.targetVarName);
         targetField.setChangedListener(text -> line.targetVarName = text);
         addScrollableChild(targetField, startX, y);
     }
 
     protected void createPlaceBlockWidgets(InstructionBlock_Place line, int y, int startX) {
-        int fieldWidth = 35;
+        int fieldWidth = 60;
         int gap = 5;
 
         int currentX = startX + 35;
 
         // X Field
         TextFieldWidget xField = new TextFieldWidget(this.textRenderer, currentX, y, fieldWidth, 20, Text.literal(""));
+        xField.setMaxLength(256);
         xField.setText(line.xExp);
         xField.setChangedListener(text -> line.xExp = text);
         addScrollableChild(xField, currentX, y);
@@ -331,6 +356,7 @@ public class ScriptingScreen extends Screen {
 
         // Y Field
         TextFieldWidget yField = new TextFieldWidget(this.textRenderer, currentX, y, fieldWidth, 20, Text.literal(""));
+        yField.setMaxLength(256);
         yField.setText(line.yExp);
         yField.setChangedListener(text -> line.yExp = text);
         addScrollableChild(yField, currentX, y);
@@ -339,12 +365,12 @@ public class ScriptingScreen extends Screen {
 
         // Z Field
         TextFieldWidget zField = new TextFieldWidget(this.textRenderer, currentX, y, fieldWidth, 20, Text.literal(""));
+        zField.setMaxLength(256);
         zField.setText(line.zExp);
         zField.setChangedListener(text -> line.zExp = text);
         addScrollableChild(zField, currentX, y);
     }
 
-    // Default Helper function (scrolls with the code)
     protected <T extends ClickableWidget> void addScrollableChild(T widget, int originalX, int originalY) {
         this.addSelectableChild(widget);
         this.scrollableWidgets.add(new PlacedWidget(widget, originalX, originalY, false));
@@ -391,27 +417,30 @@ public class ScriptingScreen extends Screen {
 
 
         // Left Expression Field
-        TextFieldWidget leftField = new TextFieldWidget(this.textRenderer, startX + 20, y, 60, 20, Text.literal(""));
+        TextFieldWidget leftField = new TextFieldWidget(this.textRenderer, startX + 45, y, 100, 20, Text.literal(""));
+        leftField.setMaxLength(256);
         leftField.setText(cond.leftExpression);
         leftField.setChangedListener(text -> finalCond.leftExpression = text);
-        addScrollableChild(leftField, startX + 20, y);
+        addScrollableChild(leftField, startX + 45, y);
 
         // Operator Button
         ButtonWidget opButton = ButtonWidget.builder(Text.literal(getOpSymbol(cond.op)), button -> {
             finalCond.op = nextOperator(finalCond.op);
             button.setMessage(Text.literal(getOpSymbol(finalCond.op)));
-        }).dimensions(startX + 85, y, 25, 20).build();
-        addScrollableChild(opButton, startX + 85, y);
+        }).dimensions(startX + 150, y, 25, 20).build();
+        addScrollableChild(opButton, startX + 150, y);
 
         // Right Expression Field
-        TextFieldWidget rightField = new TextFieldWidget(this.textRenderer, startX + 115, y, 60, 20, Text.literal(""));
+        TextFieldWidget rightField = new TextFieldWidget(this.textRenderer, startX + 180, y, 100, 20, Text.literal(""));
+        rightField.setMaxLength(256);
         rightField.setText(cond.rightExpression);
         rightField.setChangedListener(text -> finalCond.rightExpression = text);
-        addScrollableChild(rightField, startX + 115, y);
+        addScrollableChild(rightField, startX + 180, y);
     }
 
     protected void createFollowEntityWidgets(InstructionEntity_FollowEntity line, int y, int startX) {
-        TextFieldWidget targetField = new TextFieldWidget(this.textRenderer, startX + 45, y, 100, 20, Text.literal(""));
+        TextFieldWidget targetField = new TextFieldWidget(this.textRenderer, startX + 45, y, 200, 20, Text.literal(""));
+        targetField.setMaxLength(256);
         targetField.setText(line.targetUUID);
         targetField.setChangedListener(text -> line.targetUUID = text);
         addScrollableChild(targetField, startX + 45, y);
@@ -562,7 +591,7 @@ public class ScriptingScreen extends Screen {
                 } else if (line instanceof InstructionWHILE) {
                     context.drawTextWithShadow(this.textRenderer, "WHILE", actualX, textY, 0x66FF66);
                 } else if (line instanceof InstructionMath) {
-                    context.drawTextWithShadow(this.textRenderer, "=", actualX + 55, textY, 0xFFFFFF);
+                    context.drawTextWithShadow(this.textRenderer, "=", actualX + 85, textY, 0xFFFFFF);
                 } else if (line instanceof InstructionPrint) {
                     context.drawTextWithShadow(this.textRenderer, "PRINT", actualX, textY, 0xAAAAAA);
                 } else if (line instanceof InstructionEntity_FollowEntity) {
@@ -639,6 +668,11 @@ public class ScriptingScreen extends Screen {
         }
 
         context.disableScissor();
+
+        if (!this.verificationMessage.isEmpty()) {
+            context.drawTextWithShadow(this.textRenderer, this.verificationMessage, SCRIPT_X, this.height - 20, this.verificationColor);
+        }
+
         if (SCRIPT_X <= mouseX && mouseX <= rightBound && START_Y <= mouseY) {
             double virtualY = mouseY + scrollOffset;
             ScriptLine hoveredLine = findLineAt((int) virtualY, this.builder.GetScript(), START_Y);

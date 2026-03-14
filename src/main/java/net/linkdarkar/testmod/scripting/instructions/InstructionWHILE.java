@@ -39,7 +39,8 @@ public class InstructionWHILE extends ScriptLine {
         int safety = 0;
         while (condition != null && condition.Evaluate(context)) {
             safety++;
-            if (1000 < safety) break;
+            context.incrementSteps();
+            if (10000 < safety) break;
             loopBlock.Execute(context);
         }
         return null;
