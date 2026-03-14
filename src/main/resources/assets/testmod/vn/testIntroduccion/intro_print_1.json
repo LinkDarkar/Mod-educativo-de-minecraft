@@ -18,8 +18,9 @@
         "Print es una instrucción que va a \"imprimir\" un texto en la pantalla, mientras que Execute Once es el botón que vas a apretar cuando vayas a ejecutar las instrucciones.",
         "Por ejemplo la línea:\n \n \nPRINT \"Hello\" \n \n \n",
         "--Es una instrucción que va a imprimir el texto Hello en el chat luego de que aprietes Execute Once.",
-        "De la misma forma que lo puedes ver en el ejemplo, el texto que vayas a poner en las instrucciones Print tiene que estar entre comillas."
-
+        "De la misma forma que lo puedes ver en el ejemplo, el texto que vayas a poner en las instrucciones Print tiene que estar entre comillas.",
+        "--Este mob que tienes aquí tiene solo esta instrucción.",
+        "¿Por qué no pruebas a ejecutarla? Sí lo sé, es aburrida pero ya nos acercamos a algo un poco más interesante."
       ],
       "nextNodeId": ""
     }

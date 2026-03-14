@@ -33,6 +33,24 @@ public class QuestionLoader {
         }
     }
 
+    public static List<QuestionData> LoadQuestions(String path) {
+        try (InputStream stream = QuestionLoader.class.getClassLoader()
+                .getResourceAsStream("assets/testmod/questions/" + path)) {
+            if (stream == null) {
+                throw new RuntimeException("Resource not found!");
+            }
+
+            InputStreamReader reader = new InputStreamReader(stream);
+            Type wrapperType = new TypeToken<Map<String, List<QuestionData>>>() {}.getType();
+            Map<String, List<QuestionData>> wrapper = GSON.fromJson(reader, wrapperType);
+
+            return wrapper.get("questions");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return List.of();
+        }
+    }
+
     public static QuestionData getRandomQuestion(List<QuestionData> questionList) {
         if (questionList.isEmpty())
             return null;

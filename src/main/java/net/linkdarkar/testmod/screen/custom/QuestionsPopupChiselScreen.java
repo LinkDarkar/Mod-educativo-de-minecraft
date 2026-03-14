@@ -31,9 +31,12 @@ public class QuestionsPopupChiselScreen extends Screen {
 
     public QuestionsPopupChiselScreen() {
         super(Text.literal("Quiz"));
-
-        // TODO change this to allow for other files more dynamically or smth
         this.questionList = QuestionLoader.LoadQuestions();
+    }
+
+    public QuestionsPopupChiselScreen(String path) {
+        super(Text.literal("Quiz"));
+        this.questionList = QuestionLoader.LoadQuestions(path);
     }
 
     @Override
