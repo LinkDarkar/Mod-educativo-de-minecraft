@@ -36,10 +36,12 @@ public abstract class ScriptLine {
         ScriptLine line = switch (type) {
             case "BLOCK" -> new ScriptBlock();
             case "IF" -> new InstructionIF();
+            case "ELSE" -> new InstructionELSE();
             case "WHILE" -> new InstructionWHILE();
             case "MATH" -> new InstructionMath();
             case "VAR_ASSIGN" -> new InstructionVarAssign();
             case "PRINT" -> new InstructionPrint();
+            case "MC_COMMAND" -> new InstructionMinecraft_ExecuteCommand();
             case "E_FOLLOW_ENTITY" -> new InstructionEntity_FollowEntity();
             // TODO: Add other cases here
             default -> null;

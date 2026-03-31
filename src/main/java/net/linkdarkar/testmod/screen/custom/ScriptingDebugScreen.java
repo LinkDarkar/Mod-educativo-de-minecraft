@@ -4,7 +4,10 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.linkdarkar.testmod.networking.ModNetworking.ExecuteOncePayload;
 import net.linkdarkar.testmod.networking.ModNetworking.SetTickingPayload;
 import net.linkdarkar.testmod.scripting.*;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.gui.widget.EditBoxWidget;
+import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.nbt.NbtCompound;
@@ -19,10 +22,21 @@ public class ScriptingDebugScreen extends ScriptingScreen {
     private final UUID correctEntityUuid;
     private boolean editingDefault = false;
 
+    private enum Tab
+    {
+        SCRIPT,
+        ACTIONS
+    }
+    private Tab currentTab = Tab.SCRIPT;
+
+    private final ScriptingConfigManager.EntityActions entityActions;
+
     public ScriptingDebugScreen(LivingEntity entity) {
         super(entity);
 
         this.correctEntityUuid = new UUID(entity.getUuid().getMostSignificantBits(), ~entity.getUuid().getLeastSignificantBits());
+
+        this.entityActions = ScriptingConfigManager.getInstance().getActions(this.entityUuid);
 
         this.loadCurrentBuilder();
     }
@@ -33,15 +47,16 @@ public class ScriptingDebugScreen extends ScriptingScreen {
         this.clearChildren();
         this.scrollableWidgets.clear();
 
-        // Left Buttons
-        int btnY = 50;
-        int btnWidth = 60;
         int leftOffset = 10;
+        int btnWidth = 60;
 
-        int toggleWidth = 30;
-        int toggleOffset = leftOffset + btnWidth + 5;
-        ScriptingConfigManager.ScriptingConfig config = ScriptingConfigManager.getInstance().getConfig(this.entityUuid);
+        // Tab Switcher Button
+        this.addDrawableChild(ButtonWidget.builder(Text.literal("Tab: " + currentTab.name()), b -> {
+            this.currentTab = (this.currentTab == Tab.SCRIPT) ? Tab.ACTIONS : Tab.SCRIPT;
+            this.rebuildUI();
+        }).dimensions(leftOffset, 10, btnWidth * 2, 20).build());
 
+        // Mode Switcher Button
         this.addDrawableChild(ButtonWidget.builder(Text.literal(this.editingDefault ? "Mode: DEFAULT" : "Mode: CORRECT"), b -> {
             UUID currentUuid = this.editingDefault ? this.defaultEntityUuid : this.correctEntityUuid;
             ScriptActorManager.getInstance().saveBuilder(currentUuid, this.builder);
@@ -49,103 +64,144 @@ public class ScriptingDebugScreen extends ScriptingScreen {
             this.editingDefault = !this.editingDefault;
             this.loadCurrentBuilder();
             this.rebuildUI();
-        }).dimensions(leftOffset, 15, btnWidth * 2, 20).build());
+        }).dimensions(leftOffset, 35, btnWidth * 2, 20).build());
 
-        // NEW VAR
+        switch (this.currentTab) {
+            case SCRIPT -> initScriptTab(leftOffset, btnWidth);
+            case ACTIONS -> initActionsTab();
+        }
+    }
+
+    private void initScriptTab(int leftOffset, int btnWidth) {
+        int btnY = 60;
+        int toggleWidth = 30;
+        int toggleOffset = leftOffset + btnWidth + 5;
+        ScriptingConfigManager.ScriptingConfig config = ScriptingConfigManager.getInstance().getConfig(this.entityUuid);
+
+
+        // VAR
         this.addDrawableChild(ButtonWidget.builder(Text.literal("VAR"), b -> {
             this.builder.AddMath();
             this.rebuildUI();
         }).dimensions(leftOffset, btnY, btnWidth, 20).build());
-
         this.addDrawableChild(ButtonWidget.builder(Text.literal(config.allowVar ? "ON" : "OFF"), b -> {
             config.allowVar = !config.allowVar;
             this.rebuildUI();
         }).dimensions(toggleOffset, btnY, toggleWidth, 20).build());
+        btnY += 25;
 
-        // ADD IF
+        // VARF
+        this.addDrawableChild(ButtonWidget.builder(Text.literal("VARF"), b -> {
+            this.builder.AddVarAssign();
+            this.rebuildUI();
+        }).dimensions(leftOffset, btnY, btnWidth, 20).build());
+        btnY += 25;
+
+        // IF
         this.addDrawableChild(ButtonWidget.builder(Text.literal("IF"), b -> {
             this.builder.AddIf();
             this.rebuildUI();
-        }).dimensions(leftOffset, btnY + 25, btnWidth, 20).build());
-
+        }).dimensions(leftOffset, btnY, btnWidth, 20).build());
         this.addDrawableChild(ButtonWidget.builder(Text.literal(config.allowIf ? "ON" : "OFF"), b -> {
             config.allowIf = !config.allowIf;
             this.rebuildUI();
-        }).dimensions(toggleOffset, btnY + 25, toggleWidth, 20).build());
+        }).dimensions(toggleOffset, btnY, toggleWidth, 20).build());
+        btnY += 25;
 
-        // ADD WHILE
+        // ELSE
+        this.addDrawableChild(ButtonWidget.builder(Text.literal("ELSE"), b -> {
+            this.builder.AddElse();
+            this.rebuildUI();
+        }).dimensions(leftOffset, btnY, btnWidth, 20).build());
+        this.addDrawableChild(ButtonWidget.builder(Text.literal(config.allowElse ? "ON" : "OFF"), b -> {
+            config.allowElse = !config.allowElse;
+            this.rebuildUI();
+        }).dimensions(toggleOffset, btnY, toggleWidth, 20).build());
+        btnY += 25;
+
+        // WHILE
         this.addDrawableChild(ButtonWidget.builder(Text.literal("WHILE"), b -> {
             this.builder.AddWhile();
             this.rebuildUI();
-        }).dimensions(leftOffset, btnY + 50, btnWidth, 20).build());
-
+        }).dimensions(leftOffset, btnY, btnWidth, 20).build());
         this.addDrawableChild(ButtonWidget.builder(Text.literal(config.allowWhile ? "ON" : "OFF"), b -> {
             config.allowWhile = !config.allowWhile;
             this.rebuildUI();
-        }).dimensions(toggleOffset, btnY + 50, toggleWidth, 20).build());
+        }).dimensions(toggleOffset, btnY, toggleWidth, 20).build());
+        btnY += 25;
 
-        // ADD PRINT (to chat)
+        // PRINT
         this.addDrawableChild(ButtonWidget.builder(Text.literal("PRINT"), b -> {
             this.builder.AddPrint();
             this.rebuildUI();
-        }).dimensions(leftOffset, btnY + 75, btnWidth, 20).build());
-
+        }).dimensions(leftOffset, btnY, btnWidth, 20).build());
         this.addDrawableChild(ButtonWidget.builder(Text.literal(config.allowPrint ? "ON" : "OFF"), b -> {
             config.allowPrint = !config.allowPrint;
             this.rebuildUI();
-        }).dimensions(toggleOffset, btnY + 75, toggleWidth, 20).build());
+        }).dimensions(toggleOffset, btnY, toggleWidth, 20).build());
+        btnY += 25;
 
-        // ADD FOLLOW_ENTITY
+        // Follow Entity
         this.addDrawableChild(ButtonWidget.builder(Text.literal("Follow"), b -> {
             this.builder.AddFollowEntity();
             this.rebuildUI();
-        }).dimensions(leftOffset, btnY + 100, btnWidth, 20).build());
-
+        }).dimensions(leftOffset, btnY, btnWidth, 20).build());
         this.addDrawableChild(ButtonWidget.builder(Text.literal(config.allowFollow ? "ON" : "OFF"), b -> {
             config.allowFollow = !config.allowFollow;
             this.rebuildUI();
-        }).dimensions(toggleOffset, btnY + 100, toggleWidth, 20).build());
+        }).dimensions(toggleOffset, btnY, toggleWidth, 20).build());
+        btnY += 25;
 
-        // ADD PLACE_BLOCK
+        // Place Block
         this.addDrawableChild(ButtonWidget.builder(Text.literal("Place"), b -> {
             this.builder.AddPlaceBlock();
             this.rebuildUI();
-        }).dimensions(leftOffset, btnY + 125, btnWidth, 20).build());
-
+        }).dimensions(leftOffset, btnY, btnWidth, 20).build());
         this.addDrawableChild(ButtonWidget.builder(Text.literal(config.allowPlace ? "ON" : "OFF"), b -> {
             config.allowPlace = !config.allowPlace;
             this.rebuildUI();
-        }).dimensions(toggleOffset, btnY + 125, toggleWidth, 20).build());
+        }).dimensions(toggleOffset, btnY, toggleWidth, 20).build());
+        btnY += 25;
 
-        // EXECUTE ONCE
+        // Command
+        this.addDrawableChild(ButtonWidget.builder(Text.literal("Command"), b -> {
+            this.builder.AddCommand();
+            this.rebuildUI();
+        }).dimensions(leftOffset, btnY, btnWidth, 20).build());
+        this.addDrawableChild(ButtonWidget.builder(Text.literal(config.allowCommand ? "ON" : "OFF"), b -> {
+            config.allowCommand = !config.allowCommand;
+            this.rebuildUI();
+        }).dimensions(toggleOffset, btnY, toggleWidth, 20).build());
+        btnY += 25;
+
+        // Exec controls
         this.addDrawableChild(ButtonWidget.builder(Text.literal("Exe 1"), b -> {
             NbtCompound scriptNbt = this.builder.toNbt();
             ClientPlayNetworking.send(new ExecuteOncePayload(this.entityUuid, scriptNbt));
             this.close();
-        }).dimensions(leftOffset, btnY + 150, btnWidth, 20).build());
+        }).dimensions(leftOffset, btnY, btnWidth, 20).build());
+        btnY += 25;
 
-        // START LOOP
         this.addDrawableChild(ButtonWidget.builder(Text.literal("Start"), b -> {
             NbtCompound scriptNbt = this.builder.toNbt();
             ClientPlayNetworking.send(new SetTickingPayload(this.entityUuid, true, scriptNbt));
             this.close();
-        }).dimensions(leftOffset, btnY + 175, btnWidth, 20).build());
+        }).dimensions(leftOffset, btnY, btnWidth, 20).build());
+        btnY += 25;
 
-        // STOP LOOP
         this.addDrawableChild(ButtonWidget.builder(Text.literal("Stop"), b -> {
             ClientPlayNetworking.send(new SetTickingPayload(this.entityUuid, false, new NbtCompound()));
             this.close();
-        }).dimensions(leftOffset, btnY + 200, btnWidth, 20).build());
+        }).dimensions(leftOffset, btnY, btnWidth, 20).build());
 
         // UUID stuff
-        // ------------------------------
         List<String> entityUUIDs = this.scanInventoryForEntityUUIDs();
-
         int listX = this.width - 110;
         int listY = 40;
 
-        this.addDrawableChild(ButtonWidget.builder(Text.literal("UUIDs in Inventory"), b -> {})
-                .dimensions(listX, 20, 100, 20).build()).active = false;
+        this.addDrawableChild(ButtonWidget.builder(Text.literal("UUIDs in Inventory"), b -> {
+
+        }).dimensions(listX, 20, 100, 20).build()).active = false;
 
         for (String uuidStr : entityUUIDs) {
             String labelText;
@@ -153,28 +209,86 @@ public class ScriptingDebugScreen extends ScriptingScreen {
 
             if (foundEntity != null) {
                 String type = foundEntity.getType().getName().getString();
-
-                if (foundEntity.hasCustomName()) {
-                    labelText = Objects.requireNonNull(foundEntity.getCustomName()).getString() + " (" + type + ")";
-                } else {
-                    labelText = type + " " + uuidStr.substring(0, 4) + "..";
-                }
+                labelText = foundEntity.hasCustomName() ? Objects.requireNonNull(foundEntity.getCustomName()).getString() + " (" + type + ")" : type + " " + uuidStr.substring(0, 4) + "..";
             } else {
                 labelText = "Unknown " + uuidStr.substring(0, 8) + "..";
             }
 
-            this.addDrawableChild(ButtonWidget.builder(Text.literal(labelText), b -> {
-                this.insertUUID(uuidStr);
-            }).dimensions(listX, listY, 100, 20).build());
-
+            this.addDrawableChild(ButtonWidget.builder(Text.literal(labelText), b -> this.insertUUID(uuidStr))
+                    .dimensions(listX, listY, 100, 20).build());
             listY += 25;
         }
 
         int finalY = this.generateWidgetsRecursive(this.builder.GetScript(), START_Y, 0);
-
         this.contentHeight = finalY - START_Y;
-
         this.updateScroll();
+    }
+
+    private void initActionsTab() {
+        int startY = 70;
+        int gapY = 90;
+
+        // Draw the UI rows for each event
+        createActionRow("Any Execute", entityActions.anyExecute, startY);
+        createActionRow("Correct Code", entityActions.executeCorrect, startY + gapY);
+        createActionRow("Wrong Code", entityActions.executeWrong, startY + gapY * 2);
+    }
+
+    private void createActionRow(String label, ScriptingConfigManager.ActionEventData data, int y) {
+        int labelX = SCRIPT_X;
+
+        // Multi-line Commands Input
+        EditBoxWidget cmdBox = new EditBoxWidget(this.textRenderer, labelX, y + 15, 200, 60, Text.empty(), Text.literal("Commands"));
+        cmdBox.setText(data.commands);
+        cmdBox.setChangeListener(text -> data.commands = text);
+        this.addDrawableChild(cmdBox);
+
+        // Max Executions Input
+        TextFieldWidget maxField = new TextFieldWidget(this.textRenderer, labelX + 210, y + 15, 40, 20, Text.literal(""));
+        maxField.setText(String.valueOf(data.maxExecutions));
+        maxField.setChangedListener(text -> {
+            try { data.maxExecutions = Integer.parseInt(text); }
+            catch (NumberFormatException ignored) {}
+        });
+        this.addDrawableChild(maxField);
+
+        // Reset Counter Button
+        this.addDrawableChild(ButtonWidget.builder(Text.literal("Reset Cnt: " + data.currentExecutions), b -> {
+            data.currentExecutions = 0;
+            this.rebuildUI();
+        }).dimensions(labelX + 260, y + 15, 80, 20).build());
+    }
+
+    @Override
+    public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+        super.render(context, mouseX, mouseY, delta);
+
+        switch (this.currentTab) {
+            // Render the script highlighting/text specifically for the Script tab
+            case SCRIPT -> {
+                int drawY = (int) (START_Y - scrollOffset);
+                int rightBound = this.width - 110;
+
+                drawLineNumbersRecursive(context, this.builder.GetScript(), drawY, new int[]{1});
+                context.enableScissor(SCRIPT_X, 0, rightBound, this.height);
+                drawSelectionHighlight(context, this.builder.GetScript(), drawY, 0);
+                drawIndentationLines(context, this.builder.GetScript(), drawY, 0);
+                drawScriptTextRecursive(context, this.builder.GetScript(), drawY, 0);
+                context.disableScissor();
+            }
+            // Render labels for the Actions tab
+            case null, default -> {
+                int startY = 70;
+                int gapY = 90;
+
+                context.drawTextWithShadow(this.textRenderer, "Event: Any Execute", SCRIPT_X, startY, 0xFFFFFF);
+                context.drawTextWithShadow(this.textRenderer, "Event: Execute Correct", SCRIPT_X, startY + gapY, 0x55FF55);
+                context.drawTextWithShadow(this.textRenderer, "Event: Execute Wrong", SCRIPT_X, startY + gapY * 2, 0xFF5555);
+
+                context.drawTextWithShadow(this.textRenderer, "Cmds (; separated)", SCRIPT_X, startY - 10, 0xAAAAAA);
+                context.drawTextWithShadow(this.textRenderer, "Max", SCRIPT_X + 210, startY - 10, 0xAAAAAA);
+            }
+        }
     }
 
     private void loadCurrentBuilder() {
