@@ -2,6 +2,9 @@ package net.linkdarkar.testmod.scripting;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import net.linkdarkar.testmod.scripting.instructions.InstructionELSE;
+import net.linkdarkar.testmod.scripting.instructions.InstructionIF;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
 
@@ -15,8 +18,30 @@ public class ScriptBlock extends ScriptLine {
     @Override
     public Object Execute(ExecutionContext context) {
         Object lastVal = null;
-        for (ScriptLine scriptLine : blockLines) {
-            lastVal = scriptLine.Execute(context);
+
+        for (int i = 0; i < blockLines.size(); i++) {
+            ScriptLine scriptLine = blockLines.get(i);
+
+            // Link certain things before executing (Like the IF with the ELSE)
+            if (scriptLine instanceof InstructionIF ifLine) {
+
+                if (i + 1 < blockLines.size() && blockLines.get(i + 1) instanceof InstructionELSE elseLine) {
+                    ifLine.elseBlock = elseLine.elseBlock;
+                } else {
+                    // Clear in case it was previously set and the script changed
+                    ifLine.elseBlock = null;
+                }
+
+                lastVal = ifLine.Execute(context);
+
+            } else if (scriptLine instanceof InstructionELSE) {
+                // Skip ELSEs, as the IF should execute it
+
+                continue;
+
+            } else {
+                lastVal = scriptLine.Execute(context);
+            }
         }
         return lastVal;
     }

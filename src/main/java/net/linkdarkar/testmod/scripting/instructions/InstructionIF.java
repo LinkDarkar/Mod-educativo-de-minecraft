@@ -9,6 +9,7 @@ import java.util.List;
 public class InstructionIF extends ScriptLine {
     public ScriptCondition condition;
     public ScriptBlock trueBlock = new ScriptBlock();
+    public ScriptBlock elseBlock = null;
 
     public InstructionIF() {
         this.color = 0xFF0000;
@@ -39,6 +40,8 @@ public class InstructionIF extends ScriptLine {
         if (condition != null && condition.Evaluate(context)) {
             trueBlock.Execute(context);
             return true;
+        } else if (elseBlock != null) {
+            return elseBlock.Execute(context);
         }
         return false;
     }

@@ -5,6 +5,7 @@ import net.linkdarkar.testmod.scripting.instructions.*;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.nbt.NbtCompound;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -82,9 +83,15 @@ public class ScriptBuilder {
         Insert(new InstructionIF());
     }
 
+    public void AddElse() {
+        Insert(new InstructionELSE());
+    }
+
     public void AddWhile() {
         Insert(new InstructionWHILE());
     }
+
+    public void AddCommand() { Insert(new InstructionMinecraft_ExecuteCommand()); }
 
     public void AddFollowEntity() {
         Insert(new InstructionEntity_FollowEntity());
@@ -154,6 +161,7 @@ public class ScriptBuilder {
             ScriptBlock targetBlock = null;
 
             if (prevLine instanceof InstructionIF) targetBlock = ((InstructionIF) prevLine).trueBlock;
+            else if (prevLine instanceof InstructionELSE) targetBlock = ((InstructionELSE) prevLine).elseBlock;
             else if (prevLine instanceof InstructionWHILE) targetBlock = ((InstructionWHILE) prevLine).loopBlock;
             else if (prevLine instanceof InstructionVarAssign) targetBlock = ((InstructionVarAssign) prevLine).valueBlock;
 
@@ -169,8 +177,9 @@ public class ScriptBuilder {
         for (ScriptLine line : currentScope.blockLines) {
             ScriptBlock childBlock = null;
             if (line instanceof InstructionIF) childBlock = ((InstructionIF) line).trueBlock;
-            if (line instanceof InstructionWHILE) childBlock = ((InstructionWHILE) line).loopBlock;
-            if (line instanceof InstructionVarAssign) childBlock = ((InstructionVarAssign) line).valueBlock;
+            else if (line instanceof InstructionELSE) childBlock = ((InstructionELSE) line).elseBlock;
+            else if (line instanceof InstructionWHILE) childBlock = ((InstructionWHILE) line).loopBlock;
+            else if (line instanceof InstructionVarAssign) childBlock = ((InstructionVarAssign) line).valueBlock;
 
             if (childBlock == target) return currentScope;
 
@@ -185,8 +194,9 @@ public class ScriptBuilder {
     private ScriptLine FindInstructionOwningBlock(ScriptBlock scope, ScriptBlock targetBlock) {
         for (ScriptLine line : scope.blockLines) {
             if (line instanceof InstructionIF && ((InstructionIF) line).trueBlock == targetBlock) return line;
-            if (line instanceof InstructionWHILE && ((InstructionWHILE) line).loopBlock == targetBlock) return line;
-            if (line instanceof InstructionVarAssign && ((InstructionVarAssign) line).valueBlock == targetBlock) return line;
+            else if (line instanceof InstructionELSE && ((InstructionELSE) line).elseBlock == targetBlock) return line;
+            else if (line instanceof InstructionWHILE && ((InstructionWHILE) line).loopBlock == targetBlock) return line;
+            else if (line instanceof InstructionVarAssign && ((InstructionVarAssign) line).valueBlock == targetBlock) return line;
         }
         return null;
     }
@@ -202,8 +212,18 @@ public class ScriptBuilder {
     }
 
     private void collectErrors(ScriptBlock block, Map<ScriptLine, List<String>> errorMap) {
-        for (ScriptLine line : block.blockLines) {
+        for (int i = 0; i < block.blockLines.size(); i++) {
+            ScriptLine line = block.blockLines.get(i);
             List<String> lineErrors = line.Validate();
+
+            // Check if an ELSE is directly beneath an IF
+            if (line instanceof InstructionELSE) {
+                if (i == 0 || !(block.blockLines.get(i - 1) instanceof InstructionIF)) {
+                    if (lineErrors == null) lineErrors = new ArrayList<>();
+                    lineErrors.add("ELSE must be placed immediately below an IF instruction.");
+                }
+            }
+
             if (lineErrors != null && !lineErrors.isEmpty()) {
                 errorMap.put(line, lineErrors);
             }

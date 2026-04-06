@@ -8,6 +8,7 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.ClickableWidget;
+import net.minecraft.client.gui.widget.EditBoxWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
@@ -105,6 +106,15 @@ public class ScriptingScreen extends Screen {
             btnY += 25;
         }
 
+        // ADD ELSE
+        if (config.allowElse) {
+            this.addDrawableChild(ButtonWidget.builder(Text.literal("Add ELSE"), b -> {
+                this.builder.AddElse();
+                this.rebuildUI();
+            }).dimensions(leftOffset, btnY, btnWidth, 20).build());
+            btnY += 25;
+        }
+
         // ADD WHILE
         if (config.allowWhile) {
             this.addDrawableChild(ButtonWidget.builder(Text.literal("Add WHILE"), b -> {
@@ -141,6 +151,15 @@ public class ScriptingScreen extends Screen {
             btnY += 25;
         }
 
+        // ADD COMMAND
+        if (config.allowCommand) {
+            this.addDrawableChild(ButtonWidget.builder(Text.literal("Add Command"), b -> {
+                this.builder.AddCommand();
+                this.rebuildUI();
+            }).dimensions(leftOffset, btnY, btnWidth, 20).build());
+            btnY += 25;
+        }
+
         int execY = this.height - 80;
 
         // VERIFY CODE
@@ -157,6 +176,18 @@ public class ScriptingScreen extends Screen {
             ScriptVerifier.VerificationResult result = ScriptVerifier.verify(this.builder.GetScript(), correctBuilder.GetScript(), this.entity);
             this.verificationMessage = result.message();
             this.verificationColor = result.isCorrect() ? 0x55FF55 : 0xFF5555;
+
+            if (this.client != null && this.client.getNetworkHandler() != null) {
+                ScriptingConfigManager.EntityActions actions = ScriptingConfigManager.getInstance().getActions(this.entityUuid);
+
+                processAction(actions.anyExecute);
+
+                if (result.isCorrect()) {
+                    processAction(actions.executeCorrect);
+                } else {
+                    processAction(actions.executeWrong);
+                }
+            }
 
         }).dimensions(leftOffset, execY - 25, btnWidth, 20).build());
 
@@ -238,6 +269,11 @@ public class ScriptingScreen extends Screen {
                 if (foundInChild != null) return foundInChild;
                 currentY += getBlockHeight(((InstructionIF) line).trueBlock);
             }
+            else if (line instanceof InstructionELSE) {
+                ScriptLine foundInChild = findLineAt(mouseY, ((InstructionELSE) line).elseBlock, currentY);
+                if (foundInChild != null) return foundInChild;
+                currentY += getBlockHeight(((InstructionELSE) line).elseBlock);
+            }
             else if (line instanceof InstructionWHILE) {
                 ScriptLine foundInChild = findLineAt(mouseY, ((InstructionWHILE) line).loopBlock, currentY);
                 if (foundInChild != null) return foundInChild;
@@ -258,8 +294,9 @@ public class ScriptingScreen extends Screen {
         for (ScriptLine line : scope.blockLines) {
             ScriptBlock child = null;
             if (line instanceof InstructionIF) child = ((InstructionIF) line).trueBlock;
-            if (line instanceof InstructionWHILE) child = ((InstructionWHILE) line).loopBlock;
-            if (line instanceof InstructionVarAssign) child = ((InstructionVarAssign) line).valueBlock;
+            else if (line instanceof InstructionELSE) child = ((InstructionELSE) line).elseBlock;
+            else if (line instanceof InstructionWHILE) child = ((InstructionWHILE) line).loopBlock;
+            else if (line instanceof InstructionVarAssign) child = ((InstructionVarAssign) line).valueBlock;
 
             if (child != null) {
                 ScriptBlock res = findParentOfLine(child, target);
@@ -282,12 +319,13 @@ public class ScriptingScreen extends Screen {
                 createConditionWidgets(ifLine.condition, currentY, contentStartX);
                 currentY += LINE_HEIGHT;
                 currentY = generateWidgetsRecursive(ifLine.trueBlock, currentY, indent + 1);
-
+            } else if (line instanceof InstructionELSE elseLine) {
+                currentY += LINE_HEIGHT;
+                currentY = generateWidgetsRecursive(elseLine.elseBlock, currentY, indent + 1);
             } else if (line instanceof InstructionWHILE whileLine) {
                 createConditionWidgets(whileLine.condition, currentY, contentStartX);
                 currentY += LINE_HEIGHT;
                 currentY = generateWidgetsRecursive(whileLine.loopBlock, currentY, indent + 1);
-
             } else if (line instanceof InstructionMath mathLine) {
                 createMathWidgets(mathLine, currentY, contentStartX);
                 currentY += LINE_HEIGHT;
@@ -304,6 +342,9 @@ public class ScriptingScreen extends Screen {
             } else if (line instanceof InstructionBlock_Place placeLine) {
                 createPlaceBlockWidgets(placeLine, currentY, contentStartX);
                 currentY += LINE_HEIGHT;
+            } else if (line instanceof InstructionMinecraft_ExecuteCommand cmdLine) {
+                createCommandWidgets(cmdLine, currentY, contentStartX);
+                currentY += LINE_HEIGHT;
             }
         }
         return currentY;
@@ -311,6 +352,7 @@ public class ScriptingScreen extends Screen {
 
     protected void createPrintWidgets(InstructionPrint line, int y, int startX) {
         TextFieldWidget msgField = new TextFieldWidget(this.textRenderer, startX + 45, y, 250, 20, Text.literal(""));
+//        EditBoxWidget
         msgField.setMaxLength(256);
         msgField.setText(line.message);
         msgField.setChangedListener(text -> line.message = text);
@@ -437,7 +479,29 @@ public class ScriptingScreen extends Screen {
         rightField.setChangedListener(text -> finalCond.rightExpression = text);
         addScrollableChild(rightField, startX + 180, y);
     }
-
+    protected void createCommandWidgets(InstructionMinecraft_ExecuteCommand line, int y, int startX) {
+        TextFieldWidget cmdField = new TextFieldWidget(this.textRenderer, startX + 45, y, 250, 20, Text.literal(""));
+        cmdField.setMaxLength(256);
+        cmdField.setText(line.commandExpression);
+        cmdField.setChangedListener(text -> line.commandExpression = text);
+        addScrollableChild(cmdField, startX + 45, y);
+    }
+    protected void processAction(ScriptingConfigManager.ActionEventData actionData) {
+        if (actionData.maxExecutions == 0 || actionData.currentExecutions < actionData.maxExecutions) {
+            if (actionData.commands != null && !actionData.commands.trim().isEmpty()) {
+                String[] commandsToRun = actionData.commands.split("\\r?\\n");
+                for (String cmd : commandsToRun) {
+                    cmd = cmd.trim();
+                    if (!cmd.isEmpty()) {
+                        if (this.client != null && this.client.getNetworkHandler() != null) {
+                            this.client.getNetworkHandler().sendChatCommand(cmd);
+                        }
+                    }
+                }
+            }
+            actionData.currentExecutions++;
+        }
+    }
     protected void createFollowEntityWidgets(InstructionEntity_FollowEntity line, int y, int startX) {
         TextFieldWidget targetField = new TextFieldWidget(this.textRenderer, startX + 45, y, 200, 20, Text.literal(""));
         targetField.setMaxLength(256);
@@ -466,6 +530,7 @@ public class ScriptingScreen extends Screen {
         for (ScriptLine line : block.blockLines) {
             height += LINE_HEIGHT;
             if (line instanceof InstructionIF) height += getBlockHeight(((InstructionIF) line).trueBlock);
+            else if (line instanceof InstructionELSE) height += getBlockHeight(((InstructionELSE) line).elseBlock);
             else if (line instanceof InstructionWHILE) height += getBlockHeight(((InstructionWHILE) line).loopBlock);
             else if (line instanceof InstructionVarAssign) height += getBlockHeight(((InstructionVarAssign) line).valueBlock);
         }
@@ -476,37 +541,47 @@ public class ScriptingScreen extends Screen {
         for (ScriptLine line : block.blockLines) {
             int xOffset = indent * 20;
 
-            if (line instanceof InstructionIF ifLine) {
-                int innerHeight = getBlockHeight(ifLine.trueBlock);
-                int startX = SCRIPT_X + xOffset;
+            switch (line) {
+                case InstructionIF ifLine -> {
+                    int innerHeight = getBlockHeight(ifLine.trueBlock);
+                    int startX = SCRIPT_X + xOffset;
 
-                int bgColor = 0x22FF0000;
-                context.fill(startX + 10, currentY + LINE_HEIGHT, this.width, currentY + LINE_HEIGHT + innerHeight, bgColor);
+                    int bgColor = 0x22FF0000;
+                    context.fill(startX + 10, currentY + LINE_HEIGHT, this.width, currentY + LINE_HEIGHT + innerHeight, bgColor);
 
-                currentY += LINE_HEIGHT;
-                currentY = drawBlockBackgrounds(context, ifLine.trueBlock, currentY, indent + 1);
+                    currentY += LINE_HEIGHT;
+                    currentY = drawBlockBackgrounds(context, ifLine.trueBlock, currentY, indent + 1);
+                }
+                case InstructionELSE elseLine -> {
+                    int innerHeight = getBlockHeight(elseLine.elseBlock);
+                    int startX = SCRIPT_X + xOffset;
+                    int bgColor = 0x22FFAA00; // Orange tint
 
-            } else if (line instanceof InstructionWHILE whileLine) {
-                int innerHeight = getBlockHeight(whileLine.loopBlock);
-                int startX = SCRIPT_X + xOffset;
+                    context.fill(startX + 10, currentY + LINE_HEIGHT, this.width, currentY + LINE_HEIGHT + innerHeight, bgColor);
+                    currentY += LINE_HEIGHT;
+                    currentY = drawBlockBackgrounds(context, elseLine.elseBlock, currentY, indent + 1);
+                }
+                case InstructionWHILE whileLine -> {
+                    int innerHeight = getBlockHeight(whileLine.loopBlock);
+                    int startX = SCRIPT_X + xOffset;
 
-                int bgColor = 0x2200FF00;
-                context.fill(startX + 10, currentY + LINE_HEIGHT, this.width, currentY + LINE_HEIGHT + innerHeight, bgColor);
+                    int bgColor = 0x2200FF00;
+                    context.fill(startX + 10, currentY + LINE_HEIGHT, this.width, currentY + LINE_HEIGHT + innerHeight, bgColor);
 
-                currentY += LINE_HEIGHT;
-                currentY = drawBlockBackgrounds(context, whileLine.loopBlock, currentY, indent + 1);
+                    currentY += LINE_HEIGHT;
+                    currentY = drawBlockBackgrounds(context, whileLine.loopBlock, currentY, indent + 1);
+                }
+                case InstructionVarAssign varLine -> {
+                    int innerHeight = getBlockHeight(varLine.valueBlock);
+                    int startX = SCRIPT_X + xOffset;
 
-            } else if (line instanceof InstructionVarAssign varLine) {
-                int innerHeight = getBlockHeight(varLine.valueBlock);
-                int startX = SCRIPT_X + xOffset;
+                    int bgColor = 0x22FFFF00;
+                    context.fill(startX + 10, currentY + LINE_HEIGHT, this.width, currentY + LINE_HEIGHT + innerHeight, bgColor);
 
-                int bgColor = 0x22FFFF00;
-                context.fill(startX + 10, currentY + LINE_HEIGHT, this.width, currentY + LINE_HEIGHT + innerHeight, bgColor);
-
-                currentY += LINE_HEIGHT;
-                currentY = drawBlockBackgrounds(context, varLine.valueBlock, currentY, indent + 1);
-            } else {
-                currentY += LINE_HEIGHT;
+                    currentY += LINE_HEIGHT;
+                    currentY = drawBlockBackgrounds(context, varLine.valueBlock, currentY, indent + 1);
+                }
+                case null, default -> currentY += LINE_HEIGHT;
             }
         }
         return currentY;
@@ -516,37 +591,47 @@ public class ScriptingScreen extends Screen {
         for (ScriptLine line : block.blockLines) {
             int xOffset = indent * 20;
 
-            if (line instanceof InstructionIF ifLine) {
-                int innerHeight = getBlockHeight(ifLine.trueBlock);
-                int actualX = SCRIPT_X + xOffset - (int)horizontalScrollOffset;
+            switch (line) {
+                case InstructionIF ifLine -> {
+                    int innerHeight = getBlockHeight(ifLine.trueBlock);
+                    int actualX = SCRIPT_X + xOffset - (int) horizontalScrollOffset;
 
-                int bracketColor = 0xFFFF0000;
-                context.fill(actualX + 5, currentY + LINE_HEIGHT, actualX + 7, currentY + LINE_HEIGHT + innerHeight, bracketColor);
+                    int bracketColor = 0xFFFF0000;
+                    context.fill(actualX + 5, currentY + LINE_HEIGHT, actualX + 7, currentY + LINE_HEIGHT + innerHeight, bracketColor);
 
-                currentY += LINE_HEIGHT;
-                currentY = drawIndentationLines(context, ifLine.trueBlock, currentY, indent + 1);
+                    currentY += LINE_HEIGHT;
+                    currentY = drawIndentationLines(context, ifLine.trueBlock, currentY, indent + 1);
+                }
+                case InstructionELSE elseLine -> {
+                    int innerHeight = getBlockHeight(elseLine.elseBlock);
+                    int actualX = SCRIPT_X + xOffset - (int) horizontalScrollOffset;
+                    int bracketColor = 0xFFFFAA00;
+                    context.fill(actualX + 5, currentY + LINE_HEIGHT, actualX + 7, currentY + LINE_HEIGHT + innerHeight, bracketColor);
+                    currentY += LINE_HEIGHT;
+                    currentY = drawIndentationLines(context, elseLine.elseBlock, currentY, indent + 1);
+                }
+                case InstructionWHILE whileLine -> {
+                    int innerHeight = getBlockHeight(whileLine.loopBlock);
+                    int actualX = SCRIPT_X + xOffset - (int) horizontalScrollOffset;
 
-            } else if (line instanceof InstructionWHILE whileLine) {
-                int innerHeight = getBlockHeight(whileLine.loopBlock);
-                int actualX = SCRIPT_X + xOffset - (int)horizontalScrollOffset;
+                    int bracketColor = 0xFF00FF00;
+                    context.fill(actualX + 5, currentY + LINE_HEIGHT, actualX + 7, currentY + LINE_HEIGHT + innerHeight, bracketColor);
 
-                int bracketColor = 0xFF00FF00;
-                context.fill(actualX + 5, currentY + LINE_HEIGHT, actualX + 7, currentY + LINE_HEIGHT + innerHeight, bracketColor);
+                    currentY += LINE_HEIGHT;
+                    currentY = drawIndentationLines(context, whileLine.loopBlock, currentY, indent + 1);
 
-                currentY += LINE_HEIGHT;
-                currentY = drawIndentationLines(context, whileLine.loopBlock, currentY, indent + 1);
+                }
+                case InstructionVarAssign varLine -> {
+                    int innerHeight = getBlockHeight(varLine.valueBlock);
+                    int actualX = SCRIPT_X + xOffset - (int) horizontalScrollOffset;
 
-            } else if (line instanceof InstructionVarAssign varLine) {
-                int innerHeight = getBlockHeight(varLine.valueBlock);
-                int actualX = SCRIPT_X + xOffset - (int)horizontalScrollOffset;
+                    int bracketColor = 0xFFFFFF00;
+                    context.fill(actualX + 5, currentY + LINE_HEIGHT, actualX + 7, currentY + LINE_HEIGHT + innerHeight, bracketColor);
 
-                int bracketColor = 0xFFFFFF00;
-                context.fill(actualX + 5, currentY + LINE_HEIGHT, actualX + 7, currentY + LINE_HEIGHT + innerHeight, bracketColor);
-
-                currentY += LINE_HEIGHT;
-                currentY = drawIndentationLines(context, varLine.valueBlock, currentY, indent + 1);
-            } else {
-                currentY += LINE_HEIGHT;
+                    currentY += LINE_HEIGHT;
+                    currentY = drawIndentationLines(context, varLine.valueBlock, currentY, indent + 1);
+                }
+                case null, default -> currentY += LINE_HEIGHT;
             }
         }
         return currentY;
@@ -568,12 +653,17 @@ public class ScriptingScreen extends Screen {
 
             currentY += LINE_HEIGHT;
 
-            if (line instanceof InstructionIF) {
-                currentY = drawLineNumbersRecursive(context, ((InstructionIF) line).trueBlock, currentY, lineNum);
-            } else if (line instanceof InstructionWHILE) {
-                currentY = drawLineNumbersRecursive(context, ((InstructionWHILE) line).loopBlock, currentY, lineNum);
-            } else if (line instanceof InstructionVarAssign) {
-                currentY = drawLineNumbersRecursive(context, ((InstructionVarAssign) line).valueBlock, currentY, lineNum);
+            switch (line) {
+                case InstructionIF instructionIF ->
+                        currentY = drawLineNumbersRecursive(context, instructionIF.trueBlock, currentY, lineNum);
+                case InstructionELSE instructionELSE ->
+                        currentY = drawLineNumbersRecursive(context, instructionELSE.elseBlock, currentY, lineNum);
+                case InstructionWHILE instructionWHILE ->
+                        currentY = drawLineNumbersRecursive(context, instructionWHILE.loopBlock, currentY, lineNum);
+                case InstructionVarAssign instructionVarAssign ->
+                        currentY = drawLineNumbersRecursive(context, instructionVarAssign.valueBlock, currentY, lineNum);
+                case null, default -> {
+                }
             }
         }
         return currentY;
@@ -588,6 +678,8 @@ public class ScriptingScreen extends Screen {
             if (0 < textY && textY < this.height) {
                 if (line instanceof InstructionIF) {
                     context.drawTextWithShadow(this.textRenderer, "IF", actualX, textY, 0xFF0000);
+                } else if (line instanceof InstructionELSE) {
+                    context.drawTextWithShadow(this.textRenderer, "ELSE", actualX, textY, 0xFFFFAA00);
                 } else if (line instanceof InstructionWHILE) {
                     context.drawTextWithShadow(this.textRenderer, "WHILE", actualX, textY, 0x66FF66);
                 } else if (line instanceof InstructionMath) {
@@ -600,6 +692,8 @@ public class ScriptingScreen extends Screen {
                     context.drawTextWithShadow(this.textRenderer, "Place", actualX, textY, 0x55FFFF);
                 } else if (line instanceof InstructionVarAssign) {
                     context.drawTextWithShadow(this.textRenderer, "VARF", actualX, textY, 0xFFFF55);
+                } else if (line instanceof InstructionMinecraft_ExecuteCommand) {
+                    context.drawTextWithShadow(this.textRenderer, "/cmd", actualX, textY, 0xFFAA00);
                 }
             }
 
@@ -607,6 +701,8 @@ public class ScriptingScreen extends Screen {
 
             if (line instanceof InstructionIF) {
                 currentY = drawScriptTextRecursive(context, ((InstructionIF) line).trueBlock, currentY, indent + 1);
+            } else if (line instanceof InstructionELSE) {
+                currentY = drawScriptTextRecursive(context, ((InstructionELSE) line).elseBlock, currentY, indent + 1);
             } else if (line instanceof InstructionWHILE) {
                 currentY = drawScriptTextRecursive(context, ((InstructionWHILE) line).loopBlock, currentY, indent + 1);
             } else if (line instanceof InstructionVarAssign) {
@@ -705,6 +801,8 @@ public class ScriptingScreen extends Screen {
 
             if (line instanceof InstructionIF) {
                 currentY = drawSelectionHighlight(context, ((InstructionIF) line).trueBlock, currentY, indent + 1);
+            } else if (line instanceof InstructionELSE) {
+                currentY = drawSelectionHighlight(context, ((InstructionELSE) line).elseBlock, currentY, indent + 1);
             } else if (line instanceof InstructionWHILE) {
                 currentY = drawSelectionHighlight(context, ((InstructionWHILE) line).loopBlock, currentY, indent + 1);
             } else if (line instanceof InstructionVarAssign) {
