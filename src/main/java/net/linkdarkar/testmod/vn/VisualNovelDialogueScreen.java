@@ -4,6 +4,9 @@ import net.linkdarkar.testmod.TestMod;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.Text;
@@ -148,6 +151,28 @@ public class VisualNovelDialogueScreen extends Screen {
     }
 
     private void advanceNode() {
+
+        // TODO: Get entity (the one that has the screen, not the player)
+        // TODO: Get server, somehow, either from the entity.getWorld() or another way.
+
+//        ServerCommandSource source = entity.getCommandSource();
+
+        // Elevate permissions to level 4 (Server OP) or the script will only be able to run commands the executing player has permissions to run
+//        source = source.withLevel(4);
+
+        // Execute Command
+        if (this.currentNode.executeCommands != null)
+        {
+            for (String commandLine : this.currentNode.executeCommands)
+            {
+                if (!commandLine.isEmpty())
+                {
+//                    server.getCommandManager().executeWithPrefix(source, commandLine);
+                    System.out.println("Exe Cmd: "+commandLine);
+                }
+            }
+        }
+
         this.currentNode = this.dialogueNodeMap.get(this.currentNode.nextNodeId);
         if (this.currentNode == null) {
             this.close();
@@ -163,14 +188,15 @@ public class VisualNovelDialogueScreen extends Screen {
         if (this.client != null && this.client.player != null) {
             this.client.player.playSound(SoundEvents.UI_TOAST_IN, 1.0f, 1.0f);
         }
+
     }
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         // check when they are the same
-        if (this.latestCharIndex >= this.currentPointToStop) {
+        if (this.currentPointToStop <= this.latestCharIndex) {
             // TODO fix this because it will break
-            if (this.latestCharIndex >= this.currentNode.finalText.length()) {
+            if (this.currentNode.finalText.length() <= this.latestCharIndex) {
                 TestMod.LOGGER.info("Page end");
                 this.advanceNode();
             }

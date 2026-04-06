@@ -17,5 +17,6 @@ public class VisualNovelDialogueData {
         public int totalCharacters;
         public List<Integer> indexOfCharToStop = new ArrayList<>();
         public String nextNodeId;
+        public String[] executeCommands;
     }
 }
