@@ -22,9 +22,7 @@
       ],
       "nextNodeId": "01_02",
       "executeCommands": [
-        "/spawn",
-        "/tp",
-        "/fill 0 1 0 0 2 0 air"
+        "/summon minecraft:allay"
       ]
     },
     {

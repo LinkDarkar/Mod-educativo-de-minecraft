@@ -1,6 +1,10 @@
 package net.linkdarkar.testmod.vn;
 
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.entity.event.v1.EntityElytraEvents;
 import net.linkdarkar.testmod.TestMod;
+import net.linkdarkar.testmod.entity.custom.CustomNPCEntity;
+import net.linkdarkar.testmod.networking.ModNetworking;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
@@ -11,12 +15,11 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.Text;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class VisualNovelDialogueScreen extends Screen {
+    private CustomNPCEntity npcEntity;
+
     private String dialogue;
 
     private final VisualNovelDialogueData dialogueData;
@@ -42,6 +45,17 @@ public class VisualNovelDialogueScreen extends Screen {
     public VisualNovelDialogueScreen(String path) {
         super(Text.literal("Dialogue"));
         System.out.println(path);
+        this.dialogueData = VisualNovelDialogueLoader.loadDialogue(path);
+        for (VisualNovelDialogueData.Node node : dialogueData.Nodes) {
+            dialogueNodeMap.put(node.id, node);
+        }
+        VisualNovelDialogueLoader.mergeTextLines(this.dialogueData);
+    }
+
+    public VisualNovelDialogueScreen(CustomNPCEntity npcEntity, String path) {
+        super(Text.literal("Dialogue"));
+        System.out.println(path);
+        this.npcEntity = npcEntity;
         this.dialogueData = VisualNovelDialogueLoader.loadDialogue(path);
         for (VisualNovelDialogueData.Node node : dialogueData.Nodes) {
             dialogueNodeMap.put(node.id, node);
@@ -151,24 +165,16 @@ public class VisualNovelDialogueScreen extends Screen {
     }
 
     private void advanceNode() {
-
-        // TODO: Get entity (the one that has the screen, not the player)
-        // TODO: Get server, somehow, either from the entity.getWorld() or another way.
-
-//        ServerCommandSource source = entity.getCommandSource();
-
-        // Elevate permissions to level 4 (Server OP) or the script will only be able to run commands the executing player has permissions to run
-//        source = source.withLevel(4);
-
-        // Execute Command
+        // manda el paquete al servidor en caso de que tenga que ejecutar comandos al final del nodo
         if (this.currentNode.executeCommands != null)
         {
             for (String commandLine : this.currentNode.executeCommands)
             {
                 if (!commandLine.isEmpty())
                 {
-//                    server.getCommandManager().executeWithPrefix(source, commandLine);
-                    System.out.println("Exe Cmd: "+commandLine);
+                    ClientPlayNetworking.send(
+                            new ModNetworking.ExecuteCommandFromDialoguePayload(this.npcEntity.getUuid(), commandLine)
+                    );
                 }
             }
         }
@@ -188,7 +194,6 @@ public class VisualNovelDialogueScreen extends Screen {
         if (this.client != null && this.client.player != null) {
             this.client.player.playSound(SoundEvents.UI_TOAST_IN, 1.0f, 1.0f);
         }
-
     }
 
     @Override
@@ -197,12 +202,12 @@ public class VisualNovelDialogueScreen extends Screen {
         if (this.currentPointToStop <= this.latestCharIndex) {
             // TODO fix this because it will break
             if (this.currentNode.finalText.length() <= this.latestCharIndex) {
-                TestMod.LOGGER.info("Page end");
+//                TestMod.LOGGER.info("Page end");
                 this.advanceNode();
             }
             else
             {
-                TestMod.LOGGER.info("Paragraph end");
+//                TestMod.LOGGER.info("Paragraph end");
                 this.currentPointToStopIndex += 1;
                 if (this.currentPointToStopIndex < this.currentNode.indexOfCharToStop.size()) {
                     this.currentPointToStop = this.currentNode.indexOfCharToStop.get(this.currentPointToStopIndex);

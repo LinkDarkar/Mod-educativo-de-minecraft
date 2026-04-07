@@ -9,6 +9,7 @@ import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.world.World;
@@ -54,9 +55,16 @@ public class CustomNPCEntity extends MobEntity {
     protected ActionResult interactMob(PlayerEntity player, Hand hand) {
         if (this.getWorld().isClient()) {
             String dialogue = this.getDialoguePath();
-            MinecraftClient.getInstance().setScreen(new VisualNovelDialogueScreen(dialogue));
+            MinecraftClient.getInstance().setScreen(new VisualNovelDialogueScreen(this, dialogue));
         }
 
         return ActionResult.SUCCESS;
+    }
+
+    public void checkIfServerNPCThing()
+    {
+        // en caso de que lo queramos llamar desde el payload de comando a través de dialogo
+        if (this.getWorld().isClient()) return;
+        if (!(this.getWorld() instanceof ServerWorld serverWorld)) return;
     }
 }

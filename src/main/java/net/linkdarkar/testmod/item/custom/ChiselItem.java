@@ -99,7 +99,6 @@ public class ChiselItem extends Item {
 
         MobEntity mobEntity = this.getMobEntityFromUUID(serverWorld, this.mobPositionList.getFirst().getLeft());
         if (mobEntity != null) {
-            // player.sendMessage(Text.literal("AAAAAAAAA").formatted(Formatting.GREEN), false);
             this.navigateToPoint(serverWorld, mobEntity, player);
         }
         else {

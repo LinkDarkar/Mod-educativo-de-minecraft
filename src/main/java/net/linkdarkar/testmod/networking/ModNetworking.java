@@ -3,6 +3,7 @@ package net.linkdarkar.testmod.networking;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.linkdarkar.testmod.TestMod;
+import net.linkdarkar.testmod.entity.custom.CustomNPCEntity;
 import net.linkdarkar.testmod.scripting.*;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.mob.MobEntity;
@@ -11,6 +12,8 @@ import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.network.codec.PacketCodecs;
 import net.minecraft.network.packet.CustomPayload;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Uuids;
 
@@ -19,9 +22,11 @@ import java.util.UUID;
 public class ModNetworking {
     public static final Identifier EXECUTE_ONCE_ID = Identifier.of("testmod", "execute_once");
     public static final Identifier SET_TICKING_ID = Identifier.of("testmod", "set_ticking");
+    public static final Identifier EXECUTE_COMMAND_FROM_DIALOGUE = Identifier.of("testmod", "execute_command_from_dialogue");
 
     public record ExecuteOncePayload(UUID entityUuid, NbtCompound scriptNbt) implements CustomPayload {
-        public static final CustomPayload.Id<ExecuteOncePayload> ID = new CustomPayload.Id<>(Identifier.of("testmod", "execute_once"));
+        public static final CustomPayload.Id<ExecuteOncePayload> ID =
+                new CustomPayload.Id<>(Identifier.of("testmod", "execute_once"));
         public static final PacketCodec<RegistryByteBuf, ExecuteOncePayload> CODEC = PacketCodec.tuple(
             Uuids.PACKET_CODEC, ExecuteOncePayload::entityUuid,
             PacketCodecs.NBT_COMPOUND, ExecuteOncePayload::scriptNbt,
@@ -32,7 +37,8 @@ public class ModNetworking {
     }
 
     public record SetTickingPayload(UUID entityUuid, boolean shouldRun, NbtCompound scriptNbt) implements CustomPayload {
-        public static final CustomPayload.Id<SetTickingPayload> ID = new CustomPayload.Id<>(Identifier.of("testmod", "set_ticking"));
+        public static final CustomPayload.Id<SetTickingPayload> ID =
+                new CustomPayload.Id<>(Identifier.of("testmod", "set_ticking"));
         public static final PacketCodec<RegistryByteBuf, SetTickingPayload> CODEC = PacketCodec.tuple(
             Uuids.PACKET_CODEC, SetTickingPayload::entityUuid,
             PacketCodecs.BOOL, SetTickingPayload::shouldRun,
@@ -43,9 +49,22 @@ public class ModNetworking {
         public CustomPayload.Id<? extends CustomPayload> getId() { return ID; }
     }
 
+    public record ExecuteCommandFromDialoguePayload(UUID entityUuid, String command) implements CustomPayload {
+        public static final CustomPayload.Id<ExecuteCommandFromDialoguePayload> ID =
+                new CustomPayload.Id<>(Identifier.of("testmod", "execute_command_from_dialogue"));
+        public static final PacketCodec<RegistryByteBuf, ExecuteCommandFromDialoguePayload> CODEC = PacketCodec.tuple(
+                Uuids.PACKET_CODEC, ExecuteCommandFromDialoguePayload::entityUuid,
+                PacketCodecs.STRING, ExecuteCommandFromDialoguePayload::command,
+                ExecuteCommandFromDialoguePayload::new
+        );
+        @Override
+        public CustomPayload.Id<? extends CustomPayload> getId() { return ID; }
+    }
+
     public static void registerC2SPackets() {
         PayloadTypeRegistry.playC2S().register(ExecuteOncePayload.ID, ExecuteOncePayload.CODEC);
         PayloadTypeRegistry.playC2S().register(SetTickingPayload.ID, SetTickingPayload.CODEC);
+        PayloadTypeRegistry.playC2S().register(ExecuteCommandFromDialoguePayload.ID, ExecuteCommandFromDialoguePayload.CODEC);
 
         ServerPlayNetworking.registerGlobalReceiver(ExecuteOncePayload.ID, (payload, context) -> {
             context.server().execute(() -> {
@@ -85,5 +104,20 @@ public class ModNetworking {
                 }
             });
         });
+
+        ServerPlayNetworking.registerGlobalReceiver(ExecuteCommandFromDialoguePayload.ID, ((payload, context) -> {
+            context.server().execute(() -> {
+                MinecraftServer minecraftServer = context.server();
+                Entity entity = ((net.minecraft.server.world.ServerWorld) context.player().getWorld()).getEntity(payload.entityUuid());
+                if (!(entity instanceof CustomNPCEntity npcEntity)) {
+                    assert entity != null;
+                    TestMod.LOGGER.info("entity {} is not npc", entity.getName().getString());
+                    return;
+                }
+                ServerCommandSource source = entity.getCommandSource();
+                source = source.withLevel(4);
+                minecraftServer.getCommandManager().executeWithPrefix(source, payload.command());
+            });
+        }));
     }
 }
