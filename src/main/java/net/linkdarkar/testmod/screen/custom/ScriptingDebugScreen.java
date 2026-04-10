@@ -4,6 +4,7 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.linkdarkar.testmod.networking.ModNetworking.ExecuteOncePayload;
 import net.linkdarkar.testmod.networking.ModNetworking.SetTickingPayload;
 import net.linkdarkar.testmod.scripting.*;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.EditBoxWidget;
@@ -12,6 +13,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.Text;
+import net.minecraft.util.Formatting;
 
 import java.util.List;
 import java.util.Objects;
@@ -50,25 +52,34 @@ public class ScriptingDebugScreen extends ScriptingScreen {
         int leftOffset = 10;
         int btnWidth = 60;
 
+        // Export Button
+        this.addDrawableChild(ButtonWidget.builder(Text.literal("EXPORT CMD"), b -> {
+            exportNpcToClipboard();
+        }).dimensions(leftOffset, this.height - 30, btnWidth * 2, 20).build());
+
         // Tab Switcher Button
         this.addDrawableChild(ButtonWidget.builder(Text.literal("Tab: " + currentTab.name()), b -> {
             this.currentTab = (this.currentTab == Tab.SCRIPT) ? Tab.ACTIONS : Tab.SCRIPT;
             this.rebuildUI();
         }).dimensions(leftOffset, 10, btnWidth * 2, 20).build());
 
-        // Mode Switcher Button
-        this.addDrawableChild(ButtonWidget.builder(Text.literal(this.editingDefault ? "Mode: DEFAULT" : "Mode: CORRECT"), b -> {
-            UUID currentUuid = this.editingDefault ? this.defaultEntityUuid : this.correctEntityUuid;
-            ScriptActorManager.getInstance().saveBuilder(currentUuid, this.builder);
-
-            this.editingDefault = !this.editingDefault;
-            this.loadCurrentBuilder();
-            this.rebuildUI();
-        }).dimensions(leftOffset, 35, btnWidth * 2, 20).build());
-
         switch (this.currentTab) {
-            case SCRIPT -> initScriptTab(leftOffset, btnWidth);
-            case ACTIONS -> initActionsTab();
+            case SCRIPT:
+                // Mode Switcher Button
+                this.addDrawableChild(ButtonWidget.builder(Text.literal(this.editingDefault ? "Mode: DEFAULT" : "Mode: CORRECT"), b -> {
+                    UUID currentUuid = this.editingDefault ? this.defaultEntityUuid : this.correctEntityUuid;
+                    ScriptActorManager.getInstance().saveBuilder(currentUuid, this.builder);
+
+                    this.editingDefault = !this.editingDefault;
+                    this.loadCurrentBuilder();
+                    this.rebuildUI();
+                }).dimensions(leftOffset, 35, btnWidth * 2, 20).build());
+
+                initScriptTab(leftOffset, btnWidth);
+                break;
+            case ACTIONS:
+                initActionsTab();
+                break;
         }
     }
 
@@ -309,6 +320,28 @@ public class ScriptingDebugScreen extends ScriptingScreen {
 
         if (this.client != null && this.client.player != null) {
             this.client.setScreen(null);
+        }
+    }
+
+    private void exportNpcToClipboard() {
+        NbtCompound root = new NbtCompound();
+
+        ScriptBuilder current = ScriptActorManager.getInstance().getBuilder(this.entityUuid);
+        ScriptBuilder correct = ScriptActorManager.getInstance().getBuilder(this.correctEntityUuid);
+        ScriptBuilder def = ScriptActorManager.getInstance().getBuilder(this.defaultEntityUuid);
+
+        if (current != null) root.put("script_current", current.toNbt());
+        if (correct != null) root.put("script_correct", correct.toNbt());
+        if (def != null) root.put("script_default", def.toNbt());
+
+        root.put("meta", ScriptingConfigManager.getInstance().exportAllToNbt(this.entityUuid));
+
+        String nbtString = root.toString();
+        String command = "/scriptsummon " + this.entity.getType().getUntranslatedName() + " " + nbtString;
+
+        MinecraftClient.getInstance().keyboard.setClipboard(command);
+        if (this.client != null && this.client.player != null) {
+            this.client.player.sendMessage(Text.literal("Command copied to clipboard!").formatted(Formatting.GREEN), true);
         }
     }
 }

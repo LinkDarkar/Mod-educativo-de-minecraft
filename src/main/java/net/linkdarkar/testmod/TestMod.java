@@ -2,6 +2,7 @@ package net.linkdarkar.testmod;
 
 import net.fabricmc.api.ModInitializer;
 
+import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.linkdarkar.testmod.block.ModBlocks;
 import net.linkdarkar.testmod.entity.ModEntities;
@@ -28,6 +29,9 @@ public class TestMod implements ModInitializer {
 		// Proceed with mild caution.
 
 		LOGGER.info("Hello Fabric world!");
+        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
+            net.linkdarkar.testmod.scripting.ScriptSummonCommand.register(dispatcher);
+        });
 		ModItemGroups.registerItemGroups();
 		ModItems.registerModItems();
 		ModBlocks.registerModBlocks();

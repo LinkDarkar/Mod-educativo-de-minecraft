@@ -52,6 +52,46 @@ public class ScriptingConfigManager {
         }
     }
 
+    public NbtCompound exportAllToNbt(UUID entityUuid) {
+        NbtCompound nbt = new NbtCompound();
+
+        // Save Configs
+        ScriptingConfig config = getConfig(entityUuid);
+        NbtCompound configNbt = new NbtCompound();
+        configNbt.putBoolean("var", config.allowVar);
+        configNbt.putBoolean("if", config.allowIf);
+        configNbt.putBoolean("else", config.allowElse);
+        configNbt.putBoolean("while", config.allowWhile);
+        configNbt.putBoolean("print", config.allowPrint);
+        configNbt.putBoolean("follow", config.allowFollow);
+        configNbt.putBoolean("place", config.allowPlace);
+        configNbt.putBoolean("cmd", config.allowCommand);
+        nbt.put("config", configNbt);
+
+        // Save Actions
+        nbt.put("actions", getActions(entityUuid).toNbt());
+
+        return nbt;
+    }
+
+    public void importAllFromNbt(UUID entityUuid, NbtCompound nbt) {
+        if (nbt.contains("config")) {
+            NbtCompound c = nbt.getCompound("config");
+            ScriptingConfig config = getConfig(entityUuid);
+            config.allowVar = c.getBoolean("var");
+            config.allowIf = c.getBoolean("if");
+            config.allowElse = c.getBoolean("else");
+            config.allowWhile = c.getBoolean("while");
+            config.allowPrint = c.getBoolean("print");
+            config.allowFollow = c.getBoolean("follow");
+            config.allowPlace = c.getBoolean("place");
+            config.allowCommand = c.getBoolean("cmd");
+        }
+        if (nbt.contains("actions")) {
+            getActions(entityUuid).loadNbt(nbt.getCompound("actions"));
+        }
+    }
+
     public static class EntityActions {
         public ActionEventData anyExecute = new ActionEventData();
         public ActionEventData executeCorrect = new ActionEventData();
