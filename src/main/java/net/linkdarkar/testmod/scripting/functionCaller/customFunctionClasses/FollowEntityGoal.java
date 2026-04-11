@@ -29,7 +29,7 @@ public class FollowEntityGoal extends Goal {
 
     @Override
     public void stop() {
-        mobEntity.getNavigation().stop();
+        this.mobEntity.getNavigation().stop();
     }
 
     @Override
