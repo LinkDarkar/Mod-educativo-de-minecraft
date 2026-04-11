@@ -2,6 +2,7 @@ package net.linkdarkar.testmod.scripting.instructions;
 
 import net.linkdarkar.testmod.TestMod;
 import net.linkdarkar.testmod.scripting.ExecutionContext;
+import net.linkdarkar.testmod.scripting.ExpressionEvaluator;
 import net.linkdarkar.testmod.scripting.ScriptLine;
 import net.linkdarkar.testmod.scripting.functionCaller.FunctionCaller;
 import net.minecraft.client.MinecraftClient;
@@ -16,12 +17,16 @@ import java.util.List;
 import java.util.UUID;
 
 public class InstructionEntity_WalkTowards extends ScriptLine {
-    public InstructionEntity_WalkTowards() {
+    public String xExp = "0", yExp = "0", zExp = "0", speedExp = "1";
+
+    public InstructionEntity_WalkTowards()
+    {
         this.color = 0x999999;
     }
 
     @Override
-    public String GetLineAsPlainText() {
+    public String GetLineAsPlainText()
+    {
         return "Walk Forward";
     }
 
@@ -34,14 +39,20 @@ public class InstructionEntity_WalkTowards extends ScriptLine {
     @Override
     public List<String> Validate() {
         List<String> errors = new ArrayList<>();
+        String[] fields = {xExp, yExp, zExp, speedExp};
+        String[] names = {"X", "Y", "Z", "Speed"};
 
-//        try {
-//            String cleanUUID = targetUUID.replace("\"", "");
-//            java.util.UUID.fromString(cleanUUID);
-//        } catch (IllegalArgumentException e) {
-//            errors.add("Invalid UUID format: " + targetUUID);
-//        }
-
+        for (int i = 0; i < fields.length; i++) {
+            if (fields[i] == null || fields[i].trim().isEmpty()) {
+                errors.add(names[i] + " cannot be empty.");
+            } else {
+                try {
+                    ExpressionEvaluator.evaluate(fields[i], new ExecutionContext(null));
+                } catch (Exception e) {
+                    errors.add("Invalid " + names[i] + " syntax: " + e.getMessage());
+                }
+            }
+        }
         return errors;
     }
 
@@ -58,10 +69,14 @@ public class InstructionEntity_WalkTowards extends ScriptLine {
 
         if (world instanceof ServerWorld serverWorld) {
             try {
-                Vec3d pos = new Vec3d(-10 + Math.random() * 20, -10 + Math.random() * 20, -10 + Math.random() * 20);
-                boolean success = FunctionCaller.walkTowards(context.executorEntity, 1, pos);
+                double x = ((Number) ExpressionEvaluator.evaluate(xExp, context)).doubleValue();
+                double y = ((Number) ExpressionEvaluator.evaluate(yExp, context)).doubleValue();
+                double z = ((Number) ExpressionEvaluator.evaluate(zExp, context)).doubleValue();
+                double speed = ((Number) ExpressionEvaluator.evaluate(speedExp, context)).doubleValue();
 
-                System.out.println("Walk towards "+pos);
+                boolean success = FunctionCaller.walkTowards(context.executorEntity, 1, new Vec3d(x, y, z));
+
+                System.out.println("Walk towards "+ new Vec3d(x, y, z));
 
                 TestMod.LOGGER.info("Walk Towards command sent. Success: {}", success);
 
@@ -105,12 +120,18 @@ public class InstructionEntity_WalkTowards extends ScriptLine {
     @Override
     public NbtCompound toNbt() {
         NbtCompound nbt = super.toNbt();
-//        nbt.putString("targetUUID", targetUUID != null ? targetUUID : "");
+        nbt.putString("x", xExp);
+        nbt.putString("y", yExp);
+        nbt.putString("z", zExp);
+        nbt.putString("speed", speedExp);
         return nbt;
     }
 
     @Override
     public void loadNbt(NbtCompound nbt) {
-//        this.targetUUID = nbt.getString("targetUUID");
+        this.xExp = nbt.getString("x");
+        this.yExp = nbt.getString("y");
+        this.zExp = nbt.getString("z");
+        this.speedExp = nbt.getString("speed");
     }
 }

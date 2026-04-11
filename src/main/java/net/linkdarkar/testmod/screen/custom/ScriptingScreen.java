@@ -357,9 +357,11 @@ public class ScriptingScreen extends Screen {
             } else if (line instanceof InstructionEntity_FollowEntity followLine) {
                 createFollowEntityWidgets(followLine, currentY, contentStartX);
                 currentY += LINE_HEIGHT;
-            } else if (line instanceof InstructionEntity_WalkTowards followLine) {
+            } else if (line instanceof InstructionEntity_WalkTowards walkTowardsLine) {
+                createWalkTowardsWidgets(walkTowardsLine, currentY, contentStartX);
                 currentY += LINE_HEIGHT;
-            } else if (line instanceof InstructionEntity_WalkForward followLine) {
+            } else if (line instanceof InstructionEntity_WalkForward walkForwardLine) {
+                createWalkForwardWidgets(walkForwardLine, currentY, contentStartX);
                 currentY += LINE_HEIGHT;
             } else if (line instanceof InstructionBlock_Place placeLine) {
                 createPlaceBlockWidgets(placeLine, currentY, contentStartX);
@@ -531,6 +533,47 @@ public class ScriptingScreen extends Screen {
         targetField.setChangedListener(text -> line.targetUUID = text);
         addScrollableChild(targetField, startX + 45, y);
     }
+    protected void createWalkForwardWidgets(InstructionEntity_WalkForward line, int y, int startX) {
+        TextFieldWidget speedField = new TextFieldWidget(this.textRenderer, startX + 80, y, 60, 20, Text.literal(""));
+        speedField.setText(line.speedExp);
+        speedField.setChangedListener(text -> line.speedExp = text);
+        addScrollableChild(speedField, startX + 80, y);
+    }
+
+    protected void createWalkTowardsWidgets(InstructionEntity_WalkTowards line, int y, int startX) {
+        int fieldWidth = 50;
+        int gap = 5;
+        int currentX = startX + 80;
+
+        String[] currentValues = {line.xExp, line.yExp, line.zExp, line.speedExp};
+
+        // X
+        TextFieldWidget xF = new TextFieldWidget(this.textRenderer, currentX, y, fieldWidth, 20, Text.literal(""));
+        xF.setText(line.xExp);
+        xF.setChangedListener(text -> line.xExp = text);
+        addScrollableChild(xF, currentX, y);
+        currentX += fieldWidth + gap;
+
+        // Y
+        TextFieldWidget yF = new TextFieldWidget(this.textRenderer, currentX, y, fieldWidth, 20, Text.literal(""));
+        yF.setText(line.yExp);
+        yF.setChangedListener(text -> line.yExp = text);
+        addScrollableChild(yF, currentX, y);
+        currentX += fieldWidth + gap;
+
+        // Z
+        TextFieldWidget zF = new TextFieldWidget(this.textRenderer, currentX, y, fieldWidth, 20, Text.literal(""));
+        zF.setText(line.zExp);
+        zF.setChangedListener(text -> line.zExp = text);
+        addScrollableChild(zF, currentX, y);
+        currentX += fieldWidth + gap;
+
+        // Speed
+        TextFieldWidget sF = new TextFieldWidget(this.textRenderer, currentX, y, fieldWidth, 20, Text.literal(""));
+        sF.setText(line.speedExp);
+        sF.setChangedListener(text -> line.speedExp = text);
+        addScrollableChild(sF, currentX, y);
+    }
 
     protected ComparisonOperator nextOperator(ComparisonOperator current) {
         int nextOrdinal = (current.ordinal() + 1) % ComparisonOperator.values().length;
@@ -698,26 +741,9 @@ public class ScriptingScreen extends Screen {
             int textY = currentY + 6;
 
             if (0 < textY && textY < this.height) {
-                context.drawTextWithShadow(this.textRenderer, line.GetLineHandle(), actualX, textY, line.color);
-//                if (line instanceof InstructionIF) {
-//                    context.drawTextWithShadow(this.textRenderer, "IF", actualX, textY, 0xFF0000);
-//                } else if (line instanceof InstructionELSE) {
-//                    context.drawTextWithShadow(this.textRenderer, "ELSE", actualX, textY, 0xFFFFAA00);
-//                } else if (line instanceof InstructionWHILE) {
-//                    context.drawTextWithShadow(this.textRenderer, "WHILE", actualX, textY, 0x66FF66);
-//                } else if (line instanceof InstructionMath) {
-//                    context.drawTextWithShadow(this.textRenderer, "=", actualX + 85, textY, 0xFFFFFF);
-//                } else if (line instanceof InstructionPrint) {
-//                    context.drawTextWithShadow(this.textRenderer, "PRINT", actualX, textY, 0xAAAAAA);
-//                } else if (line instanceof InstructionEntity_FollowEntity) {
-//                    context.drawTextWithShadow(this.textRenderer, "Follow", actualX, textY, 0x55FFFF);
-//                } else if (line instanceof InstructionBlock_Place) {
-//                    context.drawTextWithShadow(this.textRenderer, "Place", actualX, textY, 0x55FFFF);
-//                } else if (line instanceof InstructionVarAssign) {
-//                    context.drawTextWithShadow(this.textRenderer, "VARF", actualX, textY, 0xFFFF55);
-//                } else if (line instanceof InstructionMinecraft_ExecuteCommand) {
-//                    context.drawTextWithShadow(this.textRenderer, "/cmd", actualX, textY, 0xFFAA00);
-//                }
+                if (line instanceof InstructionMath) {
+                    context.drawTextWithShadow(this.textRenderer, line.GetLineHandle(), actualX + 85, textY, line.color);
+                }
             }
 
             currentY += LINE_HEIGHT;

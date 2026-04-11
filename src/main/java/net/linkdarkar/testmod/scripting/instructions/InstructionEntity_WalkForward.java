@@ -2,6 +2,7 @@ package net.linkdarkar.testmod.scripting.instructions;
 
 import net.linkdarkar.testmod.TestMod;
 import net.linkdarkar.testmod.scripting.ExecutionContext;
+import net.linkdarkar.testmod.scripting.ExpressionEvaluator;
 import net.linkdarkar.testmod.scripting.ScriptLine;
 import net.linkdarkar.testmod.scripting.functionCaller.FunctionCaller;
 import net.minecraft.client.MinecraftClient;
@@ -16,8 +17,11 @@ import java.util.UUID;
 
 public class InstructionEntity_WalkForward extends ScriptLine {
 
+    public String speedExp;
+
     public InstructionEntity_WalkForward() {
         this.color = 0x999999;
+        this.speedExp = "1";
     }
 
     @Override
@@ -34,14 +38,15 @@ public class InstructionEntity_WalkForward extends ScriptLine {
     @Override
     public List<String> Validate() {
         List<String> errors = new ArrayList<>();
-
-//        try {
-//            String cleanUUID = targetUUID.replace("\"", "");
-//            java.util.UUID.fromString(cleanUUID);
-//        } catch (IllegalArgumentException e) {
-//            errors.add("Invalid UUID format: " + targetUUID);
-//        }
-
+        if (speedExp == null || speedExp.trim().isEmpty()) {
+            errors.add("Speed cannot be empty.");
+        } else {
+            try {
+                ExpressionEvaluator.evaluate(speedExp, new ExecutionContext(null));
+            } catch (Exception e) {
+                errors.add("Invalid speed syntax: " + e.getMessage());
+            }
+        }
         return errors;
     }
 
@@ -58,7 +63,10 @@ public class InstructionEntity_WalkForward extends ScriptLine {
 
         if (world instanceof ServerWorld serverWorld) {
             try {
-                boolean success = FunctionCaller.walkForward(context.executorEntity, 1, 10);
+                Object result = ExpressionEvaluator.evaluate(speedExp, context);
+                double speed = result instanceof Number ? ((Number) result).doubleValue() : 1.0;
+
+                boolean success = FunctionCaller.walkForward(context.executorEntity, speed, 10);
 
                 TestMod.LOGGER.info("Walk Forward command sent. Success: {}", success);
 
@@ -102,12 +110,12 @@ public class InstructionEntity_WalkForward extends ScriptLine {
     @Override
     public NbtCompound toNbt() {
         NbtCompound nbt = super.toNbt();
-//        nbt.putString("targetUUID", targetUUID != null ? targetUUID : "");
+        nbt.putString("speed", speedExp);
         return nbt;
     }
 
     @Override
     public void loadNbt(NbtCompound nbt) {
-//        this.targetUUID = nbt.getString("targetUUID");
+        this.speedExp = nbt.getString("speed");
     }
 }
