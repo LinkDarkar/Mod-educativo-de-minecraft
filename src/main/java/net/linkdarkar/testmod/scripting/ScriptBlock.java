@@ -16,6 +16,12 @@ public class ScriptBlock extends ScriptLine {
     }
 
     @Override
+    public String GetLineHandle()
+    {
+        return "";
+    }
+
+    @Override
     public Object Execute(ExecutionContext context) {
         Object lastVal = null;
 
