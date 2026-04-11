@@ -61,6 +61,11 @@ public class CustomNPCEntity extends MobEntity {
         return ActionResult.SUCCESS;
     }
 
+    @Override
+    public boolean cannotDespawn() {
+        return true;
+    }
+
     public void checkIfServerNPCThing()
     {
         // en caso de que lo queramos llamar desde el payload de comando a través de dialogo
