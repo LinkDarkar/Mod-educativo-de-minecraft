@@ -9,11 +9,13 @@ public class FollowEntityGoal extends Goal {
     private final MobEntity mobEntity;
     private final LivingEntity target;
     private final double speed;
+    private boolean needsToExecute = false;
 
-    public FollowEntityGoal(MobEntity mobEntity, LivingEntity target, double speed) {
+    public FollowEntityGoal(MobEntity mobEntity, LivingEntity target, double speed, boolean needsToExecute) {
         this.mobEntity = mobEntity;
         this.target = target;
         this.speed = speed;
+        this.needsToExecute = needsToExecute;
     }
 
     @Override
@@ -32,8 +34,14 @@ public class FollowEntityGoal extends Goal {
 
     @Override
     public void tick() {
-        this.mobEntity.getLookControl().lookAt(this.target, 10.0f, this.mobEntity.getMaxLookPitchChange());
-        this.mobEntity.getNavigation().startMovingTo(this.target, speed);
-        TestMod.LOGGER.info("squared distance to target: "+ this.mobEntity.squaredDistanceTo(target));
+        if (this.needsToExecute) {
+            this.mobEntity.getLookControl().lookAt(this.target, 10.0f, this.mobEntity.getMaxLookPitchChange());
+            this.mobEntity.getNavigation().startMovingTo(this.target, speed);
+            TestMod.LOGGER.info("squared distance to target: "+ this.mobEntity.squaredDistanceTo(target));
+            this.needsToExecute = false;
+        }
+        else {
+            this.stop();
+        }
     }
 }
