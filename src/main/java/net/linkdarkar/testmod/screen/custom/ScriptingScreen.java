@@ -45,6 +45,13 @@ public class ScriptingScreen extends Screen {
     protected String verificationMessage = "";
     protected int verificationColor = 0xFFFFFF;
 
+    protected enum InstructionCategory {
+        BASIC,
+        ENTITY,
+        MINECRAFT
+    }
+    protected InstructionCategory currentCategory = InstructionCategory.BASIC;
+
     public ScriptingScreen(LivingEntity entity) {
         super(Text.literal("opens scripting screen"));
         this.entity = entity;
@@ -77,115 +84,135 @@ public class ScriptingScreen extends Screen {
         }).dimensions(leftOffset, btnY, btnWidth, 20).build());
         btnY += 25;
 
+        // Category Switcher Button
+        this.addDrawableChild(ButtonWidget.builder(Text.literal("[" + currentCategory.name() + "]"), b -> {
+            this.currentCategory = (this.currentCategory == InstructionCategory.BASIC) ? InstructionCategory.ENTITY : InstructionCategory.BASIC;
+            this.rebuildUI();
+        }).dimensions(leftOffset, btnY, btnWidth, 20).build());
+        btnY += 25;
+
         ScriptingConfigManager.ScriptingConfig config = ScriptingConfigManager.getInstance().getConfig(this.entityUuid);
 
-        // NEW VAR
-        if (config.allowVar) {
-            this.addDrawableChild(ButtonWidget.builder(Text.literal("Add VAR"), b -> {
-                this.builder.AddMath();
-                this.rebuildUI();
-            }).dimensions(leftOffset, btnY, btnWidth, 20).build());
-            btnY += 25;
+        // Draw Instructions per Category
+        switch (this.currentCategory) {
+            case BASIC -> {
+
+                // NEW VAR
+                if (config.allowVar) {
+                    this.addDrawableChild(ButtonWidget.builder(Text.literal("Add VAR"), b -> {
+                        this.builder.AddMath();
+                        this.rebuildUI();
+                    }).dimensions(leftOffset, btnY, btnWidth, 20).build());
+                    btnY += 25;
+                }
+
+                // ADD VAR = FUNCTION
+                if (config.allowVar) {
+                    this.addDrawableChild(ButtonWidget.builder(Text.literal("Add VARF"), b -> {
+                        this.builder.AddVarAssign();
+                        this.rebuildUI();
+                    }).dimensions(leftOffset, btnY, btnWidth, 20).build());
+                    btnY += 25;
+                }
+
+                // ADD IF
+                if (config.allowIf) {
+                    this.addDrawableChild(ButtonWidget.builder(Text.literal("Add IF"), b -> {
+                        this.builder.AddIf();
+                        this.rebuildUI();
+                    }).dimensions(leftOffset, btnY, btnWidth, 20).build());
+                    btnY += 25;
+                }
+
+                // ADD ELSE
+                if (config.allowElse) {
+                    this.addDrawableChild(ButtonWidget.builder(Text.literal("Add ELSE"), b -> {
+                        this.builder.AddElse();
+                        this.rebuildUI();
+                    }).dimensions(leftOffset, btnY, btnWidth, 20).build());
+                    btnY += 25;
+                }
+
+                // ADD WHILE
+                if (config.allowWhile) {
+                    this.addDrawableChild(ButtonWidget.builder(Text.literal("Add WHILE"), b -> {
+                        this.builder.AddWhile();
+                        this.rebuildUI();
+                    }).dimensions(leftOffset, btnY, btnWidth, 20).build());
+                    btnY += 25;
+                }
+
+                // ADD PRINT (to chat)
+                if (config.allowPrint) {
+                    this.addDrawableChild(ButtonWidget.builder(Text.literal("PRINT"), b -> {
+                        this.builder.AddPrint();
+                        this.rebuildUI();
+                    }).dimensions(leftOffset, btnY, btnWidth, 20).build());
+                    btnY += 25;
+                }
+            }
+            case ENTITY -> {
+
+                // ADD LOOK_AT_ENTITY
+                if (config.allowLookAt) {
+                    this.addDrawableChild(ButtonWidget.builder(Text.literal("Look At"), b -> {
+                        this.builder.AddLookAtEntity();
+                        this.rebuildUI();
+                    }).dimensions(leftOffset, btnY, btnWidth, 20).build());
+                    btnY += 25;
+                }
+
+                // ADD FOLLOW_ENTITY
+                if (config.allowFollow) {
+                    this.addDrawableChild(ButtonWidget.builder(Text.literal("Follow Entity"), b -> {
+                        this.builder.AddFollowEntity();
+                        this.rebuildUI();
+                    }).dimensions(leftOffset, btnY, btnWidth, 20).build());
+                    btnY += 25;
+                }
+
+                // ADD WALK_TOWARDS
+                if (config.allowWalkForward) {
+                    this.addDrawableChild(ButtonWidget.builder(Text.literal("Walk Towards"), b -> {
+                        this.builder.AddWalkTowards();
+                        this.rebuildUI();
+                    }).dimensions(leftOffset, btnY, btnWidth, 20).build());
+                    btnY += 25;
+                }
+
+                // ADD WALK_FORWARD
+                if (config.allowWalkForward) {
+                    this.addDrawableChild(ButtonWidget.builder(Text.literal("Walk Forward"), b -> {
+                        this.builder.AddWalkForward();
+                        this.rebuildUI();
+                    }).dimensions(leftOffset, btnY, btnWidth, 20).build());
+                    btnY += 25;
+                }
+            }
+            case MINECRAFT -> {
+
+                // ADD PLACE_BLOCK
+                if (config.allowPlace) {
+                    this.addDrawableChild(ButtonWidget.builder(Text.literal("Place Block"), b -> {
+                        this.builder.AddPlaceBlock();
+                        this.rebuildUI();
+                    }).dimensions(leftOffset, btnY, btnWidth, 20).build());
+                    btnY += 25;
+                }
+
+                // ADD COMMAND
+                if (config.allowCommand) {
+                    this.addDrawableChild(ButtonWidget.builder(Text.literal("Add Command"), b -> {
+                        this.builder.AddCommand();
+                        this.rebuildUI();
+                    }).dimensions(leftOffset, btnY, btnWidth, 20).build());
+                    btnY += 25;
+                }
+            }
+            case null, default -> {
+            }
         }
 
-        // ADD VAR = FUNCTION
-        if (config.allowVar) {
-            this.addDrawableChild(ButtonWidget.builder(Text.literal("Add VARF"), b -> {
-                this.builder.AddVarAssign();
-                this.rebuildUI();
-            }).dimensions(leftOffset, btnY, btnWidth, 20).build());
-            btnY += 25;
-        }
-
-        // ADD IF
-        if (config.allowIf) {
-            this.addDrawableChild(ButtonWidget.builder(Text.literal("Add IF"), b -> {
-                this.builder.AddIf();
-                this.rebuildUI();
-            }).dimensions(leftOffset, btnY, btnWidth, 20).build());
-            btnY += 25;
-        }
-
-        // ADD ELSE
-        if (config.allowElse) {
-            this.addDrawableChild(ButtonWidget.builder(Text.literal("Add ELSE"), b -> {
-                this.builder.AddElse();
-                this.rebuildUI();
-            }).dimensions(leftOffset, btnY, btnWidth, 20).build());
-            btnY += 25;
-        }
-
-        // ADD WHILE
-        if (config.allowWhile) {
-            this.addDrawableChild(ButtonWidget.builder(Text.literal("Add WHILE"), b -> {
-                this.builder.AddWhile();
-                this.rebuildUI();
-            }).dimensions(leftOffset, btnY, btnWidth, 20).build());
-            btnY += 25;
-        }
-
-        // ADD PRINT (to chat)
-        if (config.allowPrint) {
-            this.addDrawableChild(ButtonWidget.builder(Text.literal("PRINT"), b -> {
-                this.builder.AddPrint();
-                this.rebuildUI();
-            }).dimensions(leftOffset, btnY, btnWidth, 20).build());
-            btnY += 25;
-        }
-
-        // ADD LOOK_AT_ENTITY
-        if (config.allowFollow) {
-            this.addDrawableChild(ButtonWidget.builder(Text.literal("Look At"), b -> {
-                this.builder.AddLookAtEntity(); // We will add this to ScriptBuilder next
-                this.rebuildUI();
-            }).dimensions(leftOffset, btnY, btnWidth, 20).build());
-            btnY += 25;
-        }
-
-        // ADD FOLLOW_ENTITY
-        if (config.allowFollow) {
-            this.addDrawableChild(ButtonWidget.builder(Text.literal("Follow Entity"), b -> {
-                this.builder.AddFollowEntity();
-                this.rebuildUI();
-            }).dimensions(leftOffset, btnY, btnWidth, 20).build());
-            btnY += 25;
-        }
-
-        // ADD WALK_TOWARDS
-        if (config.allowFollow) {
-            this.addDrawableChild(ButtonWidget.builder(Text.literal("Walk Towards"), b -> {
-                this.builder.AddWalkTowards();
-                this.rebuildUI();
-            }).dimensions(leftOffset, btnY, btnWidth, 20).build());
-            btnY += 25;
-        }
-
-        // ADD WALK_FORWARD
-        if (config.allowFollow) {
-            this.addDrawableChild(ButtonWidget.builder(Text.literal("Walk Forward"), b -> {
-                this.builder.AddWalkForward();
-                this.rebuildUI();
-            }).dimensions(leftOffset, btnY, btnWidth, 20).build());
-            btnY += 25;
-        }
-
-        // ADD PLACE_BLOCK
-        if (config.allowPlace) {
-            this.addDrawableChild(ButtonWidget.builder(Text.literal("Place Block"), b -> {
-                this.builder.AddPlaceBlock();
-                this.rebuildUI();
-            }).dimensions(leftOffset, btnY, btnWidth, 20).build());
-            btnY += 25;
-        }
-
-        // ADD COMMAND
-        if (config.allowCommand) {
-            this.addDrawableChild(ButtonWidget.builder(Text.literal("Add Command"), b -> {
-                this.builder.AddCommand();
-                this.rebuildUI();
-            }).dimensions(leftOffset, btnY, btnWidth, 20).build());
-            btnY += 25;
-        }
 
         int execY = this.height - 80;
 

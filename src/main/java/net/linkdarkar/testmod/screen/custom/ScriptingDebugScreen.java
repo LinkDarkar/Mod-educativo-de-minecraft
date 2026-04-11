@@ -89,100 +89,157 @@ public class ScriptingDebugScreen extends ScriptingScreen {
         int toggleOffset = leftOffset + btnWidth + 5;
         ScriptingConfigManager.ScriptingConfig config = ScriptingConfigManager.getInstance().getConfig(this.entityUuid);
 
-        // VAR
-        this.addDrawableChild(ButtonWidget.builder(Text.literal("VAR"), b -> {
-            this.builder.AddMath();
+        // Category Switcher Button
+        this.addDrawableChild(ButtonWidget.builder(Text.literal("Cat: " + currentCategory.name()), b -> {
+            this.currentCategory = (this.currentCategory == InstructionCategory.BASIC) ? InstructionCategory.ENTITY : InstructionCategory.BASIC;
             this.rebuildUI();
-        }).dimensions(leftOffset, btnY, btnWidth, 20).build());
-        this.addDrawableChild(ButtonWidget.builder(Text.literal(config.allowVar ? "ON" : "OFF"), b -> {
-            config.allowVar = !config.allowVar;
-            this.rebuildUI();
-        }).dimensions(toggleOffset, btnY, toggleWidth, 20).build());
+        }).dimensions(leftOffset, btnY, btnWidth + toggleWidth + 5, 20).build());
         btnY += 25;
 
-        // VARF
-        this.addDrawableChild(ButtonWidget.builder(Text.literal("VARF"), b -> {
-            this.builder.AddVarAssign();
-            this.rebuildUI();
-        }).dimensions(leftOffset, btnY, btnWidth, 20).build());
-        btnY += 25;
+        switch (this.currentCategory) {
+            case BASIC -> {
+                // VAR
+                this.addDrawableChild(ButtonWidget.builder(Text.literal("VAR"), b -> {
+                    this.builder.AddMath();
+                    this.rebuildUI();
+                }).dimensions(leftOffset, btnY, btnWidth, 20).build());
+                this.addDrawableChild(ButtonWidget.builder(Text.literal(config.allowVar ? "ON" : "OFF"), b -> {
+                    config.allowVar = !config.allowVar;
+                    ScriptingConfigManager.getInstance().markDirty();
+                    this.rebuildUI();
+                }).dimensions(toggleOffset, btnY, toggleWidth, 20).build());
+                btnY += 25;
 
-        // IF
-        this.addDrawableChild(ButtonWidget.builder(Text.literal("IF"), b -> {
-            this.builder.AddIf();
-            this.rebuildUI();
-        }).dimensions(leftOffset, btnY, btnWidth, 20).build());
-        this.addDrawableChild(ButtonWidget.builder(Text.literal(config.allowIf ? "ON" : "OFF"), b -> {
-            config.allowIf = !config.allowIf;
-            this.rebuildUI();
-        }).dimensions(toggleOffset, btnY, toggleWidth, 20).build());
-        btnY += 25;
+                // VARF
+                this.addDrawableChild(ButtonWidget.builder(Text.literal("VARF"), b -> {
+                    this.builder.AddVarAssign();
+                    this.rebuildUI();
+                }).dimensions(leftOffset, btnY, btnWidth, 20).build());
+                btnY += 25; // VAR and VARF share the config toggle visually
 
-        // ELSE
-        this.addDrawableChild(ButtonWidget.builder(Text.literal("ELSE"), b -> {
-            this.builder.AddElse();
-            this.rebuildUI();
-        }).dimensions(leftOffset, btnY, btnWidth, 20).build());
-        this.addDrawableChild(ButtonWidget.builder(Text.literal(config.allowElse ? "ON" : "OFF"), b -> {
-            config.allowElse = !config.allowElse;
-            this.rebuildUI();
-        }).dimensions(toggleOffset, btnY, toggleWidth, 20).build());
-        btnY += 25;
 
-        // WHILE
-        this.addDrawableChild(ButtonWidget.builder(Text.literal("WHILE"), b -> {
-            this.builder.AddWhile();
-            this.rebuildUI();
-        }).dimensions(leftOffset, btnY, btnWidth, 20).build());
-        this.addDrawableChild(ButtonWidget.builder(Text.literal(config.allowWhile ? "ON" : "OFF"), b -> {
-            config.allowWhile = !config.allowWhile;
-            this.rebuildUI();
-        }).dimensions(toggleOffset, btnY, toggleWidth, 20).build());
-        btnY += 25;
+                // IF
+                this.addDrawableChild(ButtonWidget.builder(Text.literal("IF"), b -> {
+                    this.builder.AddIf();
+                    this.rebuildUI();
+                }).dimensions(leftOffset, btnY, btnWidth, 20).build());
+                this.addDrawableChild(ButtonWidget.builder(Text.literal(config.allowIf ? "ON" : "OFF"), b -> {
+                    config.allowIf = !config.allowIf;
+                    ScriptingConfigManager.getInstance().markDirty();
+                    this.rebuildUI();
+                }).dimensions(toggleOffset, btnY, toggleWidth, 20).build());
+                btnY += 25;
 
-        // PRINT
-        this.addDrawableChild(ButtonWidget.builder(Text.literal("PRINT"), b -> {
-            this.builder.AddPrint();
-            this.rebuildUI();
-        }).dimensions(leftOffset, btnY, btnWidth, 20).build());
-        this.addDrawableChild(ButtonWidget.builder(Text.literal(config.allowPrint ? "ON" : "OFF"), b -> {
-            config.allowPrint = !config.allowPrint;
-            this.rebuildUI();
-        }).dimensions(toggleOffset, btnY, toggleWidth, 20).build());
-        btnY += 25;
+                // ELSE
+                this.addDrawableChild(ButtonWidget.builder(Text.literal("ELSE"), b -> {
+                    this.builder.AddElse();
+                    this.rebuildUI();
+                }).dimensions(leftOffset, btnY, btnWidth, 20).build());
+                this.addDrawableChild(ButtonWidget.builder(Text.literal(config.allowElse ? "ON" : "OFF"), b -> {
+                    config.allowElse = !config.allowElse;
+                    ScriptingConfigManager.getInstance().markDirty();
+                    this.rebuildUI();
+                }).dimensions(toggleOffset, btnY, toggleWidth, 20).build());
+                btnY += 25;
 
-        // Follow Entity
-        this.addDrawableChild(ButtonWidget.builder(Text.literal("Follow"), b -> {
-            this.builder.AddFollowEntity();
-            this.rebuildUI();
-        }).dimensions(leftOffset, btnY, btnWidth, 20).build());
-        this.addDrawableChild(ButtonWidget.builder(Text.literal(config.allowFollow ? "ON" : "OFF"), b -> {
-            config.allowFollow = !config.allowFollow;
-            this.rebuildUI();
-        }).dimensions(toggleOffset, btnY, toggleWidth, 20).build());
-        btnY += 25;
+                // WHILE
+                this.addDrawableChild(ButtonWidget.builder(Text.literal("WHILE"), b -> {
+                    this.builder.AddWhile();
+                    this.rebuildUI();
+                }).dimensions(leftOffset, btnY, btnWidth, 20).build());
+                this.addDrawableChild(ButtonWidget.builder(Text.literal(config.allowWhile ? "ON" : "OFF"), b -> {
+                    config.allowWhile = !config.allowWhile;
+                    ScriptingConfigManager.getInstance().markDirty();
+                    this.rebuildUI();
+                }).dimensions(toggleOffset, btnY, toggleWidth, 20).build());
+                btnY += 25;
 
-        // Place Block
-        this.addDrawableChild(ButtonWidget.builder(Text.literal("Place"), b -> {
-            this.builder.AddPlaceBlock();
-            this.rebuildUI();
-        }).dimensions(leftOffset, btnY, btnWidth, 20).build());
-        this.addDrawableChild(ButtonWidget.builder(Text.literal(config.allowPlace ? "ON" : "OFF"), b -> {
-            config.allowPlace = !config.allowPlace;
-            this.rebuildUI();
-        }).dimensions(toggleOffset, btnY, toggleWidth, 20).build());
-        btnY += 25;
+                // PRINT
+                this.addDrawableChild(ButtonWidget.builder(Text.literal("PRINT"), b -> {
+                    this.builder.AddPrint();
+                    this.rebuildUI();
+                }).dimensions(leftOffset, btnY, btnWidth, 20).build());
+                this.addDrawableChild(ButtonWidget.builder(Text.literal(config.allowPrint ? "ON" : "OFF"), b -> {
+                    config.allowPrint = !config.allowPrint;
+                    ScriptingConfigManager.getInstance().markDirty();
+                    this.rebuildUI();
+                }).dimensions(toggleOffset, btnY, toggleWidth, 20).build());
+                btnY += 25;
+            }
+            case ENTITY -> {
 
-        // Command
-        this.addDrawableChild(ButtonWidget.builder(Text.literal("Command"), b -> {
-            this.builder.AddCommand();
-            this.rebuildUI();
-        }).dimensions(leftOffset, btnY, btnWidth, 20).build());
-        this.addDrawableChild(ButtonWidget.builder(Text.literal(config.allowCommand ? "ON" : "OFF"), b -> {
-            config.allowCommand = !config.allowCommand;
-            this.rebuildUI();
-        }).dimensions(toggleOffset, btnY, toggleWidth, 20).build());
-        btnY += 25;
+                // Look At
+                this.addDrawableChild(ButtonWidget.builder(Text.literal("Look At"), b -> {
+                    this.builder.AddLookAtEntity();
+                    this.rebuildUI();
+                }).dimensions(leftOffset, btnY, btnWidth, 20).build());
+                this.addDrawableChild(ButtonWidget.builder(Text.literal(config.allowLookAt ? "ON" : "OFF"), b -> {
+                    config.allowLookAt = !config.allowLookAt;
+                    ScriptingConfigManager.getInstance().markDirty();
+                    this.rebuildUI();
+                }).dimensions(toggleOffset, btnY, toggleWidth, 20).build());
+                btnY += 25;
+
+                // Follow Entity
+                this.addDrawableChild(ButtonWidget.builder(Text.literal("Follow"), b -> {
+                    this.builder.AddFollowEntity();
+                    this.rebuildUI();
+                }).dimensions(leftOffset, btnY, btnWidth, 20).build());
+                this.addDrawableChild(ButtonWidget.builder(Text.literal(config.allowFollow ? "ON" : "OFF"), b -> {
+                    config.allowFollow = !config.allowFollow;
+                    ScriptingConfigManager.getInstance().markDirty();
+                    this.rebuildUI();
+                }).dimensions(toggleOffset, btnY, toggleWidth, 20).build());
+                btnY += 25;
+
+                // Walk Towards
+                this.addDrawableChild(ButtonWidget.builder(Text.literal("WalkTo"), b -> {
+                    this.builder.AddWalkTowards();
+                    this.rebuildUI();
+                }).dimensions(leftOffset, btnY, btnWidth, 20).build());
+                this.addDrawableChild(ButtonWidget.builder(Text.literal(config.allowWalkForward ? "ON" : "OFF"), b -> {
+                    config.allowWalkForward = !config.allowWalkForward;
+                    ScriptingConfigManager.getInstance().markDirty();
+                    this.rebuildUI();
+                }).dimensions(toggleOffset, btnY, toggleWidth, 20).build());
+                btnY += 25;
+
+                // Walk Forward
+                this.addDrawableChild(ButtonWidget.builder(Text.literal("WalkFwd"), b -> {
+                    this.builder.AddWalkForward();
+                    this.rebuildUI();
+                }).dimensions(leftOffset, btnY, btnWidth, 20).build());
+                btnY += 25; // Shares the config visual switch with Walk Towards
+
+            }
+            case MINECRAFT -> {
+                // Place Block
+                this.addDrawableChild(ButtonWidget.builder(Text.literal("Place"), b -> {
+                    this.builder.AddPlaceBlock();
+                    this.rebuildUI();
+                }).dimensions(leftOffset, btnY, btnWidth, 20).build());
+                this.addDrawableChild(ButtonWidget.builder(Text.literal(config.allowPlace ? "ON" : "OFF"), b -> {
+                    config.allowPlace = !config.allowPlace;
+                    ScriptingConfigManager.getInstance().markDirty();
+                    this.rebuildUI();
+                }).dimensions(toggleOffset, btnY, toggleWidth, 20).build());
+                btnY += 25;
+
+                // Command
+                this.addDrawableChild(ButtonWidget.builder(Text.literal("Command"), b -> {
+                    this.builder.AddCommand();
+                    this.rebuildUI();
+                }).dimensions(leftOffset, btnY, btnWidth, 20).build());
+                this.addDrawableChild(ButtonWidget.builder(Text.literal(config.allowCommand ? "ON" : "OFF"), b -> {
+                    config.allowCommand = !config.allowCommand;
+                    ScriptingConfigManager.getInstance().markDirty();
+                    this.rebuildUI();
+                }).dimensions(toggleOffset, btnY, toggleWidth, 20).build());
+                btnY += 25;
+            }
+            case null, default -> {
+            }
+        }
 
         // Exec controls
         this.addDrawableChild(ButtonWidget.builder(Text.literal("Exe 1"), b -> {

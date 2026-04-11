@@ -24,6 +24,18 @@ public class ScriptingSaveState extends PersistentState {
         });
 
         nbt.put("scriptActors", actorList);
+
+        NbtList configList = new NbtList();
+        ScriptingConfigManager configManager = ScriptingConfigManager.getInstance();
+
+        for (UUID uuid : configManager.getAllTrackedUuids()) {
+            NbtCompound configEntry = new NbtCompound();
+            configEntry.putUuid("uuid", uuid);
+            configEntry.put("data", configManager.exportAllToNbt(uuid));
+            configList.add(configEntry);
+        }
+        nbt.put("scriptConfigs", configList);
+
         return nbt;
     }
 
@@ -39,6 +51,17 @@ public class ScriptingSaveState extends PersistentState {
             ScriptBuilder builder = ScriptBuilder.fromNbt(actorTag.getCompound("script"));
 
             manager.saveBuilder(uuid, builder);
+        }
+
+        NbtList configList = nbt.getList("scriptConfigs", 10);
+        ScriptingConfigManager configManager = ScriptingConfigManager.getInstance();
+        configManager.clear(); // Clear old data
+
+        for (int i = 0; i < configList.size(); i++) {
+            NbtCompound entry = configList.getCompound(i);
+            UUID uuid = entry.getUuid("uuid");
+            NbtCompound data = entry.getCompound("data");
+            configManager.importAllFromNbt(uuid, data);
         }
 
         return state;

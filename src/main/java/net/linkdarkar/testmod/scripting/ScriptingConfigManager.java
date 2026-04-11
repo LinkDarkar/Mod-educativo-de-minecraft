@@ -27,7 +27,9 @@ public class ScriptingConfigManager {
         public boolean allowElse = true;
         public boolean allowWhile = true;
         public boolean allowPrint = true;
+        public boolean allowLookAt = true;
         public boolean allowFollow = true;
+        public boolean allowWalkForward = true;
         public boolean allowPlace = true;
         public boolean allowCommand = true;
     }
@@ -63,6 +65,8 @@ public class ScriptingConfigManager {
         configNbt.putBoolean("else", config.allowElse);
         configNbt.putBoolean("while", config.allowWhile);
         configNbt.putBoolean("print", config.allowPrint);
+        configNbt.putBoolean("lookAt", config.allowLookAt);
+        configNbt.putBoolean("walkForward", config.allowWalkForward);
         configNbt.putBoolean("follow", config.allowFollow);
         configNbt.putBoolean("place", config.allowPlace);
         configNbt.putBoolean("cmd", config.allowCommand);
@@ -83,6 +87,8 @@ public class ScriptingConfigManager {
             config.allowElse = c.getBoolean("else");
             config.allowWhile = c.getBoolean("while");
             config.allowPrint = c.getBoolean("print");
+            config.allowLookAt = c.getBoolean("lookAt");
+            config.allowWalkForward = c.getBoolean("walkForward");
             config.allowFollow = c.getBoolean("follow");
             config.allowPlace = c.getBoolean("place");
             config.allowCommand = c.getBoolean("cmd");
@@ -110,5 +116,21 @@ public class ScriptingConfigManager {
             if (nbt.contains("correct")) executeCorrect.loadNbt(nbt.getCompound("correct"));
             if (nbt.contains("wrong")) executeWrong.loadNbt(nbt.getCompound("wrong"));
         }
+    }
+
+    public java.util.Set<UUID> getAllTrackedUuids() {
+        java.util.HashSet<UUID> allUuids = new java.util.HashSet<>(configs.keySet());
+        allUuids.addAll(actionsMap.keySet());
+        return allUuids;
+    }
+
+    // Clear data when switching worlds
+    public void clear() {
+        configs.clear();
+        actionsMap.clear();
+    }
+
+    public void markDirty() {
+        ScriptActorManager.getInstance().markDirty();
     }
 }
