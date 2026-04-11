@@ -1,0 +1,15 @@
+{
+  "id": "intro1",
+  "Nodes": [
+    {
+      "id": "01_01",
+      "speaker": "Intro",
+      "text": [
+        "—Ahora prueba a agregar una segunda variable y print al código (no tienes que quitar lo que ya hay ahí). Sin embargo esta variable, en vez de texto, deberá tener un número, puede ser cualquiera. Recuerda poner la declaración de variable antes del nuevo print, que el nombre de la variable debe ser diferente de la otra, y que los números no deben estar entre comillas."
+      ],
+      "nextNodeId": "",
+      "executeCommands": [
+      ]
+    }
+  ]
+}

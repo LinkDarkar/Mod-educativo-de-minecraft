@@ -1,0 +1,15 @@
+{
+  "id": "intro1",
+  "Nodes": [
+    {
+      "id": "01_01",
+      "speaker": "Intro",
+      "text": [
+        "—Hmm, se ve mejor pero el nombre de la variable no la describe bien. Por lo general, cuando declaras variables, quieres que el nombre que tengan describan el rol que tendrá. En este caso, como esta variable tiene un texto que te saluda, podríamos cambiarle el nombre a algo como \"saludo\". Prueba a hacer eso. Ah, y no le pongas comillas al nombre. Los nombres de variables solo pueden tener carácteres en mayúsculas, minúsculas con números y/o guiones si es que lo necesitas. En este caso, el nombre \"saludo\" solo contendría carácteres en minúsculas así que no habrán problemas."
+      ],
+      "nextNodeId": "",
+      "executeCommands": [
+      ]
+    }
+  ]
+}

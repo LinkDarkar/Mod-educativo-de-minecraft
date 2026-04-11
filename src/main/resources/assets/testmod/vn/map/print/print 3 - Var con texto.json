@@ -6,7 +6,7 @@
       "speaker": "Intro",
       "text": [
         "—Como te darás cuenta, no podemos contar solo con la instrucción PRINT para hacer programas que produzcan resultados, necesitamos más. Los programas, al fin y al cabo, son una colección de instrucciones que manipulan datos para producir un resultado. Estos datos pueden ser cosas como números y texto; y se guardan en variables, que aquí se declaran con el botón \"Add VAR\".\n \n ",
-        "—Ahora el mob tendrá el siguiente código- Ah, cierto, código es como se le suele llamar a las instrucciones. Bueno el código será el siguiente.\n",
+        "—Ahora el mob tendrá el siguiente código- Ah, cierto, código es como se le suele llamar a las instrucciones. Bueno el código será el siguiente.\n ",
 
         "var = \"Hello\" \n ",
 

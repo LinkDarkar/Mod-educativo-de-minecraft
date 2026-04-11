@@ -5,9 +5,9 @@
       "id": "01_01",
       "speaker": "Intro",
       "text": [
-        "—Aquí tienes el mob con el que vamos a empezar a trabajar.\n",
+        "—Aquí tienes el mob con el que vamos a empezar a trabajar.\n ",
 
-        "—Como ya sabrás, para poder manipular a los mobs tienes que hacer click derecho sobre ellos con el ítem que acabas de recibir.",
+        "—Como ya sabrás, para poder manipular a los mobs tienes que hacer click derecho sobre ellos con el ítem que acabas de recibir."
       ],
       "nextNodeId": "01_02",
       "executeCommands": [

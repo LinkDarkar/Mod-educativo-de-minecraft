@@ -1,0 +1,19 @@
+{
+  "id": "intro1",
+  "Nodes": [
+    {
+      "id": "01_01",
+      "speaker": "Intro",
+      "text": [
+        "—Con esto lo que vamos a hacer ahora va a ser imprimir el contenido de la variable con la instrucción Print. Aquí te voy a soltar un poco de la mano para que lo hagas tu. Pero antes de que empieces tienes que recordar lo siguiente:",
+        "    1. Las instrucciones se ejecutarán en orden, de arriba hacia abajo. \n ",
+        "    2. Tienes que declarar la variable *antes* de imprimirla con un Print. Si la declaras después del Print, el Print intentará ver los contenidos de una variable que aún no existe y el script va a fallar. \n ",
+        "    3. Para imprimir una variable con el Print, tienes que ocupar el nombre de la variable. Luego de recibir el nombre, el print intentará mostrar el contenido de la variable cuando sea ejecutado. Ah, y no tienes que poner el nombre de la variable entre comillas, no estamos lidiando con texto plano como antes, ahora estamos lidiando con variables. \n ",
+        "    4. Recuerda apretar Execute Once para correr el código que hayas hecho.\n "
+      ],
+      "nextNodeId": "",
+      "executeCommands": [
+      ]
+    }
+  ]
+}
