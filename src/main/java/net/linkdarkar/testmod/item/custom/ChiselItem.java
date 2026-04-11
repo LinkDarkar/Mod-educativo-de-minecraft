@@ -63,6 +63,7 @@ public class ChiselItem extends Item {
                 {
                     // Should call this to avoid crash
                     client.execute(() -> {
+                        this.killAi(user, entity);
                         client.setScreen(new ScriptingScreen(entity));
                     });
                     return ActionResult.SUCCESS;
@@ -145,5 +146,10 @@ public class ChiselItem extends Item {
             this.mobPositionList.removeFirst();
             player.sendMessage(Text.literal("Removed objective").formatted(Formatting.GREEN), false);
         }
+    }
+
+    private void killAi(PlayerEntity user, LivingEntity entity) {
+        user.sendMessage(Text.literal("KILLED AI"));
+        ((MobEntity)entity).clearGoalsAndTasks();
     }
 }

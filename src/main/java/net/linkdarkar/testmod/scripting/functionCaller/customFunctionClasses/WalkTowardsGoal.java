@@ -1,5 +1,6 @@
 package net.linkdarkar.testmod.scripting.functionCaller.customFunctionClasses;
 
+import net.linkdarkar.testmod.TestMod;
 import net.minecraft.entity.ai.goal.Goal;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.util.math.Vec3d;
@@ -19,12 +20,17 @@ public class WalkTowardsGoal extends Goal {
 
     @Override
     public boolean canStart() {
-        return false;
+        return true;
     }
 
     @Override
     public void start() {
         this.mobEntity.getNavigation().startMovingTo(this.target.getX(), this.target.getY(), this.target.getZ(), this.speed);
+    }
+
+    @Override
+    public void stop() {
+        this.mobEntity.getNavigation().stop();
     }
 
     @Override
@@ -34,14 +40,14 @@ public class WalkTowardsGoal extends Goal {
 
     @Override
     public void tick () {
-        /*
         if (this.needsToExecute) {
-            this.entity.getNavigation().startMovingTo(this.target.getX(), this.target.getY(), this.target.getZ(), this.speed);
+            this.mobEntity.getNavigation().startMovingTo(this.target.getX(), this.target.getY(), this.target.getZ(), this.speed);
+            TestMod.LOGGER.info("walking Towards: "+ this.target);
             this.needsToExecute = false;
         }
-
-         */
-        return;
+        else {
+            this.stop();
+        }
     }
 
 
