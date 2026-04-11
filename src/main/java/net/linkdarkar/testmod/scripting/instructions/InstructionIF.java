@@ -21,8 +21,14 @@ public class InstructionIF extends ScriptLine {
     }
 
     @Override
-    public String GetAsText() {
+    public String GetLineAsPlainText() {
         return "IF [" + condition.leftExpression + "] " + condition.op.name() + " [" + condition.rightExpression + "]";
+    }
+
+    @Override
+    public String GetLineHandle()
+    {
+        return "IF";
     }
 
     @Override

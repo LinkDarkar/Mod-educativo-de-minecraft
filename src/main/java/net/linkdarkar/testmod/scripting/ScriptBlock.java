@@ -47,7 +47,7 @@ public class ScriptBlock extends ScriptLine {
     }
 
     @Override
-    public String GetAsText() {
+    public String GetLineAsPlainText() {
         return "BLOCK";
     }
 

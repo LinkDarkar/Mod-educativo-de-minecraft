@@ -15,8 +15,14 @@ public class InstructionVarAssign extends ScriptLine {
     }
 
     @Override
-    public String GetAsText() {
+    public String GetLineAsPlainText() {
         return targetVarName + " = [Inline Block]";
+    }
+
+    @Override
+    public String GetLineHandle()
+    {
+        return "VARF";
     }
 
     @Override

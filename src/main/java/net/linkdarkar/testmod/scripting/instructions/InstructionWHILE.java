@@ -20,8 +20,14 @@ public class InstructionWHILE extends ScriptLine {
     }
 
     @Override
-    public String GetAsText() {
+    public String GetLineAsPlainText() {
         return "WHILE [" + condition.leftExpression + "] " + condition.op.name() + " [" + condition.rightExpression + "]";
+    }
+
+    @Override
+    public String GetLineHandle()
+    {
+        return "WHILE";
     }
 
     @Override

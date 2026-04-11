@@ -67,37 +67,55 @@ public class ScriptBuilder {
         Insert(new InstructionMath(name, initialValue.toString()));
     }
 
-    public void AddMath() {
+    public void AddMath()
+    {
         Insert(new InstructionMath("var", "0"));
     }
 
-    public void AddVarAssign() {
+    public void AddVarAssign()
+    {
         Insert(new InstructionVarAssign());
     }
 
-    public void AddPrint() {
+    public void AddPrint()
+    {
         Insert(new InstructionPrint("\"Value: \" + i"));
     }
 
-    public void AddIf() {
+    public void AddIf()
+    {
         Insert(new InstructionIF());
     }
 
-    public void AddElse() {
+    public void AddElse()
+    {
         Insert(new InstructionELSE());
     }
 
-    public void AddWhile() {
+    public void AddWhile()
+    {
         Insert(new InstructionWHILE());
     }
 
-    public void AddCommand() { Insert(new InstructionMinecraft_ExecuteCommand()); }
+    public void AddCommand()
+    { Insert(new InstructionMinecraft_ExecuteCommand()); }
 
-    public void AddFollowEntity() {
+    public void AddFollowEntity()
+    {
         Insert(new InstructionEntity_FollowEntity());
     }
+    public void AddWalkTowards()
+    {
+        Insert(new InstructionEntity_WalkTowards());
+    }
 
-    public void AddPlaceBlock() {
+    public void AddWalkForward()
+    {
+        Insert(new InstructionEntity_WalkForward());
+    }
+
+    public void AddPlaceBlock()
+    {
         Insert(new InstructionBlock_Place("0", "0", "0"));
     }
 

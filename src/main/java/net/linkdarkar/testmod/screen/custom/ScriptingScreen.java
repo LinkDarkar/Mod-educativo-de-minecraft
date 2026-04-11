@@ -142,6 +142,24 @@ public class ScriptingScreen extends Screen {
             btnY += 25;
         }
 
+        // ADD WALK_TOWARDS
+        if (config.allowFollow) {
+            this.addDrawableChild(ButtonWidget.builder(Text.literal("Walk Towards"), b -> {
+                this.builder.AddWalkTowards();
+                this.rebuildUI();
+            }).dimensions(leftOffset, btnY, btnWidth, 20).build());
+            btnY += 25;
+        }
+
+        // ADD WALK_FORWARD
+        if (config.allowFollow) {
+            this.addDrawableChild(ButtonWidget.builder(Text.literal("Walk Forward"), b -> {
+                this.builder.AddWalkForward();
+                this.rebuildUI();
+            }).dimensions(leftOffset, btnY, btnWidth, 20).build());
+            btnY += 25;
+        }
+
         // ADD PLACE_BLOCK
         if (config.allowPlace) {
             this.addDrawableChild(ButtonWidget.builder(Text.literal("Place Block"), b -> {
@@ -338,6 +356,10 @@ public class ScriptingScreen extends Screen {
                 currentY += LINE_HEIGHT;
             } else if (line instanceof InstructionEntity_FollowEntity followLine) {
                 createFollowEntityWidgets(followLine, currentY, contentStartX);
+                currentY += LINE_HEIGHT;
+            } else if (line instanceof InstructionEntity_WalkTowards followLine) {
+                currentY += LINE_HEIGHT;
+            } else if (line instanceof InstructionEntity_WalkForward followLine) {
                 currentY += LINE_HEIGHT;
             } else if (line instanceof InstructionBlock_Place placeLine) {
                 createPlaceBlockWidgets(placeLine, currentY, contentStartX);
@@ -676,25 +698,26 @@ public class ScriptingScreen extends Screen {
             int textY = currentY + 6;
 
             if (0 < textY && textY < this.height) {
-                if (line instanceof InstructionIF) {
-                    context.drawTextWithShadow(this.textRenderer, "IF", actualX, textY, 0xFF0000);
-                } else if (line instanceof InstructionELSE) {
-                    context.drawTextWithShadow(this.textRenderer, "ELSE", actualX, textY, 0xFFFFAA00);
-                } else if (line instanceof InstructionWHILE) {
-                    context.drawTextWithShadow(this.textRenderer, "WHILE", actualX, textY, 0x66FF66);
-                } else if (line instanceof InstructionMath) {
-                    context.drawTextWithShadow(this.textRenderer, "=", actualX + 85, textY, 0xFFFFFF);
-                } else if (line instanceof InstructionPrint) {
-                    context.drawTextWithShadow(this.textRenderer, "PRINT", actualX, textY, 0xAAAAAA);
-                } else if (line instanceof InstructionEntity_FollowEntity) {
-                    context.drawTextWithShadow(this.textRenderer, "Follow", actualX, textY, 0x55FFFF);
-                } else if (line instanceof InstructionBlock_Place) {
-                    context.drawTextWithShadow(this.textRenderer, "Place", actualX, textY, 0x55FFFF);
-                } else if (line instanceof InstructionVarAssign) {
-                    context.drawTextWithShadow(this.textRenderer, "VARF", actualX, textY, 0xFFFF55);
-                } else if (line instanceof InstructionMinecraft_ExecuteCommand) {
-                    context.drawTextWithShadow(this.textRenderer, "/cmd", actualX, textY, 0xFFAA00);
-                }
+                context.drawTextWithShadow(this.textRenderer, line.GetLineHandle(), actualX, textY, line.color);
+//                if (line instanceof InstructionIF) {
+//                    context.drawTextWithShadow(this.textRenderer, "IF", actualX, textY, 0xFF0000);
+//                } else if (line instanceof InstructionELSE) {
+//                    context.drawTextWithShadow(this.textRenderer, "ELSE", actualX, textY, 0xFFFFAA00);
+//                } else if (line instanceof InstructionWHILE) {
+//                    context.drawTextWithShadow(this.textRenderer, "WHILE", actualX, textY, 0x66FF66);
+//                } else if (line instanceof InstructionMath) {
+//                    context.drawTextWithShadow(this.textRenderer, "=", actualX + 85, textY, 0xFFFFFF);
+//                } else if (line instanceof InstructionPrint) {
+//                    context.drawTextWithShadow(this.textRenderer, "PRINT", actualX, textY, 0xAAAAAA);
+//                } else if (line instanceof InstructionEntity_FollowEntity) {
+//                    context.drawTextWithShadow(this.textRenderer, "Follow", actualX, textY, 0x55FFFF);
+//                } else if (line instanceof InstructionBlock_Place) {
+//                    context.drawTextWithShadow(this.textRenderer, "Place", actualX, textY, 0x55FFFF);
+//                } else if (line instanceof InstructionVarAssign) {
+//                    context.drawTextWithShadow(this.textRenderer, "VARF", actualX, textY, 0xFFFF55);
+//                } else if (line instanceof InstructionMinecraft_ExecuteCommand) {
+//                    context.drawTextWithShadow(this.textRenderer, "/cmd", actualX, textY, 0xFFAA00);
+//                }
             }
 
             currentY += LINE_HEIGHT;

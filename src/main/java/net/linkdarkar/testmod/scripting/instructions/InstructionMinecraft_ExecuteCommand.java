@@ -25,8 +25,14 @@ public class InstructionMinecraft_ExecuteCommand extends ScriptLine {
     }
 
     @Override
-    public String GetAsText() {
+    public String GetLineAsPlainText() {
         return "Command: " + commandExpression;
+    }
+
+    @Override
+    public String GetLineHandle()
+    {
+        return "MC /cmd";
     }
 
     @Override

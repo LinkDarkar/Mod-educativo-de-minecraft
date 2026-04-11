@@ -24,8 +24,14 @@ public class InstructionPrint extends ScriptLine {
     }
 
     @Override
-    public String GetAsText() {
+    public String GetLineAsPlainText() {
         return "PRINT " + message;
+    }
+
+    @Override
+    public String GetLineHandle()
+    {
+        return "PRINT";
     }
 
     @Override

@@ -89,7 +89,6 @@ public class ScriptingDebugScreen extends ScriptingScreen {
         int toggleOffset = leftOffset + btnWidth + 5;
         ScriptingConfigManager.ScriptingConfig config = ScriptingConfigManager.getInstance().getConfig(this.entityUuid);
 
-
         // VAR
         this.addDrawableChild(ButtonWidget.builder(Text.literal("VAR"), b -> {
             this.builder.AddMath();

@@ -23,7 +23,13 @@ public class InstructionMath extends ScriptLine {
     }
 
     @Override
-    public String GetAsText() {
+    public String GetLineHandle()
+    {
+        return "=";
+    }
+
+    @Override
+    public String GetLineAsPlainText() {
         return targetVarName + " = " + expression;
     }
 

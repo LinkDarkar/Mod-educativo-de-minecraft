@@ -1,88 +1,72 @@
 package net.linkdarkar.testmod.scripting.instructions;
 
 import net.linkdarkar.testmod.TestMod;
-import net.linkdarkar.testmod.scripting.*;
+import net.linkdarkar.testmod.scripting.ExecutionContext;
+import net.linkdarkar.testmod.scripting.ScriptLine;
 import net.linkdarkar.testmod.scripting.functionCaller.FunctionCaller;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class InstructionEntity_FollowEntity extends ScriptLine {
-    public String targetUUID;
-
-    public InstructionEntity_FollowEntity() {
+public class InstructionEntity_WalkTowards extends ScriptLine {
+    public InstructionEntity_WalkTowards() {
         this.color = 0x999999;
-        this.targetUUID = "";
-    }
-    public InstructionEntity_FollowEntity(String target) {
-        this.color = 0x999999;
-        this.targetUUID = target;
     }
 
     @Override
     public String GetLineAsPlainText() {
-        return "Follow ["+targetUUID+"]";
+        return "Walk Forward";
     }
+
     @Override
     public String GetLineHandle()
     {
-        return "FOLLOW";
+        return "Walk Towards";
     }
 
     @Override
     public List<String> Validate() {
         List<String> errors = new ArrayList<>();
 
-        if (targetUUID == null || targetUUID.trim().isEmpty()) {
-            errors.add("Target UUID cannot be empty.");
-            return errors;
-        }
-
-        try {
-            String cleanUUID = targetUUID.replace("\"", "");
-            java.util.UUID.fromString(cleanUUID);
-        } catch (IllegalArgumentException e) {
-            errors.add("Invalid UUID format: " + targetUUID);
-        }
+//        try {
+//            String cleanUUID = targetUUID.replace("\"", "");
+//            java.util.UUID.fromString(cleanUUID);
+//        } catch (IllegalArgumentException e) {
+//            errors.add("Invalid UUID format: " + targetUUID);
+//        }
 
         return errors;
     }
 
     @Override
     public Object Execute(ExecutionContext context) {
-        if (targetUUID == null || targetUUID.isEmpty()) return null;
-
         // If it's a simulation, skips changing the world
         if (context.isSimulation) {
             return null;
         }
 
-        TestMod.LOGGER.info("Executing Follow Entity Instruction...");
+        TestMod.LOGGER.info("Executing Walk Forward Instruction...");
 
         World world = context.executorEntity.getWorld();
 
         if (world instanceof ServerWorld serverWorld) {
             try {
-                String cleanUUID = targetUUID.replace("\"", "");
+                Vec3d pos = new Vec3d(-10 + Math.random() * 20, -10 + Math.random() * 20, -10 + Math.random() * 20);
+                boolean success = FunctionCaller.walkTowards(context.executorEntity, 1, pos);
 
-                UUID uuid = UUID.fromString(cleanUUID);
+                System.out.println("Walk towards "+pos);
 
-                boolean success = FunctionCaller.follow(serverWorld, context.executorEntity.getUuid(), uuid, 1.0);
+                TestMod.LOGGER.info("Walk Towards command sent. Success: {}", success);
 
-                TestMod.LOGGER.info("Follow command sent. Success: {}", success);
-
-            } catch (IllegalArgumentException e) {
-                TestMod.LOGGER.error("Invalid UUID format in script: {}", targetUUID);
             } catch (Exception e) {
-                TestMod.LOGGER.error("Error executing follow: {}", e.getMessage());
+                TestMod.LOGGER.error("Error executing Walk Towards: {}", e.getMessage());
             }
         }
         else {
@@ -115,18 +99,18 @@ public class InstructionEntity_FollowEntity extends ScriptLine {
     // NBT stuff
     @Override
     protected String getTypeID() {
-        return "E_FOLLOW_ENTITY";
+        return "E_WALK_TOWARDS";
     }
 
     @Override
     public NbtCompound toNbt() {
         NbtCompound nbt = super.toNbt();
-        nbt.putString("targetUUID", targetUUID != null ? targetUUID : "");
+//        nbt.putString("targetUUID", targetUUID != null ? targetUUID : "");
         return nbt;
     }
 
     @Override
     public void loadNbt(NbtCompound nbt) {
-        this.targetUUID = nbt.getString("targetUUID");
+//        this.targetUUID = nbt.getString("targetUUID");
     }
 }

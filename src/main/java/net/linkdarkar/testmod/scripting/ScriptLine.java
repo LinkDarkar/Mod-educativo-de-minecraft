@@ -12,7 +12,8 @@ public abstract class ScriptLine {
     public String text;
     public int color = 0xFFFFFF;
 
-    public abstract String GetAsText();
+    public abstract String GetLineHandle();
+    public abstract String GetLineAsPlainText();
 
     public abstract Object Execute(ExecutionContext context);
 

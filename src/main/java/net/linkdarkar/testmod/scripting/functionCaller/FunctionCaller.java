@@ -73,6 +73,7 @@ public final class FunctionCaller {
     public static boolean aux_forceLookAt(Entity entity, Vec3d desiredLookDir) {
         if (!(entity instanceof MobEntity mobEntity)) return false;
         mobEntity.getLookControl().lookAt(desiredLookDir);
+        return true;
     }
 
 }

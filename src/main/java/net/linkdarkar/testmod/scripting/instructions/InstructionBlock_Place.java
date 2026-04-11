@@ -29,8 +29,14 @@ public class InstructionBlock_Place extends ScriptLine {
     }
 
     @Override
-    public String GetAsText() {
+    public String GetLineAsPlainText() {
         return "PlaceBlock " + xExp + " " + yExp + " " + zExp;
+    }
+
+    @Override
+    public String GetLineHandle()
+    {
+        return "Place Block";
     }
 
     @Override

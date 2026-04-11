@@ -13,7 +13,13 @@ public class InstructionELSE extends ScriptLine {
     }
 
     @Override
-    public String GetAsText() {
+    public String GetLineAsPlainText() {
+        return "ELSE";
+    }
+
+    @Override
+    public String GetLineHandle()
+    {
         return "ELSE";
     }
 
