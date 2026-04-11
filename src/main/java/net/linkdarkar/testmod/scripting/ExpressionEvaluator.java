@@ -53,6 +53,7 @@ public class ExpressionEvaluator
                 for (;;) {
                     if      (eat('*')) x = asDouble(x) * asDouble(parseFactor()); // multiplication
                     else if (eat('/')) x = asDouble(x) / asDouble(parseFactor()); // division
+                    else if (eat('%')) x = asDouble(x) % asDouble(parseFactor()); // Modulo
                     else return x;
                 }
             }

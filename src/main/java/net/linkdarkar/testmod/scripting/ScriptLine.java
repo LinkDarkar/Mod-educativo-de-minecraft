@@ -43,6 +43,7 @@ public abstract class ScriptLine {
             case "VAR_ASSIGN" -> new InstructionVarAssign();
             case "PRINT" -> new InstructionPrint();
             case "MC_COMMAND" -> new InstructionMinecraft_ExecuteCommand();
+            case "E_LOOK_AT" -> new InstructionEntity_LookAtEntity();
             case "E_FOLLOW_ENTITY" -> new InstructionEntity_FollowEntity();
             case "E_WALK_TOWARDS" -> new InstructionEntity_WalkTowards();
             case "E_WALK_FORWARD" -> new InstructionEntity_WalkForward();

@@ -100,6 +100,11 @@ public class ScriptBuilder {
     public void AddCommand()
     { Insert(new InstructionMinecraft_ExecuteCommand()); }
 
+    public void AddLookAtEntity()
+    {
+        Insert(new InstructionEntity_LookAtEntity());
+    }
+
     public void AddFollowEntity()
     {
         Insert(new InstructionEntity_FollowEntity());

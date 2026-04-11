@@ -5,10 +5,12 @@
       "id": "01_01",
       "speaker": "Intro",
       "text": [
-        "—Y así el mob dice exactamente lo que le indicamos en el print —se cruza de brazos, pensativa.— Pero podríamos cambiarlo a algo más amigable ¿no crees? ¿Qué tal si cambiamos el texto que está en el print, lo que está entre las comillas? Hagamos que te salude con tu nombre. Cambia el print para que te salude directamente. Deberá decir Hello Player."
+        "—Y así el mob dice exactamente lo que le indicamos en el print —se cruza de brazos, pensativa.— Pero podríamos cambiarlo a algo más amigable ¿no crees? ¿Qué tal si cambiamos el texto que está en el print, lo que está entre las comillas? Hagamos que te salude con tu nombre. Cambia el print para que te salude directamente. Deberá decir Beeee."
       ],
       "nextNodeId": "",
       "executeCommands": [
+        "/scriptsummon sheep {meta:{actions:{any:{cmds:\"\",count:2,max:0},correct:{cmds:'data modify entity @e[tag=NPC_Print,limit=1] DialoguePath set value \"map/print/print 3 - Var con texto.json\"',count:1,max:1},wrong:{cmds:\"\",count:1,max:0}},config:{cmd:0b,else:0b,follow:0b,if:0b,place:0b,print:0b,var:0b,while:0b}},script_correct:{main:{lines:[{msg:'\"Hello Player\"',type:\"PRINT\"}],type:\"BLOCK\"}},script_current:{main:{lines:[{msg:'\"Hello Player\"',type:\"PRINT\"}],type:\"BLOCK\"}},script_default:{main:{lines:[{msg:'\"Hola\"',type:\"PRINT\"}],type:\"BLOCK\"}}}",
+        "/fill 0 1 -56 0 2 -56 minecraft:air"
       ]
     }
   ]

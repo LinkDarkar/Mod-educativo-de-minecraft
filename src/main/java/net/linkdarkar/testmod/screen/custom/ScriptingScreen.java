@@ -133,6 +133,15 @@ public class ScriptingScreen extends Screen {
             btnY += 25;
         }
 
+        // ADD LOOK_AT_ENTITY
+        if (config.allowFollow) {
+            this.addDrawableChild(ButtonWidget.builder(Text.literal("Look At"), b -> {
+                this.builder.AddLookAtEntity(); // We will add this to ScriptBuilder next
+                this.rebuildUI();
+            }).dimensions(leftOffset, btnY, btnWidth, 20).build());
+            btnY += 25;
+        }
+
         // ADD FOLLOW_ENTITY
         if (config.allowFollow) {
             this.addDrawableChild(ButtonWidget.builder(Text.literal("Follow Entity"), b -> {
@@ -354,6 +363,9 @@ public class ScriptingScreen extends Screen {
             } else if (line instanceof InstructionPrint printLine) {
                 createPrintWidgets(printLine, currentY, contentStartX);
                 currentY += LINE_HEIGHT;
+            } else if (line instanceof InstructionEntity_LookAtEntity lookAtLine) { // NEW
+                createLookAtEntityWidgets(lookAtLine, currentY, contentStartX);
+                currentY += LINE_HEIGHT;
             } else if (line instanceof InstructionEntity_FollowEntity followLine) {
                 createFollowEntityWidgets(followLine, currentY, contentStartX);
                 currentY += LINE_HEIGHT;
@@ -525,6 +537,13 @@ public class ScriptingScreen extends Screen {
             }
             actionData.currentExecutions++;
         }
+    }
+    protected void createLookAtEntityWidgets(InstructionEntity_LookAtEntity line, int y, int startX) {
+        TextFieldWidget targetField = new TextFieldWidget(this.textRenderer, startX + 45, y, 200, 20, Text.literal(""));
+        targetField.setMaxLength(256);
+        targetField.setText(line.targetUUID);
+        targetField.setChangedListener(text -> line.targetUUID = text);
+        addScrollableChild(targetField, startX + 45, y);
     }
     protected void createFollowEntityWidgets(InstructionEntity_FollowEntity line, int y, int startX) {
         TextFieldWidget targetField = new TextFieldWidget(this.textRenderer, startX + 45, y, 200, 20, Text.literal(""));
@@ -743,6 +762,10 @@ public class ScriptingScreen extends Screen {
             if (0 < textY && textY < this.height) {
                 if (line instanceof InstructionMath) {
                     context.drawTextWithShadow(this.textRenderer, line.GetLineHandle(), actualX + 85, textY, line.color);
+                }
+                else
+                {
+                    context.drawTextWithShadow(this.textRenderer, line.GetLineHandle(), actualX, textY, line.color);
                 }
             }
 
@@ -973,14 +996,22 @@ public class ScriptingScreen extends Screen {
 
         // Scenario 2: User has a line selected in the script
         if (builder.selectedLine != null) {
-            if (builder.selectedLine instanceof InstructionEntity_FollowEntity followInstr) {
-                followInstr.targetUUID = formattedUUID;
-                this.rebuildUI();
-            }
-            // TODO: Other future instructions
-            else if (builder.selectedLine instanceof InstructionMath mathInstr) {
-                mathInstr.expression = formattedUUID;
-                this.rebuildUI();
+            switch (builder.selectedLine) {
+                case InstructionEntity_FollowEntity followInstr -> {
+                    followInstr.targetUUID = formattedUUID;
+                    this.rebuildUI();
+                }
+                case InstructionEntity_LookAtEntity lookAtInstr -> {
+                    lookAtInstr.targetUUID = formattedUUID;
+                    this.rebuildUI();
+                }
+                case InstructionMath mathInstr -> {
+                    mathInstr.expression = formattedUUID;
+                    this.rebuildUI();
+                }
+                // TODO: Other future instructions
+                default -> {
+                }
             }
         }
     }
