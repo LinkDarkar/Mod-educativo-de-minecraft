@@ -12,7 +12,9 @@ import net.minecraft.entity.ai.goal.FollowMobGoal;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.Vec3i;
 
 import java.util.UUID;
 
@@ -72,7 +74,24 @@ public final class FunctionCaller {
 
     public static boolean aux_forceLookAt(Entity entity, Vec3d desiredLookDir) {
         if (!(entity instanceof MobEntity mobEntity)) return false;
+        // if (desiredLookDir == Direction.NORTH)
+
         mobEntity.getLookControl().lookAt(desiredLookDir);
+
+//        NORTH(2, 3, 2, "north", Direction.AxisDirection.NEGATIVE, Direction.Axis.Z, new Vec3i(0, 0, -1)),
+//        SOUTH(3, 2, 0, "south", Direction.AxisDirection.POSITIVE, Direction.Axis.Z, new Vec3i(0, 0, 1)),
+//        WEST(4, 5, 1, "west", Direction.AxisDirection.NEGATIVE, Direction.Axis.X, new Vec3i(-1, 0, 0)),
+//        EAST(5, 4, 3, "east", Direction.AxisDirection.POSITIVE, Direction.Axis.X, new Vec3i(1, 0, 0));
+        return true;
+    }
+
+    public static boolean lookAtEntity(ServerWorld serverWorld, UUID followerUuid, UUID targetUuid) {
+        Entity entity = serverWorld.getEntity(followerUuid);
+        Entity targetEntity = serverWorld.getEntity(targetUuid);
+
+        if (!(entity instanceof MobEntity mobEntity)) return false;
+
+        mobEntity.getLookControl().lookAt(targetEntity);
         return true;
     }
 

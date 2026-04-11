@@ -1,0 +1,20 @@
+{
+  "id": "intro1",
+  "Nodes": [
+    {
+      "id": "01_01",
+      "speaker": "Intro",
+      "text": [
+        "—Como te darás cuenta, no podemos contar solo con la instrucción PRINT para hacer programas que produzcan resultados, necesitamos más. Los programas, al fin y al cabo, son una colección de instrucciones que manipulan datos para producir un resultado. Estos datos pueden ser cosas como números y texto; y se guardan en variables, que aquí se declaran con el botón \"Add VAR\".\n \n ",
+        "—Ahora el mob tendrá el siguiente código- Ah, cierto, código es como se le suele llamar a las instrucciones. Bueno el código será el siguiente.\n",
+
+        "var = \"Hello\" \n ",
+
+        "—En esta línea hemos declarado una variable llamada var que contiene el texto \"Hello\". Es importante que recuerdes esto, lo que va a la izquierda del signo = es el nombre de la variable, y lo que está a la derecha es el valor de la variable. Por lo que otra forma de leer esa línea sería, \"una variable llamada var que contiene el texto Hello\"... Que casi sería la frase con la que empecé este párrafo... En fin, ¿te acuerdas del ejercicio de antes? El de cambiar el texto del print por \"Hello Player\"? prueba a cambiar el texto de la variable por eso. No tienes que cambiar el nombre de la variable, solo el texto que tiene."
+      ],
+      "nextNodeId": "",
+      "executeCommands": [
+      ]
+    }
+  ]
+}
