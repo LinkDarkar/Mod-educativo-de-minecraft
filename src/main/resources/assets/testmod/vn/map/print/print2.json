@@ -5,7 +5,7 @@
       "id": "01_01",
       "speaker": "Intro",
       "text": [
-        "—Y así el mob dice exactamente lo que le indicamos en el print —se cruza de brazos, pensativa.— Pero podríamos cambiarlo a algo más amigable ¿no crees? ¿Qué tal si cambiamos el texto que está en el print, lo que está entre las comillas? Hagamos que te salude con tu nombre. Cambia el print para que te salude directamente. Deberá decir Beeee."
+        "—Y así el mob dice exactamente lo que le indicamos en el print —se cruza de brazos, pensativa.— Pero podríamos cambiarlo a algo más amigable ¿no crees? ¿Qué tal si cambiamos el texto que está en el print, lo que está entre las comillas? Hagamos que te salude a ti. Cambia el print para que diga Hello Player."
       ],
       "nextNodeId": "",
       "executeCommands": [
