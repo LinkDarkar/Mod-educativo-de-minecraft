@@ -20,7 +20,10 @@
       "text": [
         "—Antes de avanzar probemos lo que has aprendido por el momento. En los siguientes ejercicios tendrás que escribir el output del código que te presentaré."
       ],
-      "nextNodeId": ""
+      "nextNodeId": "",
+      "executeCommands": [
+        "/fill 0 1 -56 0 2 -56 minecraft:air"
+      ]
     }
   ]
 }

@@ -9,7 +9,7 @@
       ],
       "nextNodeId": "",
       "executeCommands": [
-        "/scriptsummon sheep {meta:{actions:{any:{cmds:\"\",count:0,max:1},correct:{cmds:\"summon testmod:npc_reimu_test ~ ~ ~ {CustomName:'{\\\"text\\\":\\\"Print\\\"}',CustomNameVisible:1,Tags:[\\\"NPC_Print\\\"],DialoguePath:\\\"map/print/print5.json\\\"}\",count:0,max:1},wrong:{cmds:\"\",count:0,max:1}},config:{cmd:1b,else:0b,follow:0b,if:0b,lookAt:0b,place:1b,print:0b,var:0b,walkForward:0b,while:0b}},script_correct:{main:{lines:[{expr:'\"Hello\"',target:\"saludo\",type:\"MATH\"},{msg:\"saludo\",type:\"PRINT\"}],type:\"BLOCK\"}},script_current:{main:{lines:[{msg:'\"Hola\"',type:\"PRINT\"}],type:\"BLOCK\"}},script_default:{main:{lines:[{msg:'\"Hello\"',type:\"PRINT\"}],type:\"BLOCK\"}}}"
+        "/scriptsummon sheep {meta:{actions:{any:{cmds:\"\",count:1,max:1},correct:{cmds:'data modify entity @e[tag=NPC_Print, limit=1] DialoguePath set value \"map/print/print5.json\"',count:0,max:1},wrong:{cmds:\"\",count:0,max:1}},config:{cmd:1b,else:0b,follow:0b,if:0b,lookAt:0b,place:1b,print:0b,var:0b,walkForward:0b,while:0b}},script_correct:{main:{lines:[{expr:'\"Hello\"',target:\"saludo\",type:\"MATH\"},{msg:\"saludo\",type:\"PRINT\"}],type:\"BLOCK\"}},script_current:{main:{lines:[{msg:'\"Hola\"',type:\"PRINT\"}],type:\"BLOCK\"}},script_default:{main:{lines:[{msg:'\"Hello\"',type:\"PRINT\"}],type:\"BLOCK\"}}}"
       ]
     }
   ]

@@ -9,6 +9,7 @@
       ],
       "nextNodeId": "01_02",
       "executeCommands": [
+        "/fill 0 2 -35 0 3 -35 air"
       ]
     }
   ]

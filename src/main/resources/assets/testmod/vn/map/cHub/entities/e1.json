@@ -1,9 +1,9 @@
 {
-  "id": "intro1",
+  "id": "e1",
   "Nodes": [
     {
       "id": "01_01",
-      "speaker": "Intro",
+      "speaker": "Guia",
       "text": [
         "—Aquí tienes el mob con el que vamos a empezar a trabajar.\n ",
 
@@ -15,7 +15,7 @@
     },
     {
       "id": "01_02",
-      "speaker": "Intro",
+      "speaker": "Guia",
       "text": [
         "—Al principio la interfaz puede resultar complicada de entender pero sólo concéntrate en los botones \"Print\" y \"Execute Once\" ubicados a la izquierda de la pantalla. El botón \"Print\" va a agregar una instrucción al script del mismo nombre que va a \"imprimir\" un texto en la pantalla a través del chat del juego. Execute Once, por otro lado, es el botón que ejecutará las instrucciones del script. Por ejemplo la línea:\n \n",
 
