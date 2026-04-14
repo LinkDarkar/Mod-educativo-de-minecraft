@@ -1,0 +1,15 @@
+{
+  "id": "intro1",
+  "Nodes": [
+    {
+      "id": "01_01",
+      "speaker": "Intro",
+      "text": [
+        "placeholder pretest"
+      ],
+      "nextNodeId": "01_02",
+      "executeCommands": [
+      ]
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "id": "intro1",
+  "Nodes": [
+    {
+      "id": "01_01",
+      "speaker": "Intro",
+      "text": [
+        "placeholder explicación de lo que se aprenderá, y las formas en las que se ejercitará"
+      ],
+      "nextNodeId": "01_02",
+      "executeCommands": [
+      ]
+    }
+  ]
+}
