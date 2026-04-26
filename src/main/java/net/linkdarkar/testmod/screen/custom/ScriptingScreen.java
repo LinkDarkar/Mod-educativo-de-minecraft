@@ -8,7 +8,6 @@ import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.ClickableWidget;
-import net.minecraft.client.gui.widget.EditBoxWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
@@ -52,6 +51,12 @@ public class ScriptingScreen extends Screen {
     }
     protected InstructionCategory currentCategory = InstructionCategory.BASIC;
 
+    protected enum Tab {
+        SCRIPT,
+        VARIABLES
+    }
+    protected Tab currentView = Tab.SCRIPT;
+
     public ScriptingScreen(LivingEntity entity) {
         super(Text.literal("opens scripting screen"));
         this.entity = entity;
@@ -80,152 +85,24 @@ public class ScriptingScreen extends Screen {
         int btnSpacing = 4;
         int leftOffset = 10;
 
-        // Category Switcher
-        int arrowW = 20;
-        int labelW = btnWidth - (arrowW * 2);
-
-        // Left Arrow
-        this.addDrawableChild(ButtonWidget.builder(Text.literal("<"), b -> {
-            InstructionCategory[] cats = InstructionCategory.values();
-            this.currentCategory = cats[(this.currentCategory.ordinal() - 1 + cats.length) % cats.length];
+        // View Switcher
+        this.addDrawableChild(ButtonWidget.builder(Text.literal("View: " + currentView.name()), b -> {
+            this.currentView = this.currentView == Tab.SCRIPT ? Tab.VARIABLES : Tab.SCRIPT;
             this.rebuildUI();
-        }).dimensions(leftOffset, btnY, arrowW, btnHeight + 4).build());
-
-        // Middle Category Label (Inactive Button)
-        ButtonWidget catLabel = ButtonWidget.builder(Text.literal(currentCategory.name()), b -> {})
-                .dimensions(leftOffset + arrowW, btnY, labelW, btnHeight + 4).build();
-        catLabel.active = false;
-        this.addDrawableChild(catLabel);
-
-        // Right Arrow
-        this.addDrawableChild(ButtonWidget.builder(Text.literal(">"), b -> {
-            InstructionCategory[] cats = InstructionCategory.values();
-            this.currentCategory = cats[(this.currentCategory.ordinal() + 1) % cats.length];
-            this.rebuildUI();
-        }).dimensions(leftOffset + arrowW + labelW, btnY, arrowW, btnHeight + 4).build());
+        }).dimensions(leftOffset, btnY, btnWidth * 2, btnHeight).build());
         btnY += btnHeight + btnSpacing + 4;
 
-        ScriptingConfigManager.ScriptingConfig config = ScriptingConfigManager.getInstance().getConfig(this.entityUuid);
-
-        // Draw Instructions per Category
-        switch (this.currentCategory) {
-            case BASIC -> {
-
-                // NEW VAR
-                if (config.allowVar) {
-                    this.addDrawableChild(ButtonWidget.builder(Text.literal("Add VAR"), b -> {
-                        this.builder.AddMath();
-                        this.rebuildUI();
-                    }).dimensions(leftOffset, btnY, btnWidth, btnHeight).build());
-                    btnY += btnHeight + btnSpacing;
-                }
-
-                // ADD VAR = FUNCTION
-                if (config.allowVar) {
-                    this.addDrawableChild(ButtonWidget.builder(Text.literal("Add VARF"), b -> {
-                        this.builder.AddVarAssign();
-                        this.rebuildUI();
-                    }).dimensions(leftOffset, btnY, btnWidth, btnHeight).build());
-                    btnY += btnHeight + btnSpacing;
-                }
-
-                // ADD IF
-                if (config.allowIf) {
-                    this.addDrawableChild(ButtonWidget.builder(Text.literal("Add IF"), b -> {
-                        this.builder.AddIf();
-                        this.rebuildUI();
-                    }).dimensions(leftOffset, btnY, btnWidth, btnHeight).build());
-                    btnY += btnHeight + btnSpacing;
-                }
-
-                // ADD ELSE
-                if (config.allowElse) {
-                    this.addDrawableChild(ButtonWidget.builder(Text.literal("Add ELSE"), b -> {
-                        this.builder.AddElse();
-                        this.rebuildUI();
-                    }).dimensions(leftOffset, btnY, btnWidth, btnHeight).build());
-                    btnY += btnHeight + btnSpacing;
-                }
-
-                // ADD WHILE
-                if (config.allowWhile) {
-                    this.addDrawableChild(ButtonWidget.builder(Text.literal("Add WHILE"), b -> {
-                        this.builder.AddWhile();
-                        this.rebuildUI();
-                    }).dimensions(leftOffset, btnY, btnWidth, btnHeight).build());
-                    btnY += btnHeight + btnSpacing;
-                }
-
-                // ADD PRINT (to chat)
-                if (config.allowPrint) {
-                    this.addDrawableChild(ButtonWidget.builder(Text.literal("Add PRINT"), b -> {
-                        this.builder.AddPrint();
-                        this.rebuildUI();
-                    }).dimensions(leftOffset, btnY, btnWidth, btnHeight).build());
-                    btnY += btnHeight + btnSpacing;
-                }
+        switch (this.currentView) {
+            case SCRIPT -> {
+                initScriptEditTab(btnWidth, leftOffset, btnY, btnHeight, btnSpacing);
             }
-            case ENTITY -> {
-
-                // ADD LOOK_AT_ENTITY
-                if (config.allowLookAt) {
-                    this.addDrawableChild(ButtonWidget.builder(Text.literal("Look At"), b -> {
-                        this.builder.AddLookAtEntity();
-                        this.rebuildUI();
-                    }).dimensions(leftOffset, btnY, btnWidth, btnHeight).build());
-                    btnY += btnHeight + btnSpacing;
-                }
-
-                // ADD FOLLOW_ENTITY
-                if (config.allowFollow) {
-                    this.addDrawableChild(ButtonWidget.builder(Text.literal("Follow Entity"), b -> {
-                        this.builder.AddFollowEntity();
-                        this.rebuildUI();
-                    }).dimensions(leftOffset, btnY, btnWidth, btnHeight).build());
-                    btnY += btnHeight + btnSpacing;
-                }
-
-                // ADD WALK_TOWARDS
-                if (config.allowWalkForward) {
-                    this.addDrawableChild(ButtonWidget.builder(Text.literal("Walk Towards"), b -> {
-                        this.builder.AddWalkTowards();
-                        this.rebuildUI();
-                    }).dimensions(leftOffset, btnY, btnWidth, btnHeight).build());
-                    btnY += btnHeight + btnSpacing;
-                }
-
-                // ADD WALK_FORWARD
-                if (config.allowWalkForward) {
-                    this.addDrawableChild(ButtonWidget.builder(Text.literal("Walk Forward"), b -> {
-                        this.builder.AddWalkForward();
-                        this.rebuildUI();
-                    }).dimensions(leftOffset, btnY, btnWidth, btnHeight).build());
-                    btnY += btnHeight + btnSpacing;
-                }
-            }
-            case MINECRAFT -> {
-
-                // ADD PLACE_BLOCK
-                if (config.allowPlace) {
-                    this.addDrawableChild(ButtonWidget.builder(Text.literal("Place Block"), b -> {
-                        this.builder.AddPlaceBlock();
-                        this.rebuildUI();
-                    }).dimensions(leftOffset, btnY, btnWidth, btnHeight).build());
-                    btnY += btnHeight + btnSpacing;
-                }
-
-                // ADD COMMAND
-                if (config.allowCommand) {
-                    this.addDrawableChild(ButtonWidget.builder(Text.literal("Add Command"), b -> {
-                        this.builder.AddCommand();
-                        this.rebuildUI();
-                    }).dimensions(leftOffset, btnY, btnWidth, btnHeight).build());
-                    btnY += btnHeight + btnSpacing;
-                }
+            case VARIABLES -> {
+                initVariablesTab();
             }
             case null, default -> {
             }
         }
+
 
         // ################### BOTTOM BUTTONS
         // They are drawn from Bottom to Top, so we have to place them in reverse
@@ -330,6 +207,207 @@ public class ScriptingScreen extends Screen {
         updateScroll();
     }
 
+    protected void initScriptEditTab(int btnWidth, int leftOffset, int btnY, int btnHeight, int btnSpacing) {
+        // Category Switcher
+        int arrowW = 20;
+        int labelW = btnWidth - (arrowW * 2);
+
+        // Left Arrow
+        this.addDrawableChild(ButtonWidget.builder(Text.literal("<"), b -> {
+            InstructionCategory[] cats = InstructionCategory.values();
+            this.currentCategory = cats[(this.currentCategory.ordinal() - 1 + cats.length) % cats.length];
+            this.rebuildUI();
+        }).dimensions(leftOffset, btnY, arrowW, btnHeight + 4).build());
+
+        // Middle Category Label (Inactive Button)
+        ButtonWidget catLabel = ButtonWidget.builder(Text.literal(currentCategory.name()), b -> {})
+                .dimensions(leftOffset + arrowW, btnY, labelW, btnHeight + 4).build();
+        catLabel.active = false;
+        this.addDrawableChild(catLabel);
+
+        // Right Arrow
+        this.addDrawableChild(ButtonWidget.builder(Text.literal(">"), b -> {
+            InstructionCategory[] cats = InstructionCategory.values();
+            this.currentCategory = cats[(this.currentCategory.ordinal() + 1) % cats.length];
+            this.rebuildUI();
+        }).dimensions(leftOffset + arrowW + labelW, btnY, arrowW, btnHeight + 4).build());
+        btnY += btnHeight + btnSpacing + 4;
+
+        ScriptingConfigManager.ScriptingConfig config = ScriptingConfigManager.getInstance().getConfig(this.entityUuid);
+
+        // Draw Instructions per Category
+        switch (this.currentCategory) {
+            case BASIC -> {
+
+                // NEW VAR
+                if (config.allowVar) {
+                    this.addDrawableChild(ButtonWidget.builder(Text.literal("Add VAR"), b -> {
+                        this.builder.AddMath();
+                        this.rebuildUI();
+                    }).dimensions(leftOffset, btnY, btnWidth, btnHeight).build());
+                    btnY += btnHeight + btnSpacing;
+                }
+
+                // ADD VAR = FUNCTION
+                if (config.allowVar) {
+                    this.addDrawableChild(ButtonWidget.builder(Text.literal("Add VARF"), b -> {
+                        this.builder.AddVarAssign();
+                        this.rebuildUI();
+                    }).dimensions(leftOffset, btnY, btnWidth, btnHeight).build());
+                    btnY += btnHeight + btnSpacing;
+                }
+
+                // ADD PRINT (to chat)
+                if (config.allowPrint) {
+                    this.addDrawableChild(ButtonWidget.builder(Text.literal("Add PRINT"), b -> {
+                        this.builder.AddPrint();
+                        this.rebuildUI();
+                    }).dimensions(leftOffset, btnY, btnWidth, btnHeight).build());
+                    btnY += btnHeight + btnSpacing;
+                }
+
+                // ADD IF
+                if (config.allowIf) {
+                    this.addDrawableChild(ButtonWidget.builder(Text.literal("Add IF"), b -> {
+                        this.builder.AddIf();
+                        this.rebuildUI();
+                    }).dimensions(leftOffset, btnY, btnWidth, btnHeight).build());
+                    btnY += btnHeight + btnSpacing;
+                }
+
+                // ADD ELSE
+                if (config.allowElse) {
+                    this.addDrawableChild(ButtonWidget.builder(Text.literal("Add ELSE"), b -> {
+                        this.builder.AddElse();
+                        this.rebuildUI();
+                    }).dimensions(leftOffset, btnY, btnWidth, btnHeight).build());
+                    btnY += btnHeight + btnSpacing;
+                }
+
+                // ADD WHILE
+                if (config.allowWhile) {
+                    this.addDrawableChild(ButtonWidget.builder(Text.literal("Add WHILE"), b -> {
+                        this.builder.AddWhile();
+                        this.rebuildUI();
+                    }).dimensions(leftOffset, btnY, btnWidth, btnHeight).build());
+                    btnY += btnHeight + btnSpacing;
+                }
+            }
+            case ENTITY -> {
+
+                // ADD LOOK_AT_ENTITY
+                if (config.allowLookAt) {
+                    this.addDrawableChild(ButtonWidget.builder(Text.literal("Look At"), b -> {
+                        this.builder.AddLookAtEntity();
+                        this.rebuildUI();
+                    }).dimensions(leftOffset, btnY, btnWidth, btnHeight).build());
+                    btnY += btnHeight + btnSpacing;
+                }
+
+                // ADD FOLLOW_ENTITY
+                if (config.allowFollow) {
+                    this.addDrawableChild(ButtonWidget.builder(Text.literal("Follow Entity"), b -> {
+                        this.builder.AddFollowEntity();
+                        this.rebuildUI();
+                    }).dimensions(leftOffset, btnY, btnWidth, btnHeight).build());
+                    btnY += btnHeight + btnSpacing;
+                }
+
+                // ADD WALK_TOWARDS
+                if (config.allowWalkForward) {
+                    this.addDrawableChild(ButtonWidget.builder(Text.literal("Walk Towards"), b -> {
+                        this.builder.AddWalkTowards();
+                        this.rebuildUI();
+                    }).dimensions(leftOffset, btnY, btnWidth, btnHeight).build());
+                    btnY += btnHeight + btnSpacing;
+                }
+
+                // ADD WALK_FORWARD
+                if (config.allowWalkForward) {
+                    this.addDrawableChild(ButtonWidget.builder(Text.literal("Walk Forward"), b -> {
+                        this.builder.AddWalkForward();
+                        this.rebuildUI();
+                    }).dimensions(leftOffset, btnY, btnWidth, btnHeight).build());
+                    btnY += btnHeight + btnSpacing;
+                }
+            }
+            case MINECRAFT -> {
+                // ADD DISTANCE
+                if (config.allowDistanceCheck) {
+                    this.addDrawableChild(ButtonWidget.builder(Text.literal("Dist to Ent"), b -> {
+                        this.builder.AddDistanceFromEntity();
+                        this.rebuildUI();
+                    }).dimensions(leftOffset, btnY, btnWidth, btnHeight).build());
+                    btnY += btnHeight + btnSpacing;
+
+                    this.addDrawableChild(ButtonWidget.builder(Text.literal("Dist to Pos"), b -> {
+                        this.builder.AddDistanceFromPosition();
+                        this.rebuildUI();
+                    }).dimensions(leftOffset, btnY, btnWidth, btnHeight).build());
+                    btnY += btnHeight + btnSpacing;
+                }
+
+                // ADD PLACE_BLOCK
+                if (config.allowPlace) {
+                    this.addDrawableChild(ButtonWidget.builder(Text.literal("Place Block"), b -> {
+                        this.builder.AddPlaceBlock();
+                        this.rebuildUI();
+                    }).dimensions(leftOffset, btnY, btnWidth, btnHeight).build());
+                    btnY += btnHeight + btnSpacing;
+                }
+
+                // ADD COMMAND
+                if (config.allowCommand) {
+                    this.addDrawableChild(ButtonWidget.builder(Text.literal("Add Command"), b -> {
+                        this.builder.AddCommand();
+                        this.rebuildUI();
+                    }).dimensions(leftOffset, btnY, btnWidth, btnHeight).build());
+                    btnY += btnHeight + btnSpacing;
+                }
+            }
+            case null, default -> {
+            }
+        }
+    }
+
+    protected void initVariablesTab() {
+        ScriptingConfigManager.ScriptingConfig config = ScriptingConfigManager.getInstance().getConfig(this.entityUuid);
+        int listY = START_Y;
+
+        for (int i = 0; i < config.persistentVariables.size(); i++) {
+            ScriptingConfigManager.PersistentVariable pv = config.persistentVariables.get(i);
+            int finalI = i;
+
+            TextFieldWidget nameField = new TextFieldWidget(this.textRenderer, SCRIPT_X, listY, 80, 20, Text.literal(""));
+            nameField.setMaxLength(1024);
+            nameField.setText(pv.name);
+            nameField.setChangedListener(text -> { pv.name = text; ScriptingConfigManager.getInstance().markDirty(); });
+            addScrollableChild(nameField, SCRIPT_X, listY);
+
+            TextFieldWidget valField = new TextFieldWidget(this.textRenderer, SCRIPT_X + 95, listY, 200, 20, Text.literal(""));
+            valField.setMaxLength(1024);
+            valField.setText(pv.value);
+            valField.setChangedListener(text -> { pv.value = text; ScriptingConfigManager.getInstance().markDirty(); });
+            addScrollableChild(valField, SCRIPT_X + 95, listY);
+
+            addScrollableChild(ButtonWidget.builder(Text.literal("X"), b -> {
+                config.persistentVariables.remove(finalI);
+                ScriptingConfigManager.getInstance().markDirty();
+                this.rebuildUI();
+            }).dimensions(SCRIPT_X + 305, listY, 20, 20).build(), SCRIPT_X + 305, listY);
+
+            listY += LINE_HEIGHT;
+        }
+
+        addScrollableChild(ButtonWidget.builder(Text.literal("+ Add Variable"), b -> {
+            config.persistentVariables.add(new ScriptingConfigManager.PersistentVariable());
+            ScriptingConfigManager.getInstance().markDirty();
+            this.rebuildUI();
+        }).dimensions(SCRIPT_X, listY, 100, 20).build(), SCRIPT_X, listY);
+
+        this.contentHeight = listY - START_Y + 40;
+    }
+
     protected void rebuildUI() {
         this.clearChildren();
         this.init();
@@ -426,6 +504,12 @@ public class ScriptingScreen extends Screen {
             } else if (line instanceof InstructionEntity_WalkForward walkForwardLine) {
                 createWalkForwardWidgets(walkForwardLine, currentY, contentStartX);
                 currentY += LINE_HEIGHT;
+            } else if (line instanceof InstructionEntity_DistanceFromEntity distEntLine) {
+                createDistanceFromEntityWidgets(distEntLine, currentY, contentStartX);
+                currentY += LINE_HEIGHT;
+            } else if (line instanceof InstructionEntity_DistanceFromPosition distPosLine) {
+                createDistanceFromPositionWidgets(distPosLine, currentY, contentStartX);
+                currentY += LINE_HEIGHT;
             } else if (line instanceof InstructionBlock_Place placeLine) {
                 createPlaceBlockWidgets(placeLine, currentY, contentStartX);
                 currentY += LINE_HEIGHT;
@@ -439,8 +523,7 @@ public class ScriptingScreen extends Screen {
 
     protected void createPrintWidgets(InstructionPrint line, int y, int startX) {
         TextFieldWidget msgField = new TextFieldWidget(this.textRenderer, startX + 45, y, 250, 20, Text.literal(""));
-//        EditBoxWidget
-        msgField.setMaxLength(256);
+        msgField.setMaxLength(1024);
         msgField.setText(line.message);
         msgField.setChangedListener(text -> line.message = text);
         addScrollableChild(msgField, startX + 45, y);
@@ -448,13 +531,13 @@ public class ScriptingScreen extends Screen {
 
     protected void createMathWidgets(InstructionMath line, int y, int startX) {
         TextFieldWidget targetField = new TextFieldWidget(this.textRenderer, startX, y, 80, 20, Text.literal(""));
-        targetField.setMaxLength(256);
+        targetField.setMaxLength(1024);
         targetField.setText(line.targetVarName);
         targetField.setChangedListener(text -> line.targetVarName = text);
         addScrollableChild(targetField, startX, y);
 
         TextFieldWidget exprField = new TextFieldWidget(this.textRenderer, startX + 95, y, 200, 20, Text.literal(""));
-        exprField.setMaxLength(256);
+        exprField.setMaxLength(1024);
         exprField.setText(line.expression);
         exprField.setChangedListener(text -> line.expression = text);
         addScrollableChild(exprField, startX + 95, y);
@@ -462,7 +545,7 @@ public class ScriptingScreen extends Screen {
 
     protected void createVarAssignWidgets(InstructionVarAssign line, int y, int startX) {
         TextFieldWidget targetField = new TextFieldWidget(this.textRenderer, startX, y, 120, 20, Text.literal(""));
-        targetField.setMaxLength(256);
+        targetField.setMaxLength(1024);
         targetField.setText(line.targetVarName);
         targetField.setChangedListener(text -> line.targetVarName = text);
         addScrollableChild(targetField, startX, y);
@@ -476,7 +559,7 @@ public class ScriptingScreen extends Screen {
 
         // X Field
         TextFieldWidget xField = new TextFieldWidget(this.textRenderer, currentX, y, fieldWidth, 20, Text.literal(""));
-        xField.setMaxLength(256);
+        xField.setMaxLength(1024);
         xField.setText(line.xExp);
         xField.setChangedListener(text -> line.xExp = text);
         addScrollableChild(xField, currentX, y);
@@ -485,7 +568,7 @@ public class ScriptingScreen extends Screen {
 
         // Y Field
         TextFieldWidget yField = new TextFieldWidget(this.textRenderer, currentX, y, fieldWidth, 20, Text.literal(""));
-        yField.setMaxLength(256);
+        yField.setMaxLength(1024);
         yField.setText(line.yExp);
         yField.setChangedListener(text -> line.yExp = text);
         addScrollableChild(yField, currentX, y);
@@ -494,7 +577,7 @@ public class ScriptingScreen extends Screen {
 
         // Z Field
         TextFieldWidget zField = new TextFieldWidget(this.textRenderer, currentX, y, fieldWidth, 20, Text.literal(""));
-        zField.setMaxLength(256);
+        zField.setMaxLength(1024);
         zField.setText(line.zExp);
         zField.setChangedListener(text -> line.zExp = text);
         addScrollableChild(zField, currentX, y);
@@ -547,7 +630,7 @@ public class ScriptingScreen extends Screen {
 
         // Left Expression Field
         TextFieldWidget leftField = new TextFieldWidget(this.textRenderer, startX + 45, y, 100, 20, Text.literal(""));
-        leftField.setMaxLength(256);
+        leftField.setMaxLength(1024);
         leftField.setText(cond.leftExpression);
         leftField.setChangedListener(text -> finalCond.leftExpression = text);
         addScrollableChild(leftField, startX + 45, y);
@@ -561,14 +644,14 @@ public class ScriptingScreen extends Screen {
 
         // Right Expression Field
         TextFieldWidget rightField = new TextFieldWidget(this.textRenderer, startX + 180, y, 100, 20, Text.literal(""));
-        rightField.setMaxLength(256);
+        rightField.setMaxLength(1024);
         rightField.setText(cond.rightExpression);
         rightField.setChangedListener(text -> finalCond.rightExpression = text);
         addScrollableChild(rightField, startX + 180, y);
     }
     protected void createCommandWidgets(InstructionMinecraft_ExecuteCommand line, int y, int startX) {
         TextFieldWidget cmdField = new TextFieldWidget(this.textRenderer, startX + 45, y, 250, 20, Text.literal(""));
-        cmdField.setMaxLength(256);
+        cmdField.setMaxLength(1024);
         cmdField.setText(line.commandExpression);
         cmdField.setChangedListener(text -> line.commandExpression = text);
         addScrollableChild(cmdField, startX + 45, y);
@@ -591,20 +674,21 @@ public class ScriptingScreen extends Screen {
     }
     protected void createLookAtEntityWidgets(InstructionEntity_LookAtEntity line, int y, int startX) {
         TextFieldWidget targetField = new TextFieldWidget(this.textRenderer, startX + 45, y, 200, 20, Text.literal(""));
-        targetField.setMaxLength(256);
-        targetField.setText(line.targetUUID);
-        targetField.setChangedListener(text -> line.targetUUID = text);
+        targetField.setMaxLength(1024);
+        targetField.setText(line.targetUUIDExp);
+        targetField.setChangedListener(text -> line.targetUUIDExp = text);
         addScrollableChild(targetField, startX + 45, y);
     }
     protected void createFollowEntityWidgets(InstructionEntity_FollowEntity line, int y, int startX) {
         TextFieldWidget targetField = new TextFieldWidget(this.textRenderer, startX + 45, y, 200, 20, Text.literal(""));
-        targetField.setMaxLength(256);
-        targetField.setText(line.targetUUID);
-        targetField.setChangedListener(text -> line.targetUUID = text);
+        targetField.setMaxLength(1024);
+        targetField.setText(line.targetUUIDExp);
+        targetField.setChangedListener(text -> line.targetUUIDExp = text);
         addScrollableChild(targetField, startX + 45, y);
     }
     protected void createWalkForwardWidgets(InstructionEntity_WalkForward line, int y, int startX) {
         TextFieldWidget speedField = new TextFieldWidget(this.textRenderer, startX + 80, y, 60, 20, Text.literal(""));
+        speedField.setMaxLength(1024);
         speedField.setText(line.speedExp);
         speedField.setChangedListener(text -> line.speedExp = text);
         addScrollableChild(speedField, startX + 80, y);
@@ -619,6 +703,7 @@ public class ScriptingScreen extends Screen {
 
         // X
         TextFieldWidget xF = new TextFieldWidget(this.textRenderer, currentX, y, fieldWidth, 20, Text.literal(""));
+        xF.setMaxLength(1024);
         xF.setText(line.xExp);
         xF.setChangedListener(text -> line.xExp = text);
         addScrollableChild(xF, currentX, y);
@@ -626,6 +711,7 @@ public class ScriptingScreen extends Screen {
 
         // Y
         TextFieldWidget yF = new TextFieldWidget(this.textRenderer, currentX, y, fieldWidth, 20, Text.literal(""));
+        yF.setMaxLength(1024);
         yF.setText(line.yExp);
         yF.setChangedListener(text -> line.yExp = text);
         addScrollableChild(yF, currentX, y);
@@ -633,6 +719,7 @@ public class ScriptingScreen extends Screen {
 
         // Z
         TextFieldWidget zF = new TextFieldWidget(this.textRenderer, currentX, y, fieldWidth, 20, Text.literal(""));
+        zF.setMaxLength(1024);
         zF.setText(line.zExp);
         zF.setChangedListener(text -> line.zExp = text);
         addScrollableChild(zF, currentX, y);
@@ -640,9 +727,62 @@ public class ScriptingScreen extends Screen {
 
         // Speed
         TextFieldWidget sF = new TextFieldWidget(this.textRenderer, currentX, y, fieldWidth, 20, Text.literal(""));
+        sF.setMaxLength(1024);
         sF.setText(line.speedExp);
         sF.setChangedListener(text -> line.speedExp = text);
         addScrollableChild(sF, currentX, y);
+    }
+
+    protected void createDistanceFromEntityWidgets(InstructionEntity_DistanceFromEntity line, int y, int startX) {
+        int currentX = startX;
+
+        TextFieldWidget targetField = new TextFieldWidget(this.textRenderer, currentX, y, 50, 20, Text.literal(""));
+        targetField.setMaxLength(1024);
+        targetField.setText(line.targetVarName);
+        targetField.setChangedListener(text -> line.targetVarName = text);
+        addScrollableChild(targetField, currentX, y);
+
+        currentX += 85;
+
+        TextFieldWidget uuidField = new TextFieldWidget(this.textRenderer, currentX, y, 140, 20, Text.literal(""));
+        uuidField.setMaxLength(1024);
+        uuidField.setText(line.targetUUIDExp);
+        uuidField.setChangedListener(text -> line.targetUUIDExp = text);
+        addScrollableChild(uuidField, currentX, y);
+    }
+
+    protected void createDistanceFromPositionWidgets(InstructionEntity_DistanceFromPosition line, int y, int startX) {
+        int currentX = startX + 10;
+
+        TextFieldWidget targetField = new TextFieldWidget(this.textRenderer, currentX, y, 40, 20, Text.literal(""));
+        targetField.setMaxLength(1024);
+        targetField.setText(line.targetVarName);
+        targetField.setChangedListener(text -> line.targetVarName = text);
+        addScrollableChild(targetField, currentX, y);
+
+        currentX += 80;
+        int coordWidth = 40;
+        int gap = 5;
+
+        TextFieldWidget xF = new TextFieldWidget(this.textRenderer, currentX, y, coordWidth, 20, Text.literal(""));
+        xF.setMaxLength(1024);
+        xF.setText(line.xExp);
+        xF.setChangedListener(text -> line.xExp = text);
+        addScrollableChild(xF, currentX, y);
+        currentX += coordWidth + gap;
+
+        TextFieldWidget yF = new TextFieldWidget(this.textRenderer, currentX, y, coordWidth, 20, Text.literal(""));
+        yF.setMaxLength(1024);
+        yF.setText(line.yExp);
+        yF.setChangedListener(text -> line.yExp = text);
+        addScrollableChild(yF, currentX, y);
+        currentX += coordWidth + gap;
+
+        TextFieldWidget zF = new TextFieldWidget(this.textRenderer, currentX, y, coordWidth, 20, Text.literal(""));
+        zF.setMaxLength(1024);
+        zF.setText(line.zExp);
+        zF.setChangedListener(text -> line.zExp = text);
+        addScrollableChild(zF, currentX, y);
     }
 
     protected ComparisonOperator nextOperator(ComparisonOperator current) {
@@ -655,7 +795,7 @@ public class ScriptingScreen extends Screen {
             case EQUALS -> "==";
             case DIFFERENT -> "!=";
             case LESS_THAN -> "<";
-            case GREATER_THAN -> ">";
+            case LESS_OR_EQUAL_THAN -> "<=";
             default -> "?";
         };
     }
@@ -811,8 +951,11 @@ public class ScriptingScreen extends Screen {
             int textY = currentY + 6;
 
             if (0 < textY && textY < this.height) {
-                if (line instanceof InstructionMath) {
-                    context.drawTextWithShadow(this.textRenderer, line.GetLineHandle(), actualX + 85, textY, line.color);
+                if (line instanceof InstructionMath ||
+                        line instanceof InstructionEntity_DistanceFromEntity ||
+                        line instanceof InstructionEntity_DistanceFromPosition)
+                {
+                    context.drawTextWithShadow(this.textRenderer, line.GetLineHandle(), actualX + 55, textY, line.color);
                 }
                 else
                 {
@@ -1049,15 +1192,19 @@ public class ScriptingScreen extends Screen {
         if (builder.selectedLine != null) {
             switch (builder.selectedLine) {
                 case InstructionEntity_FollowEntity followInstr -> {
-                    followInstr.targetUUID = formattedUUID;
+                    followInstr.targetUUIDExp = formattedUUID;
                     this.rebuildUI();
                 }
                 case InstructionEntity_LookAtEntity lookAtInstr -> {
-                    lookAtInstr.targetUUID = formattedUUID;
+                    lookAtInstr.targetUUIDExp = formattedUUID;
                     this.rebuildUI();
                 }
                 case InstructionMath mathInstr -> {
                     mathInstr.expression = formattedUUID;
+                    this.rebuildUI();
+                }
+                case InstructionEntity_DistanceFromEntity distEntInstr -> {
+                    distEntInstr.targetUUIDExp = formattedUUID;
                     this.rebuildUI();
                 }
                 // TODO: Other future instructions

@@ -24,12 +24,13 @@ public class ScriptingDebugScreen extends ScriptingScreen {
     private final UUID correctEntityUuid;
     private boolean editingDefault = false;
 
-    private enum Tab
+    private enum TabDebug
     {
         SCRIPT,
-        ACTIONS
+        ACTIONS,
+        VARIABLES
     }
-    private Tab currentTab = Tab.SCRIPT;
+    private TabDebug currentTab = TabDebug.SCRIPT;
 
     private final ScriptingConfigManager.EntityActions entityActions;
 
@@ -61,7 +62,7 @@ public class ScriptingDebugScreen extends ScriptingScreen {
 
         // Tab Switcher Button
         this.addDrawableChild(ButtonWidget.builder(Text.literal("Tab: " + currentTab.name()), b -> {
-            this.currentTab = (this.currentTab == Tab.SCRIPT) ? Tab.ACTIONS : Tab.SCRIPT;
+            this.currentTab = (this.currentTab == TabDebug.SCRIPT) ? TabDebug.ACTIONS : TabDebug.SCRIPT;
             this.rebuildUI();
         }).dimensions(leftOffset, 10, btnWidth * 2, btnHeight).build());
 
@@ -77,15 +78,18 @@ public class ScriptingDebugScreen extends ScriptingScreen {
                     this.rebuildUI();
                 }).dimensions(leftOffset, 10 + btnHeight + btnSpacing, btnWidth * 2, btnHeight).build());
 
-                initScriptTab(leftOffset, btnWidth, btnHeight, btnSpacing);
+                initScriptDebugTab(leftOffset, btnWidth, btnHeight, btnSpacing);
                 break;
             case ACTIONS:
                 initActionsTab();
                 break;
+            case VARIABLES:
+                initVariablesTab();
+                break;
         }
     }
 
-    private void initScriptTab(int leftOffset, int btnWidth, int btnHeight, int btnSpacing) {
+    protected void initScriptDebugTab(int leftOffset, int btnWidth, int btnHeight, int btnSpacing) {
         int toggleWidth = 30;
         int toggleOffset = leftOffset + btnWidth + 5;
 
@@ -141,6 +145,18 @@ public class ScriptingDebugScreen extends ScriptingScreen {
                 }).dimensions(leftOffset, btnY, btnWidth, btnHeight).build());
                 btnY += btnHeight + btnSpacing; // VAR and VARF share the config toggle visually
 
+                // PRINT
+                this.addDrawableChild(ButtonWidget.builder(Text.literal("PRINT"), b -> {
+                    this.builder.AddPrint();
+                    this.rebuildUI();
+                }).dimensions(leftOffset, btnY, btnWidth, btnHeight).build());
+                this.addDrawableChild(ButtonWidget.builder(Text.literal(config.allowPrint ? "ON" : "OFF"), b -> {
+                    config.allowPrint = !config.allowPrint;
+                    ScriptingConfigManager.getInstance().markDirty();
+                    this.rebuildUI();
+                }).dimensions(toggleOffset, btnY, toggleWidth, btnHeight).build());
+                btnY += btnHeight + btnSpacing;
+
                 // IF
                 this.addDrawableChild(ButtonWidget.builder(Text.literal("IF"), b -> {
                     this.builder.AddIf();
@@ -172,18 +188,6 @@ public class ScriptingDebugScreen extends ScriptingScreen {
                 }).dimensions(leftOffset, btnY, btnWidth, btnHeight).build());
                 this.addDrawableChild(ButtonWidget.builder(Text.literal(config.allowWhile ? "ON" : "OFF"), b -> {
                     config.allowWhile = !config.allowWhile;
-                    ScriptingConfigManager.getInstance().markDirty();
-                    this.rebuildUI();
-                }).dimensions(toggleOffset, btnY, toggleWidth, btnHeight).build());
-                btnY += btnHeight + btnSpacing;
-
-                // PRINT
-                this.addDrawableChild(ButtonWidget.builder(Text.literal("PRINT"), b -> {
-                    this.builder.AddPrint();
-                    this.rebuildUI();
-                }).dimensions(leftOffset, btnY, btnWidth, btnHeight).build());
-                this.addDrawableChild(ButtonWidget.builder(Text.literal(config.allowPrint ? "ON" : "OFF"), b -> {
-                    config.allowPrint = !config.allowPrint;
                     ScriptingConfigManager.getInstance().markDirty();
                     this.rebuildUI();
                 }).dimensions(toggleOffset, btnY, toggleWidth, btnHeight).build());
@@ -236,6 +240,23 @@ public class ScriptingDebugScreen extends ScriptingScreen {
 
             }
             case MINECRAFT -> {
+                // Distance Check
+                this.addDrawableChild(ButtonWidget.builder(Text.literal("Dist to Ent"), b -> {
+                    this.builder.AddDistanceFromEntity();
+                    this.rebuildUI();
+                }).dimensions(leftOffset, btnY, btnWidth, btnHeight).build());
+                this.addDrawableChild(ButtonWidget.builder(Text.literal(config.allowDistanceCheck ? "ON" : "OFF"), b -> {
+                    config.allowDistanceCheck = !config.allowDistanceCheck;
+                    ScriptingConfigManager.getInstance().markDirty();
+                    this.rebuildUI();
+                }).dimensions(toggleOffset, btnY, toggleWidth, btnHeight).build());
+                btnY += btnHeight + btnSpacing;
+                this.addDrawableChild(ButtonWidget.builder(Text.literal("Dist to Pos"), b -> {
+                    this.builder.AddDistanceFromPosition();
+                    this.rebuildUI();
+                }).dimensions(leftOffset, btnY, btnWidth, btnHeight).build());
+                btnY += btnHeight + btnSpacing;
+
                 // Place Block
                 this.addDrawableChild(ButtonWidget.builder(Text.literal("Place"), b -> {
                     this.builder.AddPlaceBlock();

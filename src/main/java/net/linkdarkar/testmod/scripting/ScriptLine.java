@@ -47,6 +47,8 @@ public abstract class ScriptLine {
             case "E_FOLLOW_ENTITY" -> new InstructionEntity_FollowEntity();
             case "E_WALK_TOWARDS" -> new InstructionEntity_WalkTowards();
             case "E_WALK_FORWARD" -> new InstructionEntity_WalkForward();
+            case "E_DIST_ENTITY" -> new InstructionEntity_DistanceFromEntity();
+            case "E_DIST_POS" -> new InstructionEntity_DistanceFromPosition();
             // TODO: Add other cases here
             default -> null;
         };

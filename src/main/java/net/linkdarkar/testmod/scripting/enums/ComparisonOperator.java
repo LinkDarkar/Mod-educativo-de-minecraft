@@ -4,5 +4,5 @@ public enum ComparisonOperator {
     EQUALS,
     DIFFERENT,
     LESS_THAN,
-    GREATER_THAN
+    LESS_OR_EQUAL_THAN
 }

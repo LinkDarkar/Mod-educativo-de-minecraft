@@ -45,7 +45,9 @@ public class ScriptCondition {
                 yield !leftObj.toString().equals(rightObj.toString());
             }
             case LESS_THAN -> areNumbers && lNum < rNum;
-            case GREATER_THAN -> areNumbers && lNum > rNum;
+            case LESS_OR_EQUAL_THAN -> areNumbers && lNum <= rNum;
+//            case GREATER_THAN -> areNumbers && lNum > rNum;
+//            case GREATER_OR_EQUAL_THAN -> areNumbers && lNum >= rNum;
             default -> false;
         };
     }

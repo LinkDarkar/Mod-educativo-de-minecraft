@@ -1,8 +1,11 @@
 package net.linkdarkar.testmod.scripting;
 
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtList;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.UUID;
 
 public class ScriptingConfigManager {
@@ -21,6 +24,23 @@ public class ScriptingConfigManager {
         return actionsMap.computeIfAbsent(entityUuid, k -> new EntityActions());
     }
 
+    public static class PersistentVariable {
+        public String name = "var";
+        public String value = "0";
+
+        public NbtCompound toNbt() {
+            NbtCompound nbt = new NbtCompound();
+            nbt.putString("name", name);
+            nbt.putString("val", value);
+            return nbt;
+        }
+
+        public void loadNbt(NbtCompound nbt) {
+            this.name = nbt.getString("name");
+            this.value = nbt.getString("val");
+        }
+    }
+
     public static class ScriptingConfig {
         public boolean allowVar = true;
         public boolean allowIf = true;
@@ -30,8 +50,11 @@ public class ScriptingConfigManager {
         public boolean allowLookAt = true;
         public boolean allowFollow = true;
         public boolean allowWalkForward = true;
+        public boolean allowDistanceCheck = true;
         public boolean allowPlace = true;
         public boolean allowCommand = true;
+
+        public List<PersistentVariable> persistentVariables = new ArrayList<>();
     }
 
     public static class ActionEventData {
@@ -68,8 +91,17 @@ public class ScriptingConfigManager {
         configNbt.putBoolean("lookAt", config.allowLookAt);
         configNbt.putBoolean("walkForward", config.allowWalkForward);
         configNbt.putBoolean("follow", config.allowFollow);
+        configNbt.putBoolean("dist", config.allowDistanceCheck);
         configNbt.putBoolean("place", config.allowPlace);
         configNbt.putBoolean("cmd", config.allowCommand);
+
+        // Save Persistent Variables
+        NbtList pvList = new NbtList();
+        for (PersistentVariable pv : config.persistentVariables) {
+            pvList.add(pv.toNbt());
+        }
+        configNbt.put("persistentVars", pvList);
+
         nbt.put("config", configNbt);
 
         // Save Actions
@@ -90,8 +122,19 @@ public class ScriptingConfigManager {
             config.allowLookAt = c.getBoolean("lookAt");
             config.allowWalkForward = c.getBoolean("walkForward");
             config.allowFollow = c.getBoolean("follow");
+            config.allowDistanceCheck = c.getBoolean("dist");
             config.allowPlace = c.getBoolean("place");
             config.allowCommand = c.getBoolean("cmd");
+
+            config.persistentVariables.clear();
+            if (c.contains("persistentVars")) {
+                NbtList pvList = c.getList("persistentVars", 10);
+                for (int i = 0; i < pvList.size(); i++) {
+                    PersistentVariable pv = new PersistentVariable();
+                    pv.loadNbt(pvList.getCompound(i));
+                    config.persistentVariables.add(pv);
+                }
+            }
         }
         if (nbt.contains("actions")) {
             getActions(entityUuid).loadNbt(nbt.getCompound("actions"));

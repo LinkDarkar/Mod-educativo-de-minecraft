@@ -22,7 +22,7 @@ public class InstructionVarAssign extends ScriptLine {
     @Override
     public String GetLineHandle()
     {
-        return "VARF";
+        return "=";
     }
 
     @Override

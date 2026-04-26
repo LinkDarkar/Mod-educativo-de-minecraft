@@ -79,7 +79,7 @@ public class ScriptBuilder {
 
     public void AddPrint()
     {
-        Insert(new InstructionPrint("\"Value: \" + i"));
+        Insert(new InstructionPrint("\"Value: \" + var"));
     }
 
     public void AddIf()
@@ -122,6 +122,15 @@ public class ScriptBuilder {
     public void AddPlaceBlock()
     {
         Insert(new InstructionBlock_Place("0", "0", "0"));
+    }
+
+    public void AddDistanceFromEntity()
+    {
+        Insert(new InstructionEntity_DistanceFromEntity());
+    }
+    public void AddDistanceFromPosition()
+    {
+        Insert(new InstructionEntity_DistanceFromPosition());
     }
 
     public void DeleteSelected() {

@@ -47,7 +47,6 @@ public class InstructionWHILE extends ScriptLine {
             safety++;
             context.incrementSteps();
             if (10000 < safety) break;
-            loopBlock.Execute(context);
         }
         return null;
     }

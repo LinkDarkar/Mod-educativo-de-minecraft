@@ -25,7 +25,7 @@ public class InstructionMath extends ScriptLine {
     @Override
     public String GetLineHandle()
     {
-        return "=";
+        return "       =";
     }
 
     @Override
@@ -57,11 +57,12 @@ public class InstructionMath extends ScriptLine {
         try {
             Object result = ExpressionEvaluator.evaluate(expression, c);
             c.SetVar(targetVarName, result);
+            return result;
         } catch (Exception e) {
             // If it fails (e.g.: assignment of string literal), fallback to raw string
             c.SetVar(targetVarName, expression);
+            return expression;
         }
-        return null;
     }
 
     // NBT stuff

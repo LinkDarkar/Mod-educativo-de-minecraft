@@ -4,9 +4,7 @@ import net.linkdarkar.testmod.TestMod;
 import net.linkdarkar.testmod.scripting.*;
 import net.linkdarkar.testmod.scripting.functionCaller.FunctionCaller;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.world.World;
@@ -16,20 +14,20 @@ import java.util.List;
 import java.util.UUID;
 
 public class InstructionEntity_FollowEntity extends ScriptLine {
-    public String targetUUID;
+    public String targetUUIDExp;
 
     public InstructionEntity_FollowEntity() {
         this.color = 0x999999;
-        this.targetUUID = "";
+        this.targetUUIDExp = "";
     }
     public InstructionEntity_FollowEntity(String target) {
         this.color = 0x999999;
-        this.targetUUID = target;
+        this.targetUUIDExp = target;
     }
 
     @Override
     public String GetLineAsPlainText() {
-        return "Follow ["+targetUUID+"]";
+        return "Follow ["+ targetUUIDExp +"]";
     }
     @Override
     public String GetLineHandle()
@@ -41,16 +39,15 @@ public class InstructionEntity_FollowEntity extends ScriptLine {
     public List<String> Validate() {
         List<String> errors = new ArrayList<>();
 
-        if (targetUUID == null || targetUUID.trim().isEmpty()) {
-            errors.add("Target UUID cannot be empty.");
+        if (targetUUIDExp == null || targetUUIDExp.trim().isEmpty()) {
+            errors.add("Target UUID expression cannot be empty.");
             return errors;
         }
 
         try {
-            String cleanUUID = targetUUID.replace("\"", "");
-            java.util.UUID.fromString(cleanUUID);
-        } catch (IllegalArgumentException e) {
-            errors.add("Invalid UUID format: " + targetUUID);
+            ExpressionEvaluator.evaluate(targetUUIDExp, new ExecutionContext(null));
+        } catch (Exception e) {
+            errors.add("Invalid UUID expression: " + e.getMessage());
         }
 
         return errors;
@@ -58,7 +55,7 @@ public class InstructionEntity_FollowEntity extends ScriptLine {
 
     @Override
     public Object Execute(ExecutionContext context) {
-        if (targetUUID == null || targetUUID.isEmpty()) return null;
+        if (targetUUIDExp == null || targetUUIDExp.isEmpty()) return null;
 
         // If it's a simulation, skips changing the world
         if (context.isSimulation) {
@@ -71,7 +68,11 @@ public class InstructionEntity_FollowEntity extends ScriptLine {
 
         if (world instanceof ServerWorld serverWorld) {
             try {
-                String cleanUUID = targetUUID.replace("\"", "");
+                // Evaluate the expression to get the actual UUID string
+                Object res = ExpressionEvaluator.evaluate(targetUUIDExp, context);
+                String cleanUUID = res.toString().replace("\"", "").trim();
+
+                if (cleanUUID.isEmpty()) return null;
 
                 UUID uuid = UUID.fromString(cleanUUID);
 
@@ -80,7 +81,7 @@ public class InstructionEntity_FollowEntity extends ScriptLine {
                 TestMod.LOGGER.info("Follow command sent. Success: {}", success);
 
             } catch (IllegalArgumentException e) {
-                TestMod.LOGGER.error("Invalid UUID format in script: {}", targetUUID);
+                TestMod.LOGGER.error("Invalid UUID format in script: {}", targetUUIDExp);
             } catch (Exception e) {
                 TestMod.LOGGER.error("Error executing follow: {}", e.getMessage());
             }
@@ -121,12 +122,17 @@ public class InstructionEntity_FollowEntity extends ScriptLine {
     @Override
     public NbtCompound toNbt() {
         NbtCompound nbt = super.toNbt();
-        nbt.putString("targetUUID", targetUUID != null ? targetUUID : "");
+        nbt.putString("targetUUID", targetUUIDExp != null ? targetUUIDExp : "");
         return nbt;
     }
 
     @Override
     public void loadNbt(NbtCompound nbt) {
-        this.targetUUID = nbt.getString("targetUUID");
+        this.targetUUIDExp = nbt.getString("targetUUID");
+
+        // Backward compatibility: If an old NPC has a raw UUID saved without quotes, wrap it in quotes so that the ExpressionEvaluator treats it as a string and doesn't crash trying to do math on it.
+        if (this.targetUUIDExp != null && !this.targetUUIDExp.startsWith("\"") && this.targetUUIDExp.contains("-")) {
+            this.targetUUIDExp = "\"" + this.targetUUIDExp + "\"";
+        }
     }
 }
