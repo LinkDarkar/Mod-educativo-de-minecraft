@@ -32,7 +32,7 @@ public class InstructionMinecraft_ExecuteCommand extends ScriptLine {
     @Override
     public String GetLineHandle()
     {
-        return "MC /cmd";
+        return "MC cmd /";
     }
 
     @Override

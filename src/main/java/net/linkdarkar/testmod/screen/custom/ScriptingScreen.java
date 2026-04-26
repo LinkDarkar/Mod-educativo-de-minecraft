@@ -74,22 +74,36 @@ public class ScriptingScreen extends Screen {
         this.currentErrors = this.builder.GetScriptErrors();
 
         // Add Control Buttons (Left Side)
-        int btnY = 20;
+        int btnY = 10;
         int btnWidth = 80;
+        int btnHeight = 16;
+        int btnSpacing = 4;
         int leftOffset = 10;
 
-        this.addDrawableChild(ButtonWidget.builder(Text.literal("Reset Script"), b -> {
-            this.resetToDefaultScript();
-            this.rebuildUI();
-        }).dimensions(leftOffset, btnY, btnWidth, 20).build());
-        btnY += 25;
+        // Category Switcher
+        int arrowW = 20;
+        int labelW = btnWidth - (arrowW * 2);
 
-        // Category Switcher Button
-        this.addDrawableChild(ButtonWidget.builder(Text.literal("[" + currentCategory.name() + "]"), b -> {
-            this.currentCategory = (this.currentCategory == InstructionCategory.BASIC) ? InstructionCategory.ENTITY : InstructionCategory.BASIC;
+        // Left Arrow
+        this.addDrawableChild(ButtonWidget.builder(Text.literal("<"), b -> {
+            InstructionCategory[] cats = InstructionCategory.values();
+            this.currentCategory = cats[(this.currentCategory.ordinal() - 1 + cats.length) % cats.length];
             this.rebuildUI();
-        }).dimensions(leftOffset, btnY, btnWidth, 20).build());
-        btnY += 25;
+        }).dimensions(leftOffset, btnY, arrowW, btnHeight + 4).build());
+
+        // Middle Category Label (Inactive Button)
+        ButtonWidget catLabel = ButtonWidget.builder(Text.literal(currentCategory.name()), b -> {})
+                .dimensions(leftOffset + arrowW, btnY, labelW, btnHeight + 4).build();
+        catLabel.active = false;
+        this.addDrawableChild(catLabel);
+
+        // Right Arrow
+        this.addDrawableChild(ButtonWidget.builder(Text.literal(">"), b -> {
+            InstructionCategory[] cats = InstructionCategory.values();
+            this.currentCategory = cats[(this.currentCategory.ordinal() + 1) % cats.length];
+            this.rebuildUI();
+        }).dimensions(leftOffset + arrowW + labelW, btnY, arrowW, btnHeight + 4).build());
+        btnY += btnHeight + btnSpacing + 4;
 
         ScriptingConfigManager.ScriptingConfig config = ScriptingConfigManager.getInstance().getConfig(this.entityUuid);
 
@@ -102,8 +116,8 @@ public class ScriptingScreen extends Screen {
                     this.addDrawableChild(ButtonWidget.builder(Text.literal("Add VAR"), b -> {
                         this.builder.AddMath();
                         this.rebuildUI();
-                    }).dimensions(leftOffset, btnY, btnWidth, 20).build());
-                    btnY += 25;
+                    }).dimensions(leftOffset, btnY, btnWidth, btnHeight).build());
+                    btnY += btnHeight + btnSpacing;
                 }
 
                 // ADD VAR = FUNCTION
@@ -111,8 +125,8 @@ public class ScriptingScreen extends Screen {
                     this.addDrawableChild(ButtonWidget.builder(Text.literal("Add VARF"), b -> {
                         this.builder.AddVarAssign();
                         this.rebuildUI();
-                    }).dimensions(leftOffset, btnY, btnWidth, 20).build());
-                    btnY += 25;
+                    }).dimensions(leftOffset, btnY, btnWidth, btnHeight).build());
+                    btnY += btnHeight + btnSpacing;
                 }
 
                 // ADD IF
@@ -120,8 +134,8 @@ public class ScriptingScreen extends Screen {
                     this.addDrawableChild(ButtonWidget.builder(Text.literal("Add IF"), b -> {
                         this.builder.AddIf();
                         this.rebuildUI();
-                    }).dimensions(leftOffset, btnY, btnWidth, 20).build());
-                    btnY += 25;
+                    }).dimensions(leftOffset, btnY, btnWidth, btnHeight).build());
+                    btnY += btnHeight + btnSpacing;
                 }
 
                 // ADD ELSE
@@ -129,8 +143,8 @@ public class ScriptingScreen extends Screen {
                     this.addDrawableChild(ButtonWidget.builder(Text.literal("Add ELSE"), b -> {
                         this.builder.AddElse();
                         this.rebuildUI();
-                    }).dimensions(leftOffset, btnY, btnWidth, 20).build());
-                    btnY += 25;
+                    }).dimensions(leftOffset, btnY, btnWidth, btnHeight).build());
+                    btnY += btnHeight + btnSpacing;
                 }
 
                 // ADD WHILE
@@ -138,17 +152,17 @@ public class ScriptingScreen extends Screen {
                     this.addDrawableChild(ButtonWidget.builder(Text.literal("Add WHILE"), b -> {
                         this.builder.AddWhile();
                         this.rebuildUI();
-                    }).dimensions(leftOffset, btnY, btnWidth, 20).build());
-                    btnY += 25;
+                    }).dimensions(leftOffset, btnY, btnWidth, btnHeight).build());
+                    btnY += btnHeight + btnSpacing;
                 }
 
                 // ADD PRINT (to chat)
                 if (config.allowPrint) {
-                    this.addDrawableChild(ButtonWidget.builder(Text.literal("PRINT"), b -> {
+                    this.addDrawableChild(ButtonWidget.builder(Text.literal("Add PRINT"), b -> {
                         this.builder.AddPrint();
                         this.rebuildUI();
-                    }).dimensions(leftOffset, btnY, btnWidth, 20).build());
-                    btnY += 25;
+                    }).dimensions(leftOffset, btnY, btnWidth, btnHeight).build());
+                    btnY += btnHeight + btnSpacing;
                 }
             }
             case ENTITY -> {
@@ -158,8 +172,8 @@ public class ScriptingScreen extends Screen {
                     this.addDrawableChild(ButtonWidget.builder(Text.literal("Look At"), b -> {
                         this.builder.AddLookAtEntity();
                         this.rebuildUI();
-                    }).dimensions(leftOffset, btnY, btnWidth, 20).build());
-                    btnY += 25;
+                    }).dimensions(leftOffset, btnY, btnWidth, btnHeight).build());
+                    btnY += btnHeight + btnSpacing;
                 }
 
                 // ADD FOLLOW_ENTITY
@@ -167,8 +181,8 @@ public class ScriptingScreen extends Screen {
                     this.addDrawableChild(ButtonWidget.builder(Text.literal("Follow Entity"), b -> {
                         this.builder.AddFollowEntity();
                         this.rebuildUI();
-                    }).dimensions(leftOffset, btnY, btnWidth, 20).build());
-                    btnY += 25;
+                    }).dimensions(leftOffset, btnY, btnWidth, btnHeight).build());
+                    btnY += btnHeight + btnSpacing;
                 }
 
                 // ADD WALK_TOWARDS
@@ -176,8 +190,8 @@ public class ScriptingScreen extends Screen {
                     this.addDrawableChild(ButtonWidget.builder(Text.literal("Walk Towards"), b -> {
                         this.builder.AddWalkTowards();
                         this.rebuildUI();
-                    }).dimensions(leftOffset, btnY, btnWidth, 20).build());
-                    btnY += 25;
+                    }).dimensions(leftOffset, btnY, btnWidth, btnHeight).build());
+                    btnY += btnHeight + btnSpacing;
                 }
 
                 // ADD WALK_FORWARD
@@ -185,8 +199,8 @@ public class ScriptingScreen extends Screen {
                     this.addDrawableChild(ButtonWidget.builder(Text.literal("Walk Forward"), b -> {
                         this.builder.AddWalkForward();
                         this.rebuildUI();
-                    }).dimensions(leftOffset, btnY, btnWidth, 20).build());
-                    btnY += 25;
+                    }).dimensions(leftOffset, btnY, btnWidth, btnHeight).build());
+                    btnY += btnHeight + btnSpacing;
                 }
             }
             case MINECRAFT -> {
@@ -196,8 +210,8 @@ public class ScriptingScreen extends Screen {
                     this.addDrawableChild(ButtonWidget.builder(Text.literal("Place Block"), b -> {
                         this.builder.AddPlaceBlock();
                         this.rebuildUI();
-                    }).dimensions(leftOffset, btnY, btnWidth, 20).build());
-                    btnY += 25;
+                    }).dimensions(leftOffset, btnY, btnWidth, btnHeight).build());
+                    btnY += btnHeight + btnSpacing;
                 }
 
                 // ADD COMMAND
@@ -205,16 +219,40 @@ public class ScriptingScreen extends Screen {
                     this.addDrawableChild(ButtonWidget.builder(Text.literal("Add Command"), b -> {
                         this.builder.AddCommand();
                         this.rebuildUI();
-                    }).dimensions(leftOffset, btnY, btnWidth, 20).build());
-                    btnY += 25;
+                    }).dimensions(leftOffset, btnY, btnWidth, btnHeight).build());
+                    btnY += btnHeight + btnSpacing;
                 }
             }
             case null, default -> {
             }
         }
 
+        // ################### BOTTOM BUTTONS
+        // They are drawn from Bottom to Top, so we have to place them in reverse
+        int execY = this.height - btnHeight - 5;
 
-        int execY = this.height - 80;
+        // STOP LOOP
+        this.addDrawableChild(ButtonWidget.builder(Text.literal("STOP LOOP"), b -> {
+            ClientPlayNetworking.send(new SetTickingPayload(this.entityUuid, false, new NbtCompound()));
+            this.close();
+        }).dimensions(leftOffset, execY, btnWidth, btnHeight).build());
+        execY -= btnHeight;
+
+        // START LOOP
+        this.addDrawableChild(ButtonWidget.builder(Text.literal("START LOOP"), b -> {
+            NbtCompound scriptNbt = this.builder.toNbt();
+            ClientPlayNetworking.send(new SetTickingPayload(this.entityUuid, true, scriptNbt));
+            this.close();
+        }).dimensions(leftOffset, execY, btnWidth, btnHeight).build());
+        execY -= btnHeight;
+
+        // EXECUTE ONCE
+        this.addDrawableChild(ButtonWidget.builder(Text.literal("EXECUTE ONCE"), b -> {
+            NbtCompound scriptNbt = this.builder.toNbt();
+            ClientPlayNetworking.send(new ExecuteOncePayload(this.entityUuid, scriptNbt));
+            this.close();
+        }).dimensions(leftOffset, execY, btnWidth, btnHeight).build());
+        execY -= btnHeight;
 
         // VERIFY CODE
         this.addDrawableChild(ButtonWidget.builder(Text.literal("VERIFY"), b -> {
@@ -242,28 +280,8 @@ public class ScriptingScreen extends Screen {
                     processAction(actions.executeWrong);
                 }
             }
-
-        }).dimensions(leftOffset, execY - 25, btnWidth, 20).build());
-
-        // EXECUTE ONCE
-        this.addDrawableChild(ButtonWidget.builder(Text.literal("EXECUTE ONCE"), b -> {
-            NbtCompound scriptNbt = this.builder.toNbt();
-            ClientPlayNetworking.send(new ExecuteOncePayload(this.entityUuid, scriptNbt));
-            this.close();
-        }).dimensions(leftOffset, execY, btnWidth, 20).build());
-
-        // START LOOP
-        this.addDrawableChild(ButtonWidget.builder(Text.literal("START LOOP"), b -> {
-            NbtCompound scriptNbt = this.builder.toNbt();
-            ClientPlayNetworking.send(new SetTickingPayload(this.entityUuid, true, scriptNbt));
-            this.close();
-        }).dimensions(leftOffset, execY + 25, btnWidth, 20).build());
-
-        // STOP LOOP
-        this.addDrawableChild(ButtonWidget.builder(Text.literal("STOP LOOP"), b -> {
-            ClientPlayNetworking.send(new SetTickingPayload(this.entityUuid, false, new NbtCompound()));
-            this.close();
-        }).dimensions(leftOffset, execY + 50, btnWidth, 20).build());
+        }).dimensions(leftOffset, execY, btnWidth, btnHeight).build());
+        execY -= btnHeight;
 
         // UUID stuff
         // ------------------------------
@@ -274,7 +292,7 @@ public class ScriptingScreen extends Screen {
         int listY = 40;
 
         this.addDrawableChild(ButtonWidget.builder(Text.literal("UUIDs in Inventory"), b -> {})
-                .dimensions(listX, 20, 100, 20).build()).active = false;
+                .dimensions(listX, 20, 100, btnHeight).build()).active = false;
 
         for (String uuidStr : entityUUIDs) {
             String labelText;
@@ -294,10 +312,16 @@ public class ScriptingScreen extends Screen {
 
             this.addDrawableChild(ButtonWidget.builder(Text.literal(labelText), b -> {
                 insertUUID(uuidStr);
-            }).dimensions(listX, listY, 100, 20).build());
+            }).dimensions(listX, listY, 100, btnHeight).build());
 
             listY += 25;
         }
+
+        // Reset Button
+        this.addDrawableChild(ButtonWidget.builder(Text.literal("Reset To Default!"), b -> {
+            this.resetToDefaultScript();
+            this.rebuildUI();
+        }).dimensions(this.width - 90, this.height - btnHeight - 5, 80, btnHeight).build());
 
         int finalY = generateWidgetsRecursive(this.builder.GetScript(), START_Y, 0);
 
