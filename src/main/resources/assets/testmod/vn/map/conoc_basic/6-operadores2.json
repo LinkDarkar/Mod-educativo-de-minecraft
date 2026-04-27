@@ -1,0 +1,15 @@
+{
+  "id": "intro1",
+  "Nodes": [
+    {
+      "id": "01_01",
+      "speaker": "Intro",
+      "text": [
+        "—Ahora vamos a hacer otro ejercicio. El script que haremos será uno que duplique el número de una variable y muestre el resultado por pantalla."
+      ],
+      "nextNodeId": "01_02",
+      "executeCommands": [
+      ]
+    }
+  ]
+}
