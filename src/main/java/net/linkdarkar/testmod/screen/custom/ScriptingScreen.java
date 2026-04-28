@@ -86,7 +86,7 @@ public class ScriptingScreen extends Screen {
         int leftOffset = 10;
 
         // View Switcher
-        this.addDrawableChild(ButtonWidget.builder(Text.literal("View: " + currentView.name()), b -> {
+        this.addDrawableChild(ButtonWidget.builder(Text.literal("Tab: " + currentView.name()), b -> {
             this.currentView = this.currentView == Tab.SCRIPT ? Tab.VARIABLES : Tab.SCRIPT;
             this.rebuildUI();
         }).dimensions(leftOffset, btnY, btnWidth * 2, btnHeight).build());
@@ -1010,44 +1010,51 @@ public class ScriptingScreen extends Screen {
         int drawY = (int) (START_Y - scrollOffset);
         int rightBound = this.width - 110;
 
-        drawLineNumbersRecursive(context, this.builder.GetScript(), drawY, new int[]{1});
+        switch (this.currentView) {
+            case SCRIPT -> {
+                drawLineNumbersRecursive(context, this.builder.GetScript(), drawY, new int[]{1});
 
-        context.enableScissor(SCRIPT_X, 0, rightBound, this.height);
+                context.enableScissor(SCRIPT_X, 0, rightBound, this.height);
 
-        // Draw HIGHLIGHT for Selected Line
-        drawSelectionHighlight(context, this.builder.GetScript(), drawY, 0);
+                // Draw HIGHLIGHT for Selected Line
+                drawSelectionHighlight(context, this.builder.GetScript(), drawY, 0);
 
-        // Draw Indentation Lines
-        drawIndentationLines(context, this.builder.GetScript(), drawY, 0);
+                // Draw Indentation Lines
+                drawIndentationLines(context, this.builder.GetScript(), drawY, 0);
 
-        // Draw Script Instruction Text (IF, WHILE, etc)
-        drawScriptTextRecursive(context, this.builder.GetScript(), drawY, 0);
+                // Draw Script Instruction Text (IF, WHILE, etc)
+                drawScriptTextRecursive(context, this.builder.GetScript(), drawY, 0);
 
-        for (PlacedWidget pw : scrollableWidgets) {
-            if (pw.widget.visible) {
-                pw.widget.render(context, mouseX, mouseY, delta);
-            }
-        }
-
-        context.disableScissor();
-
-        if (!this.verificationMessage.isEmpty()) {
-            context.drawTextWithShadow(this.textRenderer, this.verificationMessage, SCRIPT_X, this.height - 20, this.verificationColor);
-        }
-
-        if (SCRIPT_X <= mouseX && mouseX <= rightBound && START_Y <= mouseY) {
-            double virtualY = mouseY + scrollOffset;
-            ScriptLine hoveredLine = findLineAt((int) virtualY, this.builder.GetScript(), START_Y);
-
-            if (hoveredLine != null && currentErrors.containsKey(hoveredLine)) {
-                List<String> errors = currentErrors.get(hoveredLine);
-                List<Text> tooltipTexts = new ArrayList<>();
-
-                for (String error : errors) {
-                    tooltipTexts.add(Text.literal(error).formatted(Formatting.RED));
+                for (PlacedWidget pw : scrollableWidgets) {
+                    if (pw.widget.visible) {
+                        pw.widget.render(context, mouseX, mouseY, delta);
+                    }
                 }
 
-                context.drawTooltip(this.textRenderer, tooltipTexts, mouseX, mouseY);
+                context.disableScissor();
+
+                if (!this.verificationMessage.isEmpty()) {
+                    context.drawTextWithShadow(this.textRenderer, this.verificationMessage, SCRIPT_X, this.height - 20, this.verificationColor);
+                }
+
+                if (SCRIPT_X <= mouseX && mouseX <= rightBound && START_Y <= mouseY) {
+                    double virtualY = mouseY + scrollOffset;
+                    ScriptLine hoveredLine = findLineAt((int) virtualY, this.builder.GetScript(), START_Y);
+
+                    if (hoveredLine != null && currentErrors.containsKey(hoveredLine)) {
+                        List<String> errors = currentErrors.get(hoveredLine);
+                        List<Text> tooltipTexts = new ArrayList<>();
+
+                        for (String error : errors) {
+                            tooltipTexts.add(Text.literal(error).formatted(Formatting.RED));
+                        }
+
+                        context.drawTooltip(this.textRenderer, tooltipTexts, mouseX, mouseY);
+                    }
+                }
+            }
+            case VARIABLES -> {
+
             }
         }
     }
