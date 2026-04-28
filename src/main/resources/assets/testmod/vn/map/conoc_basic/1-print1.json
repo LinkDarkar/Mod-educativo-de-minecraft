@@ -1,0 +1,33 @@
+{
+  "id": "intro1",
+  "Nodes": [
+    {
+      "id": "01_01",
+      "speaker": "Intro",
+      "text": [
+        "—Aquí tienes el mob con el que vamos a empezar a trabajar.\n ",
+
+        "—Como ya sabrás, para poder manipular a los mobs tienes que hacer click derecho sobre ellos con el ítem que acabas de recibir."
+      ],
+      "nextNodeId": "01_02",
+      "executeCommands": [
+      ]
+    },
+    {
+      "id": "01_02",
+      "speaker": "Intro",
+      "text": [
+        "—Al principio la interfaz puede resultar complicada de entender pero sólo concéntrate en los botones \"Print\" y \"Execute Once\" ubicados a la izquierda de la pantalla. El botón \"Print\" va a agregar una instrucción al script del mismo nombre que va a \"imprimir\" un texto en la pantalla a través del chat del juego. Execute Once, por otro lado, es el botón que ejecutará las instrucciones del script. Por ejemplo la línea:\n \n",
+
+        "PRINT \"Hello\" \n ",
+
+        "—Es una instrucción que va a imprimir el texto Hello en el chat luego de que presiones Execute Once. De la misma forma que lo puedes ver en el ejemplo, el texto que vayas a poner en las instrucciones Print tiene que estar entre comillas, igual a como están los diálogos en un guión de teatro.\n ",
+        "—Este primer ejercicio va a consistir en hacer que el mob te salude. \nHaz un script que imprima en la pantalla el texto Hello Player!.\n "
+      ],
+      "nextNodeId": "",
+      "executeCommands":  [
+        ""
+      ]
+    }
+  ]
+}
