@@ -41,6 +41,24 @@ public class ScriptingConfigManager {
         }
     }
 
+    public static class CheckpointData {
+        public double x, y, z;
+
+        public NbtCompound toNbt() {
+            NbtCompound nbt = new NbtCompound();
+            nbt.putDouble("x", x);
+            nbt.putDouble("y", y);
+            nbt.putDouble("z", z);
+            return nbt;
+        }
+
+        public void loadNbt(NbtCompound nbt) {
+            this.x = nbt.getDouble("x");
+            this.y = nbt.getDouble("y");
+            this.z = nbt.getDouble("z");
+        }
+    }
+
     public static class ScriptingConfig {
         public boolean allowVar = true;
         public boolean allowIf = true;
@@ -55,6 +73,8 @@ public class ScriptingConfigManager {
         public boolean allowCommand = true;
 
         public List<PersistentVariable> persistentVariables = new ArrayList<>();
+
+        public List<CheckpointData> checkpoints = new ArrayList<>();
     }
 
     public static class ActionEventData {

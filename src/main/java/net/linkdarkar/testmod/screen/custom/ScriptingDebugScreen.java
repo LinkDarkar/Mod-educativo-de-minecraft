@@ -15,6 +15,7 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -28,7 +29,8 @@ public class ScriptingDebugScreen extends ScriptingScreen {
     {
         SCRIPT,
         ACTIONS,
-        VARIABLES
+        VARIABLES,
+        CHECKPOINTS
     }
     private TabDebug currentTab = TabDebug.SCRIPT;
 
@@ -62,9 +64,17 @@ public class ScriptingDebugScreen extends ScriptingScreen {
 
         // Tab Switcher Button
         this.addDrawableChild(ButtonWidget.builder(Text.literal("Tab: " + currentTab.name()), b -> {
-            this.currentTab = (this.currentTab == TabDebug.SCRIPT) ? TabDebug.ACTIONS : TabDebug.SCRIPT;
+            if (this.currentTab == TabDebug.SCRIPT) this.currentTab = TabDebug.ACTIONS;
+            else if (this.currentTab == TabDebug.ACTIONS) this.currentTab = TabDebug.VARIABLES;
+            else if (this.currentTab == TabDebug.VARIABLES) this.currentTab = TabDebug.CHECKPOINTS;
+            else this.currentTab = TabDebug.SCRIPT;
+
+            if (this.currentTab == TabDebug.SCRIPT) this.currentView = Tab.SCRIPT;
+            else if (this.currentTab == TabDebug.VARIABLES) this.currentView = Tab.VARIABLES;
+            else this.currentView = Tab.OTHER;
+
             this.rebuildUI();
-        }).dimensions(leftOffset, 10, btnWidth * 2, btnHeight).build());
+        }).dimensions(leftOffset, 10, btnWidth + 35, btnHeight).build());
 
         switch (this.currentTab) {
             case SCRIPT:
@@ -76,7 +86,7 @@ public class ScriptingDebugScreen extends ScriptingScreen {
                     this.editingDefault = !this.editingDefault;
                     this.loadCurrentBuilder();
                     this.rebuildUI();
-                }).dimensions(leftOffset, 10 + btnHeight + btnSpacing, btnWidth * 2, btnHeight).build());
+                }).dimensions(leftOffset, 10 + btnHeight + btnSpacing, btnWidth + 35, btnHeight).build());
 
                 initScriptDebugTab(leftOffset, btnWidth, btnHeight, btnSpacing);
                 break;
@@ -85,6 +95,9 @@ public class ScriptingDebugScreen extends ScriptingScreen {
                 break;
             case VARIABLES:
                 initVariablesTab();
+                break;
+            case CHECKPOINTS:
+                initCheckpointsTab();
                 break;
         }
     }
@@ -358,6 +371,51 @@ public class ScriptingDebugScreen extends ScriptingScreen {
         createActionRow("Wrong Code", entityActions.executeWrong, startY + gapY * 2);
     }
 
+    private void initCheckpointsTab() {
+        int listY = 70;
+        ScriptingConfigManager.ScriptingConfig config = ScriptingConfigManager.getInstance().getConfig(this.entityUuid);
+
+        this.addDrawableChild(ButtonWidget.builder(Text.literal("+ Add Checkpoint"), b -> {
+            config.checkpoints.add(new ScriptingConfigManager.CheckpointData());
+            ScriptingConfigManager.getInstance().markDirty();
+            this.rebuildUI();
+        }).dimensions(SCRIPT_X, 40, 120, 20).build());
+
+        for (int i = 0; i < config.checkpoints.size(); i++) {
+            ScriptingConfigManager.CheckpointData cp = config.checkpoints.get(i);
+            int finalI = i;
+            int currentX = SCRIPT_X;
+            int fieldW = 50;
+
+            TextFieldWidget xF = new TextFieldWidget(this.textRenderer, currentX, listY, fieldW, 20, Text.literal(""));
+            xF.setText(String.valueOf(cp.x));
+            xF.setChangedListener(text -> { try { cp.x = Double.parseDouble(text); ScriptingConfigManager.getInstance().markDirty(); } catch(Exception ignored){} });
+            this.addDrawableChild(xF);
+            currentX += fieldW + 5;
+
+            TextFieldWidget yF = new TextFieldWidget(this.textRenderer, currentX, listY, fieldW, 20, Text.literal(""));
+            yF.setText(String.valueOf(cp.y));
+            yF.setChangedListener(text -> { try { cp.y = Double.parseDouble(text); ScriptingConfigManager.getInstance().markDirty(); } catch(Exception ignored){} });
+            this.addDrawableChild(yF);
+            currentX += fieldW + 5;
+
+            TextFieldWidget zF = new TextFieldWidget(this.textRenderer, currentX, listY, fieldW, 20, Text.literal(""));
+            zF.setText(String.valueOf(cp.z));
+            zF.setChangedListener(text -> { try { cp.z = Double.parseDouble(text); ScriptingConfigManager.getInstance().markDirty(); } catch(Exception ignored){} });
+            this.addDrawableChild(zF);
+            currentX += fieldW + 10;
+
+            this.addDrawableChild(ButtonWidget.builder(Text.literal("X"), b -> {
+                config.checkpoints.remove(finalI);
+                ScriptingConfigManager.getInstance().markDirty();
+                this.rebuildUI();
+            }).dimensions(currentX, listY, 20, 20).build());
+
+            listY += 25;
+        }
+        this.contentHeight = listY - START_Y + 40;
+    }
+
     private void createActionRow(String label, ScriptingConfigManager.ActionEventData data, int y) {
         int labelX = SCRIPT_X;
 
@@ -385,23 +443,12 @@ public class ScriptingDebugScreen extends ScriptingScreen {
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
+        // This will automatically handle SCRIPT and VARIABLES
         super.render(context, mouseX, mouseY, delta);
 
+        // We only need to add the extra rendering for ACTIONS and CHECKPOINTS
         switch (this.currentTab) {
-            // Render the script highlighting/text specifically for the Script tab
-            case SCRIPT -> {
-                int drawY = (int) (START_Y - scrollOffset);
-                int rightBound = this.width - 110;
-
-                drawLineNumbersRecursive(context, this.builder.GetScript(), drawY, new int[]{1});
-                context.enableScissor(SCRIPT_X, 0, rightBound, this.height);
-                drawSelectionHighlight(context, this.builder.GetScript(), drawY, 0);
-                drawIndentationLines(context, this.builder.GetScript(), drawY, 0);
-                drawScriptTextRecursive(context, this.builder.GetScript(), drawY, 0);
-                context.disableScissor();
-            }
-            // Render labels for the Actions tab
-            case null, default -> {
+            case ACTIONS -> {
                 int startY = 70;
                 int gapY = 90;
 
@@ -412,6 +459,16 @@ public class ScriptingDebugScreen extends ScriptingScreen {
                 context.drawTextWithShadow(this.textRenderer, "Cmds (; separated)", SCRIPT_X, startY - 10, 0xAAAAAA);
                 context.drawTextWithShadow(this.textRenderer, "Max", SCRIPT_X + 210, startY - 10, 0xAAAAAA);
             }
+            case CHECKPOINTS -> {
+                context.drawTextWithShadow(this.textRenderer, "X", SCRIPT_X + 20, 60, 0xAAAAAA);
+                context.drawTextWithShadow(this.textRenderer, "Y", SCRIPT_X + 75, 60, 0xAAAAAA);
+                context.drawTextWithShadow(this.textRenderer, "Z", SCRIPT_X + 130, 60, 0xAAAAAA);
+
+                for (PlacedWidget pw : scrollableWidgets) {
+                    if (pw.widget().visible) pw.widget().render(context, mouseX, mouseY, delta);
+                }
+            }
+            default -> {}
         }
     }
 

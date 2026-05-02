@@ -53,9 +53,17 @@ public class ScriptingScreen extends Screen {
 
     protected enum Tab {
         SCRIPT,
-        VARIABLES
+        VARIABLES,
+        OTHER
     }
     protected Tab currentView = Tab.SCRIPT;
+
+    // Attempt at a drag and drop logic
+    protected boolean isDragging = false;
+    protected ScriptLine draggedLine = null;
+    protected record DropTarget(ScriptBlock block, int index, int y, int indentLevel) {}
+    protected List<DropTarget> dropTargets = new ArrayList<>();
+    protected DropTarget bestDropTarget = null;
 
     public ScriptingScreen(LivingEntity entity) {
         super(Text.literal("opens scripting screen"));
@@ -79,7 +87,7 @@ public class ScriptingScreen extends Screen {
         this.currentErrors = this.builder.GetScriptErrors();
 
         // Add Control Buttons (Left Side)
-        int btnY = 10;
+        int btnY = 5;
         int btnWidth = 80;
         int btnHeight = 16;
         int btnSpacing = 4;
@@ -89,8 +97,8 @@ public class ScriptingScreen extends Screen {
         this.addDrawableChild(ButtonWidget.builder(Text.literal("Tab: " + currentView.name()), b -> {
             this.currentView = this.currentView == Tab.SCRIPT ? Tab.VARIABLES : Tab.SCRIPT;
             this.rebuildUI();
-        }).dimensions(leftOffset, btnY, btnWidth * 2, btnHeight).build());
-        btnY += btnHeight + btnSpacing + 4;
+        }).dimensions(leftOffset, btnY, btnWidth, btnHeight).build());
+        btnY += btnHeight + btnSpacing + 9;
 
         switch (this.currentView) {
             case SCRIPT -> {
@@ -200,10 +208,6 @@ public class ScriptingScreen extends Screen {
             this.rebuildUI();
         }).dimensions(this.width - 90, this.height - btnHeight - 5, 80, btnHeight).build());
 
-        int finalY = generateWidgetsRecursive(this.builder.GetScript(), START_Y, 0);
-
-        this.contentHeight = finalY - START_Y;
-
         updateScroll();
     }
 
@@ -239,7 +243,7 @@ public class ScriptingScreen extends Screen {
         switch (this.currentCategory) {
             case BASIC -> {
 
-                // NEW VAR
+                // ADD VAR
                 if (config.allowVar) {
                     this.addDrawableChild(ButtonWidget.builder(Text.literal("Add VAR"), b -> {
                         this.builder.AddMath();
@@ -368,6 +372,10 @@ public class ScriptingScreen extends Screen {
             case null, default -> {
             }
         }
+
+        int finalY = generateWidgetsRecursive(this.builder.GetScript(), START_Y, 0);
+
+        this.contentHeight = finalY - START_Y;
     }
 
     protected void initVariablesTab() {
@@ -467,8 +475,8 @@ public class ScriptingScreen extends Screen {
 
         for (ScriptLine line : block.blockLines) {
 
-            if (builder.selectedLine == line) {
-                createSelectionButtons(contentStartX, currentY);
+            if (builder.selectedLine == line && (!isDragging || draggedLine == line)) {
+                createSelectionButtons(contentStartX, currentY, line);
             }
 
             if (line instanceof InstructionIF ifLine) {
@@ -492,7 +500,7 @@ public class ScriptingScreen extends Screen {
             } else if (line instanceof InstructionPrint printLine) {
                 createPrintWidgets(printLine, currentY, contentStartX);
                 currentY += LINE_HEIGHT;
-            } else if (line instanceof InstructionEntity_LookAtEntity lookAtLine) { // NEW
+            } else if (line instanceof InstructionEntity_LookAtEntity lookAtLine) {
                 createLookAtEntityWidgets(lookAtLine, currentY, contentStartX);
                 currentY += LINE_HEIGHT;
             } else if (line instanceof InstructionEntity_FollowEntity followLine) {
@@ -593,40 +601,142 @@ public class ScriptingScreen extends Screen {
         this.scrollableWidgets.add(new PlacedWidget(widget, originalX, originalY, true));
     }
 
-    protected void createSelectionButtons(int startX, int y) {
+    // Drag and Drop Handlers
+    protected void startDrag(ScriptLine line) {
+        this.isDragging = true;
+        this.draggedLine = line;
+        this.rebuildUI();
+    }
+
+    protected void cancelDrag() {
+        this.isDragging = false;
+        this.draggedLine = null;
+        this.rebuildUI();
+    }
+
+    protected void executeDrop(DropTarget target) {
+        ScriptBlock originalBlock = findParentOfLine(this.builder.GetScript(), draggedLine);
+        if (originalBlock != null) {
+            int originalIndex = originalBlock.blockLines.indexOf(draggedLine);
+            originalBlock.blockLines.remove(originalIndex);
+
+            int targetIndex = target.index;
+            // Adjust if same block and dropping after its original position
+            if (originalBlock == target.block && originalIndex < targetIndex) {
+                targetIndex--;
+            }
+
+            target.block.blockLines.add(targetIndex, draggedLine);
+        }
+
+        this.isDragging = false;
+        this.draggedLine = null;
+        this.rebuildUI();
+    }
+
+    protected int buildDropTargetsRecursive(ScriptBlock block, int currentY, int indent) {
+        dropTargets.add(new DropTarget(block, 0, currentY, indent));
+        for (int i = 0; i < block.blockLines.size(); i++) {
+            ScriptLine line = block.blockLines.get(i);
+            currentY += LINE_HEIGHT;
+
+            if (line instanceof InstructionIF ifLine) {
+                currentY = buildDropTargetsRecursive(ifLine.trueBlock, currentY, indent + 1);
+            } else if (line instanceof InstructionELSE elseLine) {
+                currentY = buildDropTargetsRecursive(elseLine.elseBlock, currentY, indent + 1);
+            } else if (line instanceof InstructionWHILE whileLine) {
+                currentY = buildDropTargetsRecursive(whileLine.loopBlock, currentY, indent + 1);
+            } else if (line instanceof InstructionVarAssign varLine) {
+                currentY = buildDropTargetsRecursive(varLine.valueBlock, currentY, indent + 1);
+            }
+
+            dropTargets.add(new DropTarget(block, i + 1, currentY, indent));
+        }
+        return currentY;
+    }
+
+    protected void updateDropTargets() {
+        dropTargets.clear();
+        buildDropTargetsRecursive(this.builder.GetScript(), START_Y, 0);
+    }
+
+    protected boolean isValidDrop(ScriptLine dragged, ScriptBlock targetBlock) {
+        if (dragged == null || targetBlock == null) return false;
+        if (dragged instanceof InstructionIF ifLine && isBlockInside(targetBlock, ifLine.trueBlock)) return false;
+        if (dragged instanceof InstructionELSE elseLine && isBlockInside(targetBlock, elseLine.elseBlock)) return false;
+        if (dragged instanceof InstructionWHILE whileLine && isBlockInside(targetBlock, whileLine.loopBlock)) return false;
+        if (dragged instanceof InstructionVarAssign varLine && isBlockInside(targetBlock, varLine.valueBlock)) return false;
+        return true;
+    }
+
+    protected boolean isBlockInside(ScriptBlock target, ScriptBlock scope) {
+        if (target == scope) return true;
+        for (ScriptLine line : scope.blockLines) {
+            if (line instanceof InstructionIF ifLine && isBlockInside(target, ifLine.trueBlock)) return true;
+            if (line instanceof InstructionELSE elseLine && isBlockInside(target, elseLine.elseBlock)) return true;
+            if (line instanceof InstructionWHILE whileLine && isBlockInside(target, whileLine.loopBlock)) return true;
+            if (line instanceof InstructionVarAssign varLine && isBlockInside(target, varLine.valueBlock)) return true;
+        }
+        return false;
+    }
+
+    protected void drawDragDropIndicator(DrawContext context, int mouseX, int mouseY) {
+        if (!isDragging || draggedLine == null) return;
+
+        updateDropTargets();
+        bestDropTarget = null;
+        double bestScore = Double.MAX_VALUE;
+
+        double virtualY = mouseY + scrollOffset;
+        double virtualX = mouseX + horizontalScrollOffset;
+
+        for (DropTarget dt : dropTargets) {
+            double yDist = Math.abs(dt.y - virtualY);
+            if (yDist <= LINE_HEIGHT / 2.0) {
+                double targetX = SCRIPT_X + (dt.indentLevel * 20);
+                double xDist = Math.abs(targetX - virtualX);
+
+                double score = yDist * 10 + xDist;
+                if (score < bestScore) {
+                    bestScore = score;
+                    bestDropTarget = dt;
+                }
+            }
+        }
+
+        if (bestDropTarget != null && isValidDrop(draggedLine, bestDropTarget.block)) {
+            int drawX = SCRIPT_X + (bestDropTarget.indentLevel * 20) - (int)horizontalScrollOffset;
+            int drawY = (int)(bestDropTarget.y - scrollOffset);
+            int rightBound = this.width - 110;
+
+            context.fill(drawX, drawY - 1, rightBound, drawY + 2, 0xFF00FF00); // 3px thick green line
+            context.drawTextWithShadow(this.textRenderer, "►", drawX - 10, drawY - 4, 0xFF00FF00);
+        }
+    }
+
+    protected void createSelectionButtons(int startX, int y, ScriptLine line) {
         int rightColBoundary = this.width - 110;
+        int dragX = rightColBoundary - 45;
+        int delX = rightColBoundary - 25;
 
-        // Vertical Movement (Placed left of UUID list)
-        int moveX = rightColBoundary - 25;
-        addScrollableChildPinned(ButtonWidget.builder(Text.literal("↑"), b -> {
-            builder.MoveUp(); rebuildUI();
-        }).dimensions(moveX, y, 20, 10).build(), moveX, y);
+        boolean thisIsDragged = (isDragging && draggedLine == line);
 
-        addScrollableChildPinned(ButtonWidget.builder(Text.literal("↓"), b -> {
-            builder.MoveDown(); rebuildUI();
-        }).dimensions(moveX, y + 10, 20, 10).build(), moveX, y + 10);
+        addScrollableChildPinned(ButtonWidget.builder(Text.literal(thisIsDragged ? "DROP" : "≡"), b -> {
+            if (isDragging) {
+                cancelDrag();
+            } else {
+                startDrag(line);
+            }
+        }).dimensions(dragX, y, 20, 20).build(), dragX, y);
 
-        // Delete [×] (Placed left of movement arrows)
-        int delX = moveX - 25;
         addScrollableChildPinned(ButtonWidget.builder(Text.literal("×"), b -> {
             builder.DeleteSelected(); rebuildUI();
         }).dimensions(delX, y, 20, 20).build(), delX, y);
-
-        // Nesting Controls [<] [>] (Placed left of delete)
-        int nestX = delX - 45;
-        addScrollableChildPinned(ButtonWidget.builder(Text.literal("<"), b -> {
-            builder.MoveLeft(); rebuildUI();
-        }).dimensions(nestX, y, 20, 20).build(), nestX, y);
-
-        addScrollableChildPinned(ButtonWidget.builder(Text.literal(">"), b -> {
-            builder.MoveRight(); rebuildUI();
-        }).dimensions(nestX + 22, y, 20, 20).build(), nestX + 22, y);
     }
 
     protected void createConditionWidgets(ScriptCondition cond, int y, int startX) {
         if (cond == null) return;
         final ScriptCondition finalCond = cond;
-
 
         // Left Expression Field
         TextFieldWidget leftField = new TextFieldWidget(this.textRenderer, startX + 45, y, 100, 20, Text.literal(""));
@@ -980,10 +1090,22 @@ public class ScriptingScreen extends Screen {
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (isDragging && button == 0 && this.currentView == Tab.SCRIPT) {
+            int rightBound = this.width - 110;
+            if (mouseX >= SCRIPT_X && mouseX <= rightBound && mouseY >= START_Y) {
+                if (bestDropTarget != null && isValidDrop(draggedLine, bestDropTarget.block)) {
+                    executeDrop(bestDropTarget);
+                } else {
+                    cancelDrag();
+                }
+                return true;
+            }
+        }
+
         if (super.mouseClicked(mouseX, mouseY, button)) return true;
 
-        // Left click
-        if (button == 0) {
+        // Left Click
+        if (button == 0 && this.currentView == Tab.SCRIPT) {
             double virtualY = mouseY + scrollOffset;
 
             ScriptLine clicked = findLineAt((int)virtualY, this.builder.GetScript(), START_Y);
@@ -995,7 +1117,7 @@ public class ScriptingScreen extends Screen {
                     return true;
                 }
             } else {
-                // Clicked empty space
+                // Clicked Empty Space
                 this.builder.Deselect();
                 this.rebuildUI();
             }
@@ -1031,6 +1153,8 @@ public class ScriptingScreen extends Screen {
                     }
                 }
 
+                drawDragDropIndicator(context, mouseX, mouseY);
+
                 context.disableScissor();
 
                 if (!this.verificationMessage.isEmpty()) {
@@ -1044,27 +1168,43 @@ public class ScriptingScreen extends Screen {
                     if (hoveredLine != null && currentErrors.containsKey(hoveredLine)) {
                         List<String> errors = currentErrors.get(hoveredLine);
                         List<Text> tooltipTexts = new ArrayList<>();
-
                         for (String error : errors) {
                             tooltipTexts.add(Text.literal(error).formatted(Formatting.RED));
                         }
-
                         context.drawTooltip(this.textRenderer, tooltipTexts, mouseX, mouseY);
                     }
                 }
             }
             case VARIABLES -> {
+                context.enableScissor(SCRIPT_X, 0, rightBound, this.height);
 
+                ScriptingConfigManager.ScriptingConfig config = ScriptingConfigManager.getInstance().getConfig(this.entityUuid);
+                int listY = drawY;
+                for (ScriptingConfigManager.PersistentVariable pv : config.persistentVariables) {
+                    context.drawTextWithShadow(this.textRenderer, "=", SCRIPT_X + 85, listY + 6, 0xFFFFFF);
+                    listY += LINE_HEIGHT;
+                }
+
+                for (PlacedWidget pw : scrollableWidgets) {
+                    if (pw.widget.visible) pw.widget.render(context, mouseX, mouseY, delta);
+                }
+                context.disableScissor();
+            }
+            default -> {
+                // Do nothin
             }
         }
     }
 
     protected int drawSelectionHighlight(DrawContext context, ScriptBlock block, int currentY, int indent) {
         for (ScriptLine line : block.blockLines) {
-            if (line == builder.selectedLine) {
+
+            if (line == draggedLine) {
+                int rightBound = this.width - 110;
+                context.fill(SCRIPT_X, currentY, rightBound, currentY + LINE_HEIGHT, 0x6600FF00);
+            } else if (line == builder.selectedLine) {
                 if (0 < currentY && currentY < this.height) {
                     int highlightColor = currentErrors.containsKey(line) ? 0xFF998F : 0x55FFFFFF;
-
                     int rightBound = this.width - 110;
                     context.fill(SCRIPT_X, currentY, rightBound, currentY + LINE_HEIGHT, highlightColor);
                 }

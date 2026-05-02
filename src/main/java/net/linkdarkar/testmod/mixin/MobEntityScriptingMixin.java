@@ -6,6 +6,8 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -20,6 +22,8 @@ public abstract class MobEntityScriptingMixin extends LivingEntity implements IS
     @Unique private ScriptBlock storedScript = null;
     @Unique private boolean isScriptRunning = false;
 
+    @Unique private int currentCheckpointIndex = 0;
+
     protected MobEntityScriptingMixin(EntityType<? extends LivingEntity> entityType, World world) {
         super(entityType, world);
     }
@@ -32,6 +36,10 @@ public abstract class MobEntityScriptingMixin extends LivingEntity implements IS
 
     @Override
     public void setScriptRunning(boolean running) {
+        // Reset the checkpoint index when the loop starts
+        if (running && !this.isScriptRunning) {
+            this.currentCheckpointIndex = 0;
+        }
         this.isScriptRunning = running;
         TestMod.LOGGER.info("Mixin: ticking set to " + running);
     }
@@ -58,6 +66,55 @@ public abstract class MobEntityScriptingMixin extends LivingEntity implements IS
                 System.err.println("Script Error on entity " + this.getUuidAsString() + ": " + e.getMessage());
                 this.isScriptRunning = false; // Emergency stop
             }
+
+            // Checkpoint tracking
+            ScriptingConfigManager.ScriptingConfig config = ScriptingConfigManager.getInstance().getConfig(this.getUuid());
+
+            if (!config.checkpoints.isEmpty() && this.currentCheckpointIndex < config.checkpoints.size()) {
+                ScriptingConfigManager.CheckpointData targetCp = config.checkpoints.get(this.currentCheckpointIndex);
+
+                // Calculate distance
+                double distSq = this.squaredDistanceTo(targetCp.x, targetCp.y, targetCp.z);
+
+                // Check if within ~1 block to be slightly forgiving with entity pathing
+                if (distSq <= 1) {
+                    this.currentCheckpointIndex++;
+                    TestMod.LOGGER.info("Entity reached checkpoint " + this.currentCheckpointIndex);
+
+                    // If all checkpoints are reached
+                    if (this.currentCheckpointIndex >= config.checkpoints.size()) {
+                        TestMod.LOGGER.info("Entity completed all checkpoints!");
+                        ScriptingConfigManager.EntityActions actions = ScriptingConfigManager.getInstance().getActions(this.getUuid());
+                        executeServerAction(actions.executeCorrect);
+
+                        // Stop the script/checkpoints from firing continuously after success
+                        this.isScriptRunning = false;
+                    }
+                }
+            }
+        }
+    }
+
+    @Unique
+    private void executeServerAction(ScriptingConfigManager.ActionEventData actionData) {
+        if (actionData.maxExecutions == 0 || actionData.currentExecutions < actionData.maxExecutions) {
+            if (actionData.commands != null && !actionData.commands.trim().isEmpty()) {
+                MinecraftServer server = this.getWorld().getServer();
+                if (server != null) {
+                    ServerCommandSource source = this.getCommandSource().withLevel(4);
+
+                    String[] commandsToRun = actionData.commands.split("\\r?\\n");
+                    for (String cmd : commandsToRun) {
+                        cmd = cmd.trim();
+                        if (!cmd.isEmpty()) {
+                            if (cmd.startsWith("/")) cmd = cmd.substring(1);
+                            server.getCommandManager().executeWithPrefix(source, cmd);
+                        }
+                    }
+                }
+            }
+            actionData.currentExecutions++;
+            ScriptingConfigManager.getInstance().markDirty();
         }
     }
 
