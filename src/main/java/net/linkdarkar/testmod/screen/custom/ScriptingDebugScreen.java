@@ -30,11 +30,14 @@ public class ScriptingDebugScreen extends ScriptingScreen {
         SCRIPT,
         ACTIONS,
         VARIABLES,
-        CHECKPOINTS
+        TEST_CASES,
+        CHECKPOINTS,
     }
     private TabDebug currentTab = TabDebug.SCRIPT;
 
     private final ScriptingConfigManager.EntityActions entityActions;
+
+    private int currentTestCaseIndex = 0;
 
     public ScriptingDebugScreen(LivingEntity entity) {
         super(entity);
@@ -66,7 +69,8 @@ public class ScriptingDebugScreen extends ScriptingScreen {
         this.addDrawableChild(ButtonWidget.builder(Text.literal("Tab: " + currentTab.name()), b -> {
             if (this.currentTab == TabDebug.SCRIPT) this.currentTab = TabDebug.ACTIONS;
             else if (this.currentTab == TabDebug.ACTIONS) this.currentTab = TabDebug.VARIABLES;
-            else if (this.currentTab == TabDebug.VARIABLES) this.currentTab = TabDebug.CHECKPOINTS;
+            else if (this.currentTab == TabDebug.VARIABLES) this.currentTab = TabDebug.TEST_CASES;
+            else if (this.currentTab == TabDebug.TEST_CASES) this.currentTab = TabDebug.CHECKPOINTS;
             else this.currentTab = TabDebug.SCRIPT;
 
             if (this.currentTab == TabDebug.SCRIPT) this.currentView = Tab.SCRIPT;
@@ -95,6 +99,9 @@ public class ScriptingDebugScreen extends ScriptingScreen {
                 break;
             case VARIABLES:
                 initVariablesTab();
+                break;
+            case TEST_CASES:
+                initTestCasesTab();
                 break;
             case CHECKPOINTS:
                 initCheckpointsTab();
@@ -371,6 +378,84 @@ public class ScriptingDebugScreen extends ScriptingScreen {
         createActionRow("Wrong Code", entityActions.executeWrong, startY + gapY * 2);
     }
 
+    private void initTestCasesTab() {
+        ScriptingConfigManager.ScriptingConfig config = ScriptingConfigManager.getInstance().getConfig(this.entityUuid);
+        if (config.testCases.isEmpty()) {
+            config.testCases.add(new ScriptingConfigManager.TestCase());
+        }
+        if (config.testCases.size() <= currentTestCaseIndex) currentTestCaseIndex = Math.max(0, config.testCases.size() - 1);
+
+        int listY = 70;
+
+        // Pagination for Test Cases
+        this.addDrawableChild(ButtonWidget.builder(Text.literal("<"), b -> {
+            if (0 < currentTestCaseIndex) currentTestCaseIndex--;
+            this.rebuildUI();
+        }).dimensions(SCRIPT_X, listY, 20, 20).build());
+
+        ButtonWidget caseLabel = ButtonWidget.builder(Text.literal("Case " + (currentTestCaseIndex + 1) + "/" + config.testCases.size()), b -> {}).dimensions(SCRIPT_X + 20, listY, 60, 20).build();
+        caseLabel.active = false;
+        this.addDrawableChild(caseLabel);
+
+        this.addDrawableChild(ButtonWidget.builder(Text.literal(">"), b -> {
+            if (currentTestCaseIndex < config.testCases.size() - 1) currentTestCaseIndex++;
+            this.rebuildUI();
+        }).dimensions(SCRIPT_X + 80, listY, 20, 20).build());
+
+        this.addDrawableChild(ButtonWidget.builder(Text.literal("+ Case"), b -> {
+            config.testCases.add(new ScriptingConfigManager.TestCase());
+            currentTestCaseIndex = config.testCases.size() - 1;
+            ScriptingConfigManager.getInstance().markDirty();
+            this.rebuildUI();
+        }).dimensions(SCRIPT_X + 110, listY, 50, 20).build());
+
+        this.addDrawableChild(ButtonWidget.builder(Text.literal("- Case"), b -> {
+            if (1 < config.testCases.size()) {
+                config.testCases.remove(currentTestCaseIndex);
+                if (config.testCases.size() <= currentTestCaseIndex) currentTestCaseIndex--;
+                ScriptingConfigManager.getInstance().markDirty();
+                this.rebuildUI();
+            }
+        }).dimensions(SCRIPT_X + 165, listY, 50, 20).build());
+
+        listY += 30;
+
+        ScriptingConfigManager.TestCase currentCase = config.testCases.get(currentTestCaseIndex);
+
+        for (int i = 0; i < currentCase.variables.size(); i++) {
+            ScriptingConfigManager.PersistentVariable pv = currentCase.variables.get(i);
+            int finalI = i;
+
+            TextFieldWidget nameField = new TextFieldWidget(this.textRenderer, SCRIPT_X, listY, 80, 20, Text.literal(""));
+            nameField.setMaxLength(1024);
+            nameField.setText(pv.name);
+            nameField.setChangedListener(text -> { pv.name = text; ScriptingConfigManager.getInstance().markDirty(); });
+            addScrollableChild(nameField, SCRIPT_X, listY);
+
+            TextFieldWidget valField = new TextFieldWidget(this.textRenderer, SCRIPT_X + 95, listY, 150, 20, Text.literal(""));
+            valField.setMaxLength(1024);
+            valField.setText(pv.value);
+            valField.setChangedListener(text -> { pv.value = text; ScriptingConfigManager.getInstance().markDirty(); });
+            addScrollableChild(valField, SCRIPT_X + 95, listY);
+
+            addScrollableChild(ButtonWidget.builder(Text.literal("X"), b -> {
+                currentCase.variables.remove(finalI);
+                ScriptingConfigManager.getInstance().markDirty();
+                this.rebuildUI();
+            }).dimensions(SCRIPT_X + 250, listY, 20, 20).build(), SCRIPT_X + 250, listY);
+
+            listY += LINE_HEIGHT;
+        }
+
+        addScrollableChild(ButtonWidget.builder(Text.literal("+ Add Start Var"), b -> {
+            currentCase.variables.add(new ScriptingConfigManager.PersistentVariable());
+            ScriptingConfigManager.getInstance().markDirty();
+            this.rebuildUI();
+        }).dimensions(SCRIPT_X, listY, 100, 20).build(), SCRIPT_X, listY);
+
+        this.contentHeight = listY - START_Y + 40;
+    }
+
     private void initCheckpointsTab() {
         int listY = 70;
         ScriptingConfigManager.ScriptingConfig config = ScriptingConfigManager.getInstance().getConfig(this.entityUuid);
@@ -467,6 +552,28 @@ public class ScriptingDebugScreen extends ScriptingScreen {
                 for (PlacedWidget pw : scrollableWidgets) {
                     if (pw.widget().visible) pw.widget().render(context, mouseX, mouseY, delta);
                 }
+            }
+            case TEST_CASES -> {
+                int drawY = (int) (START_Y - scrollOffset);
+                int rightBound = this.width - 110;
+                context.enableScissor(SCRIPT_X, 0, rightBound, this.height);
+
+                ScriptingConfigManager.ScriptingConfig config = ScriptingConfigManager.getInstance().getConfig(this.entityUuid);
+
+                if (!config.testCases.isEmpty() && currentTestCaseIndex < config.testCases.size()) {
+                    int listY = drawY + 80;
+                    ScriptingConfigManager.TestCase currentCase = config.testCases.get(currentTestCaseIndex);
+
+                    for (ScriptingConfigManager.PersistentVariable pv : currentCase.variables) {
+                        context.drawTextWithShadow(this.textRenderer, "=", SCRIPT_X + 85, listY + 6, 0xFFFFFF);
+                        listY += LINE_HEIGHT;
+                    }
+                }
+
+                for (PlacedWidget pw : scrollableWidgets) {
+                    if (pw.widget().visible) pw.widget().render(context, mouseX, mouseY, delta);
+                }
+                context.disableScissor();
             }
             default -> {}
         }

@@ -59,6 +59,28 @@ public class ScriptingConfigManager {
         }
     }
 
+    public static class TestCase {
+        public List<PersistentVariable> variables = new ArrayList<>();
+
+        public NbtCompound toNbt() {
+            NbtCompound nbt = new NbtCompound();
+            NbtList list = new NbtList();
+            for (PersistentVariable pv : variables) list.add(pv.toNbt());
+            nbt.put("vars", list);
+            return nbt;
+        }
+
+        public void loadNbt(NbtCompound nbt) {
+            variables.clear();
+            NbtList list = nbt.getList("vars", 10);
+            for (int i = 0; i < list.size(); i++) {
+                PersistentVariable pv = new PersistentVariable();
+                pv.loadNbt(list.getCompound(i));
+                variables.add(pv);
+            }
+        }
+    }
+
     public static class ScriptingConfig {
         public boolean allowVar = true;
         public boolean allowIf = true;
@@ -74,7 +96,10 @@ public class ScriptingConfigManager {
 
         public List<PersistentVariable> persistentVariables = new ArrayList<>();
 
+        public List<TestCase> testCases = new ArrayList<>();
+
         public List<CheckpointData> checkpoints = new ArrayList<>();
+
     }
 
     public static class ActionEventData {
@@ -117,10 +142,18 @@ public class ScriptingConfigManager {
 
         // Save Persistent Variables
         NbtList pvList = new NbtList();
-        for (PersistentVariable pv : config.persistentVariables) {
-            pvList.add(pv.toNbt());
-        }
+        for (PersistentVariable pv : config.persistentVariables) pvList.add(pv.toNbt());
         configNbt.put("persistentVars", pvList);
+
+        // Save Test Cases
+        NbtList tcList = new NbtList();
+        for (TestCase tc : config.testCases) tcList.add(tc.toNbt());
+        configNbt.put("testCases", tcList);
+
+        // Save Checkpoints
+        NbtList cpList = new NbtList();
+        for (CheckpointData cp : config.checkpoints) cpList.add(cp.toNbt());
+        configNbt.put("checkpoints", cpList);
 
         nbt.put("config", configNbt);
 
@@ -153,6 +186,26 @@ public class ScriptingConfigManager {
                     PersistentVariable pv = new PersistentVariable();
                     pv.loadNbt(pvList.getCompound(i));
                     config.persistentVariables.add(pv);
+                }
+            }
+
+            config.testCases.clear();
+            if (c.contains("testCases")) {
+                NbtList tcList = c.getList("testCases", 10);
+                for (int i = 0; i < tcList.size(); i++) {
+                    TestCase tc = new TestCase();
+                    tc.loadNbt(tcList.getCompound(i));
+                    config.testCases.add(tc);
+                }
+            }
+
+            config.checkpoints.clear();
+            if (c.contains("checkpoints")) {
+                NbtList cpList = c.getList("checkpoints", 10);
+                for (int i = 0; i < cpList.size(); i++) {
+                    CheckpointData cp = new CheckpointData();
+                    cp.loadNbt(cpList.getCompound(i));
+                    config.checkpoints.add(cp);
                 }
             }
         }

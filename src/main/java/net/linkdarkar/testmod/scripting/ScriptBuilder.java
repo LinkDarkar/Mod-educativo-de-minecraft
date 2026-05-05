@@ -133,6 +133,22 @@ public class ScriptBuilder {
         Insert(new InstructionEntity_DistanceFromPosition());
     }
 
+    public void DuplicateSelected() {
+        if (selectedLine == null || parentBlockOfSelection == null) return;
+
+        // Deep copy the line (and all its children) using the existing NBT system
+        NbtCompound nbt = selectedLine.toNbt();
+        ScriptLine copy = ScriptLine.fromNbt(nbt);
+
+        if (copy != null) {
+            int index = parentBlockOfSelection.blockLines.indexOf(selectedLine);
+
+            // Insert the copy right after the original
+            parentBlockOfSelection.blockLines.add(index + 1, copy);
+
+            Select(parentBlockOfSelection, copy);
+        }
+    }
     public void DeleteSelected() {
         if (selectedLine == null || parentBlockOfSelection == null) return;
 

@@ -423,7 +423,7 @@ public class ScriptingScreen extends Screen {
 
     protected ScriptLine findLineAt(int mouseY, ScriptBlock block, int currentY) {
         for (ScriptLine line : block.blockLines) {
-            if (mouseY >= currentY && mouseY < currentY + LINE_HEIGHT) {
+            if (currentY <= mouseY && mouseY < currentY + LINE_HEIGHT) {
                 return line;
             }
             currentY += LINE_HEIGHT;
@@ -709,17 +709,24 @@ public class ScriptingScreen extends Screen {
             int drawY = (int)(bestDropTarget.y - scrollOffset);
             int rightBound = this.width - 110;
 
-            context.fill(drawX, drawY - 1, rightBound, drawY + 2, 0xFF00FF00); // 3px thick green line
-            context.drawTextWithShadow(this.textRenderer, "►", drawX - 10, drawY - 4, 0xFF00FF00);
+            context.fill(drawX, drawY - 4, rightBound, drawY - 1, 0xFF00FF00);
+            context.drawTextWithShadow(this.textRenderer, "►", drawX - 10, drawY - 7, 0xFF00FF00);
         }
     }
 
     protected void createSelectionButtons(int startX, int y, ScriptLine line) {
         int rightColBoundary = this.width - 110;
+
+        int dupX = rightColBoundary - 65;
         int dragX = rightColBoundary - 45;
         int delX = rightColBoundary - 25;
 
         boolean thisIsDragged = (isDragging && draggedLine == line);
+
+        addScrollableChildPinned(ButtonWidget.builder(Text.literal("Dup"), b -> {
+            builder.DuplicateSelected();
+            rebuildUI();
+        }).dimensions(dupX, y, 20, 20).build(), dupX, y);
 
         addScrollableChildPinned(ButtonWidget.builder(Text.literal(thisIsDragged ? "DROP" : "≡"), b -> {
             if (isDragging) {
@@ -731,7 +738,7 @@ public class ScriptingScreen extends Screen {
 
         addScrollableChildPinned(ButtonWidget.builder(Text.literal("×"), b -> {
             builder.DeleteSelected(); rebuildUI();
-        }).dimensions(delX, y, 20, 20).build(), delX, y);
+        }).dimensions(delX + 4, y + 2, 16, 16).build(), delX + 4, y + 2);
     }
 
     protected void createConditionWidgets(ScriptCondition cond, int y, int startX) {
@@ -1092,7 +1099,7 @@ public class ScriptingScreen extends Screen {
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (isDragging && button == 0 && this.currentView == Tab.SCRIPT) {
             int rightBound = this.width - 110;
-            if (mouseX >= SCRIPT_X && mouseX <= rightBound && mouseY >= START_Y) {
+            if (SCRIPT_X <= mouseX && mouseX <= rightBound && START_Y <= mouseY) {
                 if (bestDropTarget != null && isValidDrop(draggedLine, bestDropTarget.block)) {
                     executeDrop(bestDropTarget);
                 } else {
@@ -1197,16 +1204,17 @@ public class ScriptingScreen extends Screen {
     }
 
     protected int drawSelectionHighlight(DrawContext context, ScriptBlock block, int currentY, int indent) {
+        int yOffset = -3;
         for (ScriptLine line : block.blockLines) {
 
             if (line == draggedLine) {
                 int rightBound = this.width - 110;
-                context.fill(SCRIPT_X, currentY, rightBound, currentY + LINE_HEIGHT, 0x6600FF00);
+                context.fill(SCRIPT_X, currentY + yOffset + 1, rightBound, currentY + yOffset + LINE_HEIGHT, 0x6600FF00);
             } else if (line == builder.selectedLine) {
                 if (0 < currentY && currentY < this.height) {
                     int highlightColor = currentErrors.containsKey(line) ? 0xFF998F : 0x55FFFFFF;
                     int rightBound = this.width - 110;
-                    context.fill(SCRIPT_X, currentY, rightBound, currentY + LINE_HEIGHT, highlightColor);
+                    context.fill(SCRIPT_X, currentY + yOffset + 1, rightBound, currentY + yOffset + LINE_HEIGHT, highlightColor);
                 }
             }
 
