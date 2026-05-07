@@ -30,15 +30,22 @@ public class UUIDExtractorItem extends Item {
         }
 
         ItemStack targetItem;
-        this.extractedUUID = entity.getUuid();
-        this.extractedUUIDAsString = entity.getUuidAsString();
+
+        // añadir try catch en caso de uuid no existir
+        try {
+            this.extractedUUID = entity.getUuid();
+            this.extractedUUIDAsString = entity.getUuidAsString();
+        }
+        catch (Exception e) {
+            System.out.println("fayo we");
+        }
+
         if (stack.getCount() > 1) {
             targetItem = stack.split(1);
             targetItem.set(DataComponentTypes.CUSTOM_NAME, Text.literal(entity.getUuidAsString()));
             if (!user.getInventory().insertStack(targetItem)) {
                 user.dropItem(targetItem, false);
             }
-
         }
         else {
             targetItem = stack;
