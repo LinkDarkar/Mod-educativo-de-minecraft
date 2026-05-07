@@ -1,8 +1,10 @@
 package net.linkdarkar.testmod.entity.custom;
 
+import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
 import net.linkdarkar.testmod.vn.VisualNovelDialogueScreen;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
@@ -20,7 +22,6 @@ public class CustomNPCEntity extends MobEntity {
 
     public CustomNPCEntity (EntityType<? extends CustomNPCEntity> type, World world) {
         super(type, world);
-
     }
 
     @Override
@@ -66,8 +67,12 @@ public class CustomNPCEntity extends MobEntity {
         return true;
     }
 
-    public void checkIfServerNPCThing()
-    {
+    @Override
+    public boolean damage(DamageSource source, float amount) {
+        return false;
+    }
+
+    public void checkIfServerNPCThing() {
         // en caso de que lo queramos llamar desde el payload de comando a través de dialogo
         if (this.getWorld().isClient()) return;
         if (!(this.getWorld() instanceof ServerWorld serverWorld)) return;
