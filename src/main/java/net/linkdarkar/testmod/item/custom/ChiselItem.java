@@ -55,19 +55,12 @@ public class ChiselItem extends Item {
             MinecraftClient client = MinecraftClient.getInstance();
 
             if (entity.isAlive()) {
-                if (user.isSneaking())
-                {
-
-                }
-                else
-                {
-                    // Should call this to avoid crash
-                    client.execute(() -> {
-                        this.killAi(user, entity);
-                        client.setScreen(new ScriptingScreen(entity));
-                    });
-                    return ActionResult.SUCCESS;
-                }
+                // Should call this to avoid crash
+                client.execute(() -> {
+                    this.killAi(user, entity);
+                    client.setScreen(new ScriptingScreen(entity));
+                });
+                return ActionResult.SUCCESS;
             }
             return ActionResult.PASS;
         }

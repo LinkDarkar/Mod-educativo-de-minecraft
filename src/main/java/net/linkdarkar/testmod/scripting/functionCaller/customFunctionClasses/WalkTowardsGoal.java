@@ -35,7 +35,7 @@ public class WalkTowardsGoal extends Goal {
 
     @Override
     public boolean shouldContinue() {
-        return this.mobEntity.squaredDistanceTo(this.target) > 3.0;
+        return this.mobEntity.squaredDistanceTo(this.target) > 0.5;
     }
 
     @Override
