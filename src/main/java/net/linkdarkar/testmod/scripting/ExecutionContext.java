@@ -35,13 +35,16 @@ public class ExecutionContext
 
     public void SetVar(String name, Object value)
     {
+        if (name == null) return;
+        name = name.trim();
+
         variables.put(name, value);
 
         // Update save with the var if it is persistent
-        if (executorEntity != null) {
+        if (executorEntity != null && !this.isSimulation) {
             ScriptingConfigManager.ScriptingConfig config = ScriptingConfigManager.getInstance().getConfig(executorEntity.getUuid());
             for (ScriptingConfigManager.PersistentVariable pv : config.persistentVariables) {
-                if (pv.name.equals(name)) {
+                if (pv.name.trim().equals(name)) {
                     pv.value = value.toString();
                     ScriptingConfigManager.getInstance().markDirty();
                     break;
@@ -52,6 +55,9 @@ public class ExecutionContext
 
     public Object GetVar(String name)
     {
+        if (name == null) return 0;
+        name = name.trim();
+
         // Check local transient variables first
         if (variables.containsKey(name)) {
             return variables.get(name);
@@ -61,7 +67,7 @@ public class ExecutionContext
         if (executorEntity != null) {
             ScriptingConfigManager.ScriptingConfig config = ScriptingConfigManager.getInstance().getConfig(executorEntity.getUuid());
             for (ScriptingConfigManager.PersistentVariable pv : config.persistentVariables) {
-                if (pv.name.equals(name)) {
+                if (pv.name.trim().equals(name)) {
                     try {
                         return Double.parseDouble(pv.value); // Treat as math if possible
                     } catch (NumberFormatException e) {

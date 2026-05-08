@@ -35,7 +35,8 @@ public class WalkTowardsGoal extends Goal {
 
     @Override
     public boolean shouldContinue() {
-        return this.mobEntity.squaredDistanceTo(this.target) > 0.5;
+//        TestMod.LOGGER.info("DistToTrgt: "+this.mobEntity.squaredDistanceTo(this.target));
+        return 0.1 < this.mobEntity.squaredDistanceTo(this.target);
     }
 
     @Override

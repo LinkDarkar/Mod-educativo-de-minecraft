@@ -54,13 +54,16 @@ public class InstructionMath extends ScriptLine {
 
     @Override
     public Object Execute(ExecutionContext c) {
+        String cleanName = targetVarName != null ? targetVarName.trim() : "";
+        if (cleanName.isEmpty()) return null;
+
         try {
             Object result = ExpressionEvaluator.evaluate(expression, c);
-            c.SetVar(targetVarName, result);
+            c.SetVar(cleanName, result);
             return result;
         } catch (Exception e) {
             // If it fails (e.g.: assignment of string literal), fallback to raw string
-            c.SetVar(targetVarName, expression);
+            c.SetVar(cleanName, expression);
             return expression;
         }
     }

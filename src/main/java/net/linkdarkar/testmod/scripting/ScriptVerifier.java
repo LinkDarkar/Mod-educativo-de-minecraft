@@ -30,20 +30,23 @@ public class ScriptVerifier {
 
             // Inject the starting variables for this specific Test Case scenario
             for (ScriptingConfigManager.PersistentVariable pv : testCase.variables) {
+                if (pv.name == null || pv.name.trim().isEmpty()) continue;
+                String cleanName = pv.name.trim();
+
                 try {
                     double num = Double.parseDouble(pv.value);
-                    userCtx.SetVar(pv.name, num);
-                    correctCtx.SetVar(pv.name, num);
+                    userCtx.SetVar(cleanName, num);
+                    correctCtx.SetVar(cleanName, num);
                 } catch (NumberFormatException e) {
-                    userCtx.SetVar(pv.name, pv.value);
-                    correctCtx.SetVar(pv.name, pv.value);
+                    userCtx.SetVar(cleanName, pv.value);
+                    correctCtx.SetVar(cleanName, pv.value);
                 }
             }
 
             try {
                 correctScript.Execute(correctCtx);
             } catch (Exception e) {
-                return new VerificationResult(false, "[Case " + caseNumber + "] Teacher's script failed: " + e.getMessage());
+                return new VerificationResult(false, "[Case " + caseNumber + "] Dev's script failed: " + e.getMessage());
             }
 
             try {
@@ -72,7 +75,7 @@ public class ScriptVerifier {
 
             // Check resulting variables
             for (Map.Entry<String, Object> expectedEntry : correctCtx.variables.entrySet()) {
-                String varName = expectedEntry.getKey();
+                String varName = expectedEntry.getKey().trim();
 
                 if (varName.startsWith("_")) continue;
 
