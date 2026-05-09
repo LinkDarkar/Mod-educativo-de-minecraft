@@ -1339,11 +1339,17 @@ public class ScriptingScreen extends Screen {
 
         // Scenario 1: User has a specific Text Field focused
         if (this.getFocused() instanceof TextFieldWidget tf) {
+            // If it is NOT a Math instruction, clear the input field first
+            if (!(builder.selectedLine instanceof InstructionMath)) {
+                tf.setText("");
+            }
+
+            // Write the UUID (appends at cursor for Math, acts as overwrite for others)
             tf.write(formattedUUID);
             return;
         }
 
-        // Scenario 2: User has a line selected in the script
+        // Scenario 2: User has a line selected in the script but no specific text box focused
         if (builder.selectedLine != null) {
             switch (builder.selectedLine) {
                 case InstructionEntity_FollowEntity followInstr -> {
@@ -1355,7 +1361,12 @@ public class ScriptingScreen extends Screen {
                     this.rebuildUI();
                 }
                 case InstructionMath mathInstr -> {
-                    mathInstr.expression = formattedUUID;
+                    // For Math, append to the existing expression instead of replacing it
+                    if (mathInstr.expression == null || mathInstr.expression.isEmpty()) {
+                        mathInstr.expression = formattedUUID;
+                    } else {
+                        mathInstr.expression += formattedUUID;
+                    }
                     this.rebuildUI();
                 }
                 case InstructionEntity_DistanceFromEntity distEntInstr -> {

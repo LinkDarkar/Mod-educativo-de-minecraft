@@ -77,7 +77,7 @@ public class ScriptVerifier {
             for (Map.Entry<String, Object> expectedEntry : correctCtx.variables.entrySet()) {
                 String varName = expectedEntry.getKey().trim();
 
-                if (varName.startsWith("_")) continue;
+                if (!varName.startsWith("_")) continue;
 
                 Object expectedValue = expectedEntry.getValue();
                 Object userValue = userCtx.variables.get(varName);
