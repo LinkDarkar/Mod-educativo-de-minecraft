@@ -1,0 +1,30 @@
+{
+  "id": "intro1",
+  "Nodes": [
+    {
+      "id": "01_01",
+      "speaker": "Intro",
+      "text": [
+        "Tercer ejercicio:\n\n",
+        "Ahora vamos a resolver el mismo problema de antes. Pero esta vez sin la posibilidad de usar ciclos.\n\n",
+        "En tan solo tres líneas de código compuestas por:\n - ahorros = 1000\n - precioManzanas = 400\n - PRINT\n\n",
+        "Tienes que obtener el mismo resultado y el mismo output de antes."
+      ],
+      "nextNodeId": "01_02",
+      "executeCommands": [
+      ]
+    },
+    {
+      "id": "01_02",
+      "speaker": "Intro",
+      "text": [
+        "Para refrescarte la memoria aquí tienes el enunciado de nuevo:\n\n",
+        "Tienes que calcular las manzanas que se pueden comprar con nuestros ahorros y entregar el resultado por pantalla. El número de manzanas compradas tiene que ser un número entero.\n\n",
+        "El output debe verse de la siguiente manera:\n\nCon [ahorros] se pueden comprar [númeroManzanas] manzanas si estas cuestan [precioManzanas]. El dinero que sobra es [dineroDeSobra].",
+        "Por ejemplo, si:\n - ahorros = 2000\n - precioManzanas = 300\n\n",
+        "El resultado debería verse como:\n\nCon 2000 se pueden comprar 6 manzanas si estas cuestan 300. El dinero que sobra es 200."
+      ],
+      "nextNodeId": ""
+    }
+  ]
+}

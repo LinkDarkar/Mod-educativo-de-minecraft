@@ -1,0 +1,29 @@
+{
+  "id": "intro1",
+  "Nodes": [
+    {
+      "id": "01_01",
+      "speaker": "Intro",
+      "text": [
+        "Segundo ejercicio:\n\n",
+        "Para este ejercicio vas a tener las variables\n - ahorros = 1000\n - precioManzanas = 400\n",
+        "Tienes que calcular las manzanas que se pueden comprar con nuestros ahorros y entregar el resultado por pantalla.",
+        "El número de manzanas compradas tiene que ser un número entero.\n\n",
+        "El output debe verse de la siguiente manera:\n\n",
+        "Con [ahorros] se pueden comprar [númeroManzanas] manzanas si estas cuestan [precioManzanas]. El dinero que sobra es [dineroDeSobra]."
+      ],
+      "nextNodeId": "01_02",
+      "executeCommands": [
+      ]
+    },
+    {
+      "id": "01_02",
+      "speaker": "Intro",
+      "text": [
+        "Por ejemplo, si:\n - ahorros = 2000\n - precioManzanas = 300 \n\n",
+        "El resultado debería verse como:\n\nCon 2000 se pueden comprar 6 manzanas si estas cuestan 300. El dinero que sobra es 200."
+      ],
+      "nextNodeId": ""
+    }
+  ]
+}

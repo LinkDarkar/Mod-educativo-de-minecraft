@@ -1,0 +1,33 @@
+{
+  "id": "intro1",
+  "Nodes": [
+    {
+      "id": "01_01",
+      "speaker": "Intro",
+      "text": [
+        "Cuarto ejercicio:\n\nPara este ejercicio se va a tener por defecto la variable:\n - cant = 10\n\n",
+        "El ejercicio consiste en imprimir la cantidad de números de la secuencia de Fibonacci (empezando por el 1) indicada por la variable cant.\n\n",
+        "Cada número debe mostrarse en PRINTS por separado."
+      ],
+      "nextNodeId": "01_02",
+      "executeCommands": [
+      ]
+    },
+    {
+      "id": "01_02",
+      "speaker": "Intro",
+      "text": [
+        "Por ejemplo, si cant = 7, entonces el output debería verse como:\n\n1\n1\n2\n3\n5\n8\n13"
+      ],
+      "nextNodeId": "01_03"
+    },
+    {
+      "id": "01_03",
+      "speaker": "Intro",
+      "text": [
+        "Y si cant = 10, el output sería:\n\n1\n1\n2\n3\n5\n8\n13\n21\n34\n55"
+      ],
+      "nextNodeId": ""
+    }
+  ]
+}

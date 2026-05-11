@@ -1,0 +1,17 @@
+{
+  "id": "intro1",
+  "Nodes": [
+    {
+      "id": "01_01",
+      "speaker": "Intro",
+      "text": [
+        "Primer ejercicio:\n\n",
+        "Haz un script que, iterando, sume todos los números pares entre el 0 y el 100 (incluyéndolo).\n\n",
+        "El output tendrá que ser un solo número con la respuesta final."
+      ],
+      "nextNodeId": "",
+      "executeCommands": [
+      ]
+    }
+  ]
+}

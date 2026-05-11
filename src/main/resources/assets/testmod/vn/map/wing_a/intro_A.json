@@ -1,0 +1,18 @@
+{
+  "id": "intro1",
+  "Nodes": [
+    {
+      "id": "01_01",
+      "speaker": "Intro",
+      "text": [
+        "Esta Ala consiste en operaciones matemáticas y manipulación de datos.",
+        "A diferencia del Ala B, la mayoría de tus outputs van a consistir en prints que tienen que seguir el formato que se te va a entregar en el ejercicio. Así que ten mucho cuidado con el enunciado y los outputs esperados.\n\n",
+        "La sección consistira en 6 ejercicios, cinco de programación y una de preguntas de selección múltiple y desarrollo.\n\n",
+        "Tendrás que ocupar, ciclos, operaciones y condicionales."
+      ],
+      "nextNodeId": "",
+      "executeCommands": [
+      ]
+    }
+  ]
+}
