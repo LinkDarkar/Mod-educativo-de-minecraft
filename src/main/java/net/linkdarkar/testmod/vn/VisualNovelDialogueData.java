@@ -18,5 +18,6 @@ public class VisualNovelDialogueData {
         public List<Integer> indexOfCharToStop = new ArrayList<>();
         public String nextNodeId;
         public String[] executeCommands;
+        public int maxCommandExecution = 1;
     }
 }
