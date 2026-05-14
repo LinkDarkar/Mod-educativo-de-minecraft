@@ -20,6 +20,25 @@ public class ExecutionContext
     public ExecutionContext(LivingEntity entity)
     {
         this.executorEntity = entity;
+
+        if (entity != null && !this.isSimulation) {
+            ScriptingConfigManager.ScriptingConfig config = ScriptingConfigManager.getInstance().getConfig(entity.getUuid());
+
+            // Inject the user's custom test variables
+            for (ScriptingConfigManager.PersistentVariable pv : config.userTestVariables) {
+                if (pv.name == null || pv.name.trim().isEmpty()) continue;
+                String cleanName = pv.name.trim();
+                String val = pv.value.trim();
+
+                try {
+                    this.variables.put(cleanName, Double.parseDouble(val));
+                } catch (NumberFormatException e) {
+                    if (!val.startsWith("\"")) val = "\"" + val;
+                    if (!val.endsWith("\"")) val = val + "\"";
+                    this.variables.put(cleanName, val);
+                }
+            }
+        }
     }
 
     // List of the "print output" to later verify when validating

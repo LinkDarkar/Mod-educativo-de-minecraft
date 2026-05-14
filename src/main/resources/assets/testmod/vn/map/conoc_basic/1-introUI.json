@@ -9,9 +9,7 @@
         "—Si ves a la oveja que está aquí, te darás cuenta de que, en el lado izquierdo de la pantalla, tienes, empezando por arriba, un botón que dirá \"Tab: SCRIPT\", le sigue un campo con flechas a los lados que dice \"BASIC\", más abajo botones para añadir cosas al código (que va al centro de la pantalla), y en la esquina inferior izquierda un botón para Verificar y controlar la ejecución del código (Verify, Execute Once, Start Loop y End Loop). \n \n",
         "—El funcionamiento de estos últimos lo vamos a ver más adelante. Ahora nos vamos a enfocar en los primeros dos botones, Tab y BASIC. \n \n"
       ],
-      "nextNodeId": "01_02",
-      "executeCommands": [
-      ]
+      "nextNodeId": "01_02"
     },
     {
       "id": "01_02",
@@ -27,7 +25,10 @@
         "Pero en el Ala B, a la que tendrás acceso más tarde, vas a tener que utilizar las funciones que se encuentan aquí para controlar a las entidades y obtener información del mundo. \n \n",
         "—Podrás ver estos campos que te mencioné en este mob que tienes aquí. Cuando estés listo, aprieta el botón VERIFY para continuar."
       ],
-      "nextNodeId": ""
+      "nextNodeId": "",
+      "executeCommands": [
+        "/scriptsummon sheep {meta:{actions:{any:{cmds:\"\",count:1,max:1},correct:{cmds:'data modify entity @e[tag=cbasico, limit=1] DialoguePath set value \"map/cnoc_basic/2-print1.json\"',count:1,max:1},wrong:{cmds:\"\",count:0,max:1}},config:{cmd:1b,else:0b,follow:0b,if:0b,lookAt:0b,place:1b,print:0b,var:0b,walkForward:0b,while:0b}},script_correct:{main:{lines:[{msg:'\"Hello\"',type:\"PRINT\"}],type:\"BLOCK\"}},script_current:{main:{lines:[{msg:'\"Hello\"',type:\"PRINT\"}],type:\"BLOCK\"}},script_default:{main:{lines:[{msg:'\"Hello\"',type:\"PRINT\"}],type:\"BLOCK\"}}}"
+      ]
     }
   ]
 }

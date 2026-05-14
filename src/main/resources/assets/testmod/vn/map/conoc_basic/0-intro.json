@@ -7,11 +7,12 @@
       "text": [
         "—Ahora vamos a ver instrucciones, operaciones e interacciones básicas para que sepas lo necesario para manipular a las entidades. \n \n",
         "—Dependiendo de qué tan cómodo te sientas programando, es posible que te puedas permitir saltarte los diálogos de esta sección, ya que vamos a ver cosas muy básicas. ",
-        "Sin embargo, para evitar confusiones, y para que sepas como usar la interfaz correctamente y como se usa el pseudocódigo, se recomienda que aunque sea hojees lo que viene. ",
-        "Va a ser importante para que estemos en la misma página."
+        "—Sin embargo, para evitar confusiones, y para que sepas como usar la interfaz correctamente y como se usa el pseudocódigo, se recomienda que aunque sea hojees lo que viene. ",
+        "—Va a ser importante para que estemos en la misma página."
       ],
       "nextNodeId": "",
       "executeCommands": [
+        "/data modify entity @e[tag=cbasico,limit=1] DialoguePath set value \"map/conoc_basic/1-introUI.json\""
       ]
     }
   ]

@@ -44,6 +44,9 @@ public class ScriptingScreen extends Screen {
     protected String verificationMessage = "";
     protected int verificationColor = 0xFFFFFF;
 
+    protected boolean showReportOverlay = false;
+    protected ScriptVerifier.VerificationReport lastReport = null;
+
     protected enum InstructionCategory {
         BASIC,
         ENTITY,
@@ -52,9 +55,13 @@ public class ScriptingScreen extends Screen {
     protected InstructionCategory currentCategory = InstructionCategory.BASIC;
 
     protected enum Tab {
-        SCRIPT,
-        VARIABLES,
-        OTHER
+        SCRIPT("Script Editor"),
+        VARIABLES("Persistent Variables"),
+        OTHER("Other");
+
+        private final String displayName;
+        Tab(String displayName) { this.displayName = displayName; }
+        public String getDisplayName() { return displayName; }
     }
     protected Tab currentView = Tab.SCRIPT;
 
@@ -94,10 +101,10 @@ public class ScriptingScreen extends Screen {
         int leftOffset = 10;
 
         // View Switcher
-        this.addDrawableChild(ButtonWidget.builder(Text.literal("Tab: " + currentView.name()), b -> {
+        this.addDrawableChild(ButtonWidget.builder(Text.literal("Tab: " + currentView.getDisplayName()), b -> {
             this.currentView = this.currentView == Tab.SCRIPT ? Tab.VARIABLES : Tab.SCRIPT;
             this.rebuildUI();
-        }).dimensions(leftOffset, btnY, btnWidth, btnHeight).build());
+        }).dimensions(leftOffset, btnY, btnWidth + 30, btnHeight).build());
         btnY += btnHeight + btnSpacing + 9;
 
         switch (this.currentView) {
@@ -150,16 +157,19 @@ public class ScriptingScreen extends Screen {
                 return;
             }
 
-            ScriptVerifier.VerificationResult result = ScriptVerifier.verify(this.builder.GetScript(), correctBuilder.GetScript(), this.entity);
-            this.verificationMessage = result.message();
-            this.verificationColor = result.isCorrect() ? 0x55FF55 : 0xFF5555;
+            ScriptVerifier.VerificationReport report = ScriptVerifier.verify(this.builder.GetScript(), correctBuilder.GetScript(), this.entity);
+            this.lastReport = report;
+            this.showReportOverlay = true;
+
+            this.verificationMessage = report.summaryMessage;
+            this.verificationColor = report.isCorrect ? 0x55FF55 : 0xFF5555;
 
             if (this.client != null && this.client.getNetworkHandler() != null) {
                 ScriptingConfigManager.EntityActions actions = ScriptingConfigManager.getInstance().getActions(this.entityUuid);
 
                 processAction(actions.anyExecute);
 
-                if (result.isCorrect()) {
+                if (report.isCorrect) {
                     processAction(actions.executeCorrect);
                 } else {
                     processAction(actions.executeWrong);
@@ -202,6 +212,35 @@ public class ScriptingScreen extends Screen {
             listY += 25;
         }
 
+        // User Test Variables
+        ScriptingConfigManager.getInstance().syncUserTestVariables(this.entityUuid);
+        ScriptingConfigManager.ScriptingConfig config = ScriptingConfigManager.getInstance().getConfig(this.entityUuid);
+
+        int testVarY = this.height - btnHeight - 25; // Place above Reset button
+
+        // We draw from bottom to top, so we reverse iterate
+        for (int i = config.userTestVariables.size() - 1; 0 <= i; i--) {
+            ScriptingConfigManager.PersistentVariable pv = config.userTestVariables.get(i);
+
+            // Un-editable Variable Name Label
+            ButtonWidget varLabel = ButtonWidget.builder(Text.literal(pv.name + " ="), b -> {})
+                    .dimensions(this.width - 200, testVarY, 65, btnHeight).build();
+            varLabel.active = false;
+            this.addDrawableChild(varLabel);
+
+            // Editable Value Field
+            TextFieldWidget valField = new TextFieldWidget(this.textRenderer, this.width - 130, testVarY, 120, btnHeight, Text.literal(""));
+            valField.setMaxLength(1024);
+            valField.setText(pv.value);
+            valField.setChangedListener(text -> {
+                pv.value = text;
+                ScriptingConfigManager.getInstance().markDirty();
+            });
+            this.addDrawableChild(valField);
+
+            testVarY -= (btnHeight + 4);
+        }
+
         // Reset Button
         this.addDrawableChild(ButtonWidget.builder(Text.literal("Reset To Default!"), b -> {
             this.resetToDefaultScript();
@@ -213,7 +252,7 @@ public class ScriptingScreen extends Screen {
 
     protected void initScriptEditTab(int btnWidth, int leftOffset, int btnY, int btnHeight, int btnSpacing) {
         // Category Switcher
-        int arrowW = 20;
+        int arrowW = 12;
         int labelW = btnWidth - (arrowW * 2);
 
         // Left Arrow
@@ -1131,6 +1170,15 @@ public class ScriptingScreen extends Screen {
         }
         return false;
     }
+    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        // Handle Escape to close the overlay
+        if (this.showReportOverlay && keyCode == org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE) {
+            this.showReportOverlay = false;
+            return true;
+        }
+        return super.keyPressed(keyCode, scanCode, modifiers);
+    }
 
     @Override
     public void render(DrawContext context, int mouseX, int mouseY, float delta) {
@@ -1164,21 +1212,24 @@ public class ScriptingScreen extends Screen {
 
                 context.disableScissor();
 
-                if (!this.verificationMessage.isEmpty()) {
-                    context.drawTextWithShadow(this.textRenderer, this.verificationMessage, SCRIPT_X, this.height - 20, this.verificationColor);
-                }
+                // If NOT showing overlay, we can draw tooltips and small verif message
+                if (!this.showReportOverlay) {
+                    if (!this.verificationMessage.isEmpty()) {
+                        context.drawTextWithShadow(this.textRenderer, this.verificationMessage, SCRIPT_X, this.height - 20, this.verificationColor);
+                    }
 
-                if (SCRIPT_X <= mouseX && mouseX <= rightBound && START_Y <= mouseY) {
-                    double virtualY = mouseY + scrollOffset;
-                    ScriptLine hoveredLine = findLineAt((int) virtualY, this.builder.GetScript(), START_Y);
+                    if (SCRIPT_X <= mouseX && mouseX <= rightBound && START_Y <= mouseY) {
+                        double virtualY = mouseY + scrollOffset;
+                        ScriptLine hoveredLine = findLineAt((int) virtualY, this.builder.GetScript(), START_Y);
 
-                    if (hoveredLine != null && currentErrors.containsKey(hoveredLine)) {
-                        List<String> errors = currentErrors.get(hoveredLine);
-                        List<Text> tooltipTexts = new ArrayList<>();
-                        for (String error : errors) {
-                            tooltipTexts.add(Text.literal(error).formatted(Formatting.RED));
+                        if (hoveredLine != null && currentErrors.containsKey(hoveredLine)) {
+                            List<String> errors = currentErrors.get(hoveredLine);
+                            List<Text> tooltipTexts = new ArrayList<>();
+                            for (String error : errors) {
+                                tooltipTexts.add(Text.literal(error).formatted(Formatting.RED));
+                            }
+                            context.drawTooltip(this.textRenderer, tooltipTexts, mouseX, mouseY);
                         }
-                        context.drawTooltip(this.textRenderer, tooltipTexts, mouseX, mouseY);
                     }
                 }
             }
@@ -1200,6 +1251,60 @@ public class ScriptingScreen extends Screen {
             default -> {
                 // Do nothin
             }
+        }
+
+        // Draw the Report Overlay
+        if (this.showReportOverlay && this.lastReport != null) {
+            context.getMatrices().push();
+            context.getMatrices().translate(0, 0, 500);
+
+            context.fill(0, 0, this.width, this.height, 0xC0000000);
+
+            int panelWidth = (int)(this.width * 0.85);
+            int panelHeight = (int)(this.height * 0.85);
+            int px = (this.width - panelWidth) / 2;
+            int py = (this.height - panelHeight) / 2;
+
+            // Draw Main Window
+            context.fill(px, py, px + panelWidth, py + panelHeight, 0xFF1E1E1E);
+            context.drawBorder(px, py, panelWidth, panelHeight, 0xFFFFFFFF);
+
+            context.drawTextWithShadow(this.textRenderer, "Verification Report", px + 10, py + 10, 0xFFFFFF);
+
+            // Draw Close Button (Red Box with an X)
+            context.fill(px + panelWidth - 25, py + 5, px + panelWidth - 5, py + 25, 0xFFFF5555);
+            context.drawTextWithShadow(this.textRenderer, "X", px + panelWidth - 18, py + 11, 0xFFFFFF);
+
+            int listY = py + 30;
+
+            for (ScriptVerifier.TestCaseResult tr : this.lastReport.caseResults) {
+                if (listY > py + panelHeight - 20) break; // Don't draw out of window bounds
+
+                String status = tr.passed ? "PASSED" : "FAILED";
+                int color = tr.passed ? 0x55FF55 : 0xFF5555;
+                context.drawTextWithShadow(this.textRenderer, "Case " + tr.caseNumber + " - " + status, px + 10, listY, color);
+                listY += 15;
+
+                if (!tr.passed && !tr.errorReason.isEmpty()) {
+                    context.drawTextWithShadow(this.textRenderer, "Reason: " + tr.errorReason, px + 20, listY, 0xFFFFAA);
+                    listY += 15;
+                }
+
+                if (!tr.expectedVars.isEmpty() || !tr.actualVars.isEmpty()) {
+                    context.drawTextWithShadow(this.textRenderer, "Tracked Variables:", px + 20, listY, 0xAAAAAA);
+                    listY += 12;
+                    for (String vName : tr.expectedVars.keySet()) {
+                        String exp = tr.expectedVars.get(vName);
+                        String act = tr.actualVars.getOrDefault(vName, "UNDEFINED");
+                        int valColor = exp.equals(act) ? 0xAAAAAA : 0xFF5555;
+                        context.drawTextWithShadow(this.textRenderer, "- " + vName + "  |  Expected: " + exp + "  |  Got: " + act, px + 30, listY, valColor);
+                        listY += 12;
+                    }
+                    listY += 5;
+                }
+            }
+
+            context.getMatrices().pop();
         }
     }
 
@@ -1235,6 +1340,9 @@ public class ScriptingScreen extends Screen {
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount) {
+        // Prevent scrolling if overlay is open
+        if (this.showReportOverlay) return true;
+
         // Adjust scroll offset
         double scrollSpeed = verticalAmount * 20;
         if (Screen.hasShiftDown()) {

@@ -9,9 +9,7 @@
         "Los programas, al fin y al cabo, son una colección de instrucciones que manipulan datos para producir un resultado. ",
         "Estos datos pueden ser cosas como números y texto; y se guardan en variables, que aquí se declaran con el botón \"Add VAR\". "
       ],
-      "nextNodeId": "01_02",
-      "executeCommands": [
-      ]
+      "nextNodeId": "01_02"
     },
     {
       "id": "01_02",
@@ -24,7 +22,10 @@
         "El de cambiar el texto del print por \"Hello Player\"? prueba a cambiar el texto de la variable por eso. No tienes que cambiar el nombre de la variable, solo el texto que tiene.",
         ""
       ],
-      "nextNodeId": ""
+      "nextNodeId": "",
+      "executeCommands": [
+        "/scriptsummon sheep {meta:{actions:{any:{cmds:\"\",count:1,max:1},correct:{cmds:'data modify entity @e[tag=cbasico, limit=1] DialoguePath set value \"map/cnoc_basic/4-print3.json\"',count:1,max:1},wrong:{cmds:\"\",count:0,max:1}},config:{cmd:1b,else:0b,follow:0b,if:0b,lookAt:0b,place:1b,print:0b,var:0b,walkForward:0b,while:0b}},script_correct:{main:{lines:[{msg:'\"Hello\"',type:\"PRINT\"}],type:\"BLOCK\"}},script_current:{main:{lines:[{msg:'\"Hello\"',type:\"PRINT\"}],type:\"BLOCK\"}},script_default:{main:{lines:[{msg:'\"Hello\"',type:\"PRINT\"}],type:\"BLOCK\"}}}"
+      ]
     }
   ]
 }

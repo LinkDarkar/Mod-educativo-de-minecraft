@@ -25,13 +25,16 @@ public class ScriptingDebugScreen extends ScriptingScreen {
     private final UUID correctEntityUuid;
     private boolean editingDefault = false;
 
-    private enum TabDebug
-    {
-        SCRIPT,
-        ACTIONS,
-        VARIABLES,
-        TEST_CASES,
-        CHECKPOINTS,
+    private enum TabDebug {
+        SCRIPT("Script Editor"),
+        ACTIONS("Event Actions"),
+        VARIABLES("Persistent Variables"),
+        TEST_CASES("Test Cases"),
+        CHECKPOINTS("Checkpoints");
+
+        private final String displayName;
+        TabDebug(String displayName) { this.displayName = displayName; }
+        public String getDisplayName() { return displayName; }
     }
     private TabDebug currentTab = TabDebug.SCRIPT;
 
@@ -120,7 +123,7 @@ public class ScriptingDebugScreen extends ScriptingScreen {
 
         // Category Switcher
         int catBtnTotalWidth = btnWidth + toggleWidth + 5;
-        int arrowW = 20;
+        int arrowW = 12;
         int labelW = catBtnTotalWidth - (arrowW * 2);
 
         // Left Arrow

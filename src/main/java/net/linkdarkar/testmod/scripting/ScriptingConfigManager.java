@@ -100,6 +100,8 @@ public class ScriptingConfigManager {
 
         public List<CheckpointData> checkpoints = new ArrayList<>();
 
+        public List<PersistentVariable> userTestVariables = new ArrayList<>();
+
     }
 
     public static class ActionEventData {
@@ -150,6 +152,10 @@ public class ScriptingConfigManager {
         for (TestCase tc : config.testCases) tcList.add(tc.toNbt());
         configNbt.put("testCases", tcList);
 
+        NbtList utvList = new NbtList();
+        for (PersistentVariable pv : config.userTestVariables) utvList.add(pv.toNbt());
+        configNbt.put("userTestVars", utvList);
+
         // Save Checkpoints
         NbtList cpList = new NbtList();
         for (CheckpointData cp : config.checkpoints) cpList.add(cp.toNbt());
@@ -199,6 +205,16 @@ public class ScriptingConfigManager {
                 }
             }
 
+            config.userTestVariables.clear();
+            if (c.contains("userTestVars")) {
+                NbtList utvList = c.getList("userTestVars", 10);
+                for (int i = 0; i < utvList.size(); i++) {
+                    PersistentVariable pv = new PersistentVariable();
+                    pv.loadNbt(utvList.getCompound(i));
+                    config.userTestVariables.add(pv);
+                }
+            }
+
             config.checkpoints.clear();
             if (c.contains("checkpoints")) {
                 NbtList cpList = c.getList("checkpoints", 10);
@@ -238,6 +254,32 @@ public class ScriptingConfigManager {
         java.util.HashSet<UUID> allUuids = new java.util.HashSet<>(configs.keySet());
         allUuids.addAll(actionsMap.keySet());
         return allUuids;
+    }
+
+    public void syncUserTestVariables(UUID entityUuid) {
+        ScriptingConfig config = getConfig(entityUuid);
+        if (config.testCases.isEmpty()) {
+            config.userTestVariables.clear();
+            return;
+        }
+
+        TestCase templateCase = config.testCases.get(0);
+
+        // Remove any variables the user has that no longer exist in the template
+        config.userTestVariables.removeIf(userVar ->
+                templateCase.variables.stream().noneMatch(templateVar -> templateVar.name.equals(userVar.name))
+        );
+
+        // Add any missing variables from the template to the user's list
+        for (PersistentVariable templateVar : templateCase.variables) {
+            boolean exists = config.userTestVariables.stream().anyMatch(userVar -> userVar.name.equals(templateVar.name));
+            if (!exists) {
+                PersistentVariable newVar = new PersistentVariable();
+                newVar.name = templateVar.name;
+                newVar.value = templateVar.value;
+                config.userTestVariables.add(newVar);
+            }
+        }
     }
 
     // Clear data when switching worlds

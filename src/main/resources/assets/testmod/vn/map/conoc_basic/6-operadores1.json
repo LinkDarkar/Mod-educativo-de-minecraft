@@ -31,7 +31,10 @@
         "—De la misma forma que en matemáticas, hay un orden específico en el que estas operaciones se van a ejecutar. El mnemónico que sigue es el PEMDAS, es decir, Paréntesis, Exponentes, Multiplicación y División (de izquierda a derecha), Adición, y Sustracción. No es necesario que te lo aprendas ahora si no te lo sabías de antes, pero te lo digo para que lo sepas. \n ",
         "—Ahora vienen unos ejercicios de desarrollo. Ten cuidado con las mayúsculas, minúsculas y espacios. La respuesta tiene que ser exactamente lo que se mostraría en pantalla en caso de que se corriera el código. Recuerda el orden de la prioridad de las operaciones matemáticas (PEMDAS) y presta mucha atención a las comillas."
       ],
-      "nextNodeId": ""
+      "nextNodeId": "",
+      "executeCommands": [
+        "/say Give ejercicios de desarrollo 2"
+      ]
     }
   ]
 }

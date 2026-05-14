@@ -59,7 +59,10 @@
         "",
         ""
       ],
-      "nextNodeId": ""
+      "nextNodeId": "",
+      "executeCommands": [
+        "/say Perfecto! Ahora eres libre y puedes continuar."
+      ]
     }
   ]
 }

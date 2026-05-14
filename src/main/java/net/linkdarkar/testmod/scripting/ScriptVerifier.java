@@ -3,13 +3,32 @@ package net.linkdarkar.testmod.scripting;
 import net.minecraft.entity.LivingEntity;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 public class ScriptVerifier {
-    public record VerificationResult(boolean isCorrect, String message) {}
+    public static class VerificationReport {
+        public boolean isCorrect;
+        public String summaryMessage;
+        public List<TestCaseResult> caseResults = new ArrayList<>();
+    }
 
-    public static VerificationResult verify(ScriptBlock userScript, ScriptBlock correctScript, LivingEntity dummyEntity) {
+    public static class TestCaseResult {
+        public int caseNumber;
+        public boolean passed;
+        public String errorReason = "";
+
+        public Map<String, String> expectedVars = new LinkedHashMap<>();
+        public Map<String, String> actualVars = new LinkedHashMap<>();
+
+        public List<String> expectedPrints = new ArrayList<>();
+        public List<String> actualPrints = new ArrayList<>();
+    }
+
+    public static VerificationReport verify(ScriptBlock userScript, ScriptBlock correctScript, LivingEntity dummyEntity) {
+        VerificationReport report = new VerificationReport();
+
         ScriptingConfigManager.ScriptingConfig config = ScriptingConfigManager.getInstance().getConfig(dummyEntity.getUuid());
         List<ScriptingConfigManager.TestCase> cases = config.testCases;
 
@@ -20,7 +39,12 @@ public class ScriptVerifier {
         }
 
         int caseNumber = 1;
+        boolean allPassed = true;
+
         for (ScriptingConfigManager.TestCase testCase : cases) {
+            TestCaseResult tr = new TestCaseResult();
+            tr.caseNumber = caseNumber;
+            tr.passed = true;
 
             ExecutionContext userCtx = new ExecutionContext(dummyEntity);
             userCtx.isSimulation = true;
@@ -28,7 +52,7 @@ public class ScriptVerifier {
             ExecutionContext correctCtx = new ExecutionContext(dummyEntity);
             correctCtx.isSimulation = true;
 
-            // Inject the starting variables for this specific Test Case scenario
+            // Inject the starting variables
             for (ScriptingConfigManager.PersistentVariable pv : testCase.variables) {
                 if (pv.name == null || pv.name.trim().isEmpty()) continue;
                 String cleanName = pv.name.trim();
@@ -43,19 +67,42 @@ public class ScriptVerifier {
                 }
             }
 
+            // Run Teacher Script
             try {
                 correctScript.Execute(correctCtx);
             } catch (Exception e) {
-                return new VerificationResult(false, "[Case " + caseNumber + "] Dev's script failed: " + e.getMessage());
+                tr.passed = false;
+                tr.errorReason = "Teacher's script crashed: " + e.getMessage();
+                report.caseResults.add(tr);
+                allPassed = false;
+                break;
             }
 
+            // Run User Script
             try {
                 userScript.Execute(userCtx);
             } catch (Exception e) {
-                return new VerificationResult(false, "[Case " + caseNumber + "] Your script crashed: " + e.getMessage());
+                tr.passed = false;
+                tr.errorReason = "Your script crashed: " + e.getMessage();
+                report.caseResults.add(tr);
+                allPassed = false;
+                break;
             }
 
-            // Check printed outputs
+            // Record Output for the UI
+            tr.expectedPrints.addAll(correctCtx.printedMessages);
+            tr.actualPrints.addAll(userCtx.printedMessages);
+
+            for (Map.Entry<String, Object> expectedEntry : correctCtx.variables.entrySet()) {
+                String varName = expectedEntry.getKey().trim();
+                if (!varName.startsWith("_")) continue; // Only track vars with "_"
+
+                tr.expectedVars.put(varName, expectedEntry.getValue().toString());
+                Object userVal = userCtx.variables.get(varName);
+                tr.actualVars.put(varName, userVal != null ? userVal.toString() : "UNDEFINED");
+            }
+
+            // Verify Prints
             int userPrintIndex = 0;
             for (String expectedMsg : correctCtx.printedMessages) {
                 boolean found = false;
@@ -69,31 +116,53 @@ public class ScriptVerifier {
                 }
 
                 if (!found) {
-                    return new VerificationResult(false, "[Case " + caseNumber + "] Wrong PRINT output. Expected output: '" + expectedMsg + "'");
+                    tr.passed = false;
+                    tr.errorReason = "Missing or out-of-order PRINT output.";
                 }
             }
 
-            // Check resulting variables
-            for (Map.Entry<String, Object> expectedEntry : correctCtx.variables.entrySet()) {
-                String varName = expectedEntry.getKey().trim();
+            // Verify Variables
+            if (tr.passed) {
+                for (Map.Entry<String, Object> expectedEntry : correctCtx.variables.entrySet()) {
+                    String varName = expectedEntry.getKey().trim();
+                    if (!varName.startsWith("_")) continue;
 
-                if (!varName.startsWith("_")) continue;
+                    Object expectedValue = expectedEntry.getValue();
+                    Object userValue = userCtx.variables.get(varName);
 
-                Object expectedValue = expectedEntry.getValue();
-                Object userValue = userCtx.variables.get(varName);
+                    if (userValue == null) {
+                        tr.passed = false;
+                        tr.errorReason = "Missing expected variable: '" + varName + "'";
+                        break;
+                    }
 
-                if (userValue == null) {
-                    return new VerificationResult(false, "[Case " + caseNumber + "] Missing expected variable: '" + varName + "'");
-                }
+                    boolean match;
+                    if (expectedValue instanceof Number && userValue instanceof Number) {
+                        match = ((Number) expectedValue).doubleValue() == ((Number) userValue).doubleValue();
+                    } else {
+                        match = expectedValue.toString().replace("\"", "").equals(userValue.toString().replace("\"", ""));
+                    }
 
-                if (!expectedValue.toString().equals(userValue.toString())) {
-                    return new VerificationResult(false, "[Case " + caseNumber + "] Variable '" + varName + "' has wrong value. Expected: " + expectedValue + ", Got: " + userValue);
+                    if (!match) {
+                        tr.passed = false;
+                        tr.errorReason = "Variable mismatch on '" + varName + "'";
+                        break;
+                    }
                 }
             }
 
+            report.caseResults.add(tr);
+            if (!tr.passed) allPassed = false;
             caseNumber++;
         }
 
-        return new VerificationResult(true, "Correct! Passed all " + cases.size() + " test case scenario(s).");
+        report.isCorrect = allPassed;
+        if (allPassed) {
+            report.summaryMessage = "Correct! Passed all " + cases.size() + " test case scenario(s).";
+        } else {
+            report.summaryMessage = "Failed. Check the verification report for details.";
+        }
+
+        return report;
     }
 }
