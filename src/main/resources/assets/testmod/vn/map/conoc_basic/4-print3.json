@@ -5,16 +5,14 @@
       "id": "01_01",
       "speaker": "Intro",
       "text": [
-        "var = \"Hello\" ",
-        "—En esta línea hemos declarado una variable llamada var que contiene el texto \"Hello\". ",
-        "Es importante que recuerdes esto, lo que va a la izquierda del signo = es el nombre de la variable, y lo que está a la derecha es el valor de la variable. ",
-        "Por lo que otra forma de leer esa línea sería, \"una variable llamada var que contiene el texto Hello\"... Que casi sería la frase con la que empecé este párrafo... En fin, ¿te acuerdas del ejercicio de antes? ",
-        "El de cambiar el texto del print por \"Hello Player\"? prueba a cambiar el texto de la variable por eso. No tienes que cambiar el nombre de la variable, solo el texto que tiene.",
-        ""
+        "—Cuando declaras variables, quieres que el nombre que tengan describan el rol que tendrá. En este caso, como esta variable tiene un texto que te saluda, podríamos cambiarle el nombre a algo como \"saludo\". Prueba a hacer eso. Ah, y no le pongas comillas al nombre. Los nombres de variables solo pueden tener carácteres en mayúsculas, minúsculas con números y/o guiones si es que lo necesitas. En este caso, el nombre \"saludo\" solo contendría carácteres en minúsculas así que no habrán problemas. \n \n",
+        "—Y para imprimir una variable con el Print, tienes que ocupar el nombre de la variable. Luego de recibir el nombre, el print intentará mostrar el contenido de la variable cuando sea ejecutado. Ah, y no tienes que poner el nombre de la variable entre comillas, no estamos lidiando con texto plano como antes, ahora estamos lidiando con variables. \n\n",
+        "—Con esto lo que vamos a hacer ahora va a ser imprimir el contenido de una variable con la instrucción Print. Aquí te voy a soltar un poco de la mano para que lo hagas tu.\n \n ",
+        "—Ahora prueba a agregar una segunda variable y print al código (no tienes que quitar lo que ya hay ahí). Sin embargo esta variable, en vez de texto, deberá tener un número, puede ser cualquiera. Recuerda poner la declaración de variable antes del nuevo print, que el nombre de la variable debe ser diferente de la otra, y que los números no deben estar entre comillas."
       ],
       "nextNodeId": "",
       "executeCommands": [
-        "/scriptsummon sheep {meta:{actions:{any:{cmds:\"\",count:1,max:1},correct:{cmds:'data modify entity @e[tag=cbasico, limit=1] DialoguePath set value \"map/cnoc_basic/5-print4.json\"',count:1,max:1},wrong:{cmds:\"\",count:0,max:1}},config:{cmd:1b,else:0b,follow:0b,if:0b,lookAt:0b,place:1b,print:0b,var:0b,walkForward:0b,while:0b}},script_correct:{main:{lines:[{msg:'\"Hello\"',type:\"PRINT\"}],type:\"BLOCK\"}},script_current:{main:{lines:[{msg:'\"Hello\"',type:\"PRINT\"}],type:\"BLOCK\"}},script_default:{main:{lines:[{msg:'\"Hello\"',type:\"PRINT\"}],type:\"BLOCK\"}}}"
+        "/scriptsummon sheep {meta:{actions:{any:{cmds:\"\",count:1,max:1},correct:{cmds:'data modify entity @e[tag=cbasico, limit=1] DialoguePath set value \"map/conoc_basic/5-print4.json\"',count:0,max:1},wrong:{cmds:\"\",count:0,max:1}},config:{cmd:1b,else:0b,follow:0b,if:0b,lookAt:0b,place:1b,print:0b,var:0b,walkForward:0b,while:0b}},script_correct:{main:{lines:[{msg:'\"Hello\"',type:\"PRINT\"}],type:\"BLOCK\"}},script_current:{main:{lines:[{msg:'\"Hello\"',type:\"PRINT\"}],type:\"BLOCK\"}},script_default:{main:{lines:[{msg:'\"Hello\"',type:\"PRINT\"}],type:\"BLOCK\"}}}"
       ]
     }
   ]

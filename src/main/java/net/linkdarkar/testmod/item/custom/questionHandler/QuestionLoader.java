@@ -14,6 +14,7 @@ import java.util.Random;
 
 public class QuestionLoader {
     private static final Gson GSON = new Gson();
+//    private static int threshold;
 
     public static List<QuestionData> LoadQuestions() {
         try (InputStream stream = QuestionLoader.class.getClassLoader()
@@ -25,6 +26,10 @@ public class QuestionLoader {
             InputStreamReader reader = new InputStreamReader(stream);
             Type wrapperType = new TypeToken<Map<String, List<QuestionData>>>() {}.getType();
             Map<String, List<QuestionData>> wrapper = GSON.fromJson(reader, wrapperType);
+
+//            Type wrapperTypeThreshold = new TypeToken<Map<String, Integer>>() {}.getType();
+//            Map<String, Integer> wrapperThreshold = GSON.fromJson(reader, wrapperTypeThreshold);
+//            threshold = wrapperThreshold.get("threshold");
 
             return wrapper.get("questions");
         } catch (Exception e) {
@@ -65,4 +70,8 @@ public class QuestionLoader {
 
         return questionList.get(index);
     }
+
+//    public static int getThreshold() {
+//        return threshold;
+//    }
 }

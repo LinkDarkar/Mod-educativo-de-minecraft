@@ -1,15 +1,19 @@
 package net.linkdarkar.testmod.screen.custom;
 
+import net.linkdarkar.testmod.TestMod;
 import net.linkdarkar.testmod.item.custom.questionHandler.QuestionData;
 import net.linkdarkar.testmod.item.custom.questionHandler.QuestionLoader;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.Text;
+import net.minecraft.world.World;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,6 +24,7 @@ public class QuestionsPopupChiselScreen extends Screen {
     private final List<QuestionData> questionList;
 
     float progress;
+    int countCorrect = 0;
 
     private boolean showExplanation = false;
 
@@ -53,6 +58,7 @@ public class QuestionsPopupChiselScreen extends Screen {
     private void prepareQuestion() {
         this.question = QuestionLoader.getQuestion(questionList, currentQuestion);
         if (this.question == null) {
+            this.endQuiz();
             this.close();
             return;
         }
@@ -107,6 +113,7 @@ public class QuestionsPopupChiselScreen extends Screen {
         this.nextQuestionButton.active = false;
     }
 
+    // is there a real reason to have onAnswer and onSubmit as different methods??
     private void onAnswerClicked(boolean isCorrect) {
         assert this.client != null;
         if (client.player == null) {
@@ -116,6 +123,7 @@ public class QuestionsPopupChiselScreen extends Screen {
         if (isCorrect) {
             client.player.sendMessage(Text.literal("CORRECT!!!"));
             client.player.playSound(SoundEvents.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
+            this.countCorrect += 1;
         }
         else {
             client.player.sendMessage(Text.literal("INCORRECT"));
@@ -124,7 +132,6 @@ public class QuestionsPopupChiselScreen extends Screen {
 
         this.nextQuestionButton.active = true;
     }
-
     private void onSubmitClicked(String answer) {
         assert this.client != null;
         if (client.player == null) {
@@ -147,6 +154,7 @@ public class QuestionsPopupChiselScreen extends Screen {
             this.textInput.setUneditableColor(0x00FF00);
             client.player.playSound(SoundEvents.ENTITY_PLAYER_LEVELUP, 1.0f, 1.0f);
             client.player.sendMessage(Text.literal("Respuesta correcta!: " + answer));
+            this.countCorrect += 1;
         }
         else {
             this.textInput.setUneditableColor(0xFF0000);
@@ -167,6 +175,23 @@ public class QuestionsPopupChiselScreen extends Screen {
         this.showExplanation = false;
         this.clearChildren();
         this.prepareQuestion();
+    }
+
+    private void endQuiz() {
+        // TODO FIX AS SOON AS POSSIBLE, THIS IS JUST TO TEST
+        MinecraftClient client = MinecraftClient.getInstance();
+        PlayerEntity player = client.player;
+        assert player != null;
+//        player.sendMessage(Text.literal("thershpha = " + QuestionLoader.getThreshold()));
+
+        if (this.countCorrect >= this.questionList.size() - 2) {
+            player.sendMessage(Text.literal("bieniahoigpahsdfgoiasdf"));
+            // TODO ADD FOR EXECUTION OF COMMAND
+        }
+        else {
+            player.sendMessage(Text.literal("NOOOOOOOOOSDHPOFIUSH"));
+            // TODO ADD FOR EXECUTION OF COMMAND
+        }
     }
 
     @Override

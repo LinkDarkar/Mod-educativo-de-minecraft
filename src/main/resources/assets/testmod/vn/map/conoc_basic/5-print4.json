@@ -5,12 +5,9 @@
       "id": "01_01",
       "speaker": "Intro",
       "text": [
-        "var = \"Hello\" ",
-        "—En esta línea hemos declarado una variable llamada var que contiene el texto \"Hello\". ",
-        "Es importante que recuerdes esto, lo que va a la izquierda del signo = es el nombre de la variable, y lo que está a la derecha es el valor de la variable. ",
-        "Por lo que otra forma de leer esa línea sería, \"una variable llamada var que contiene el texto Hello\"... Que casi sería la frase con la que empecé este párrafo... En fin, ¿te acuerdas del ejercicio de antes? ",
-        "El de cambiar el texto del print por \"Hello Player\"? prueba a cambiar el texto de la variable por eso. No tienes que cambiar el nombre de la variable, solo el texto que tiene.",
-        ""
+        "—Perfecto, ahora lo que vamos a hacer es concatenar texto y valores en instrucciones Print. Vamos a hacerlo con el símbolo +. En este ejemplo tienes una concatenación de texto entre uno predeterminado en el Print, y el contenido en una variable, prueba a correrlo. \n \nvarNombre = \"Player\" \n \nPRINT \"Hello \" + varNombre + \" I know you!\" \n \n ",
+        "—Como habrás visto tenemos una variable que contiene un texto con un nombre y luego un Print que imprime el texto \"Hello \" más el texto en la variable, más el texto \" I know you!\". Esto también nos conviene si queremos crear una función que salude a cualquier persona por su nombre. O sea, podemos guardar el nombre de alguien en la variable y luego saludarlo independientemente del nombre que tenga. Pero eso es algo para más adelante.",
+        "—Antes de avanzar probemos lo que has aprendido por el momento. En los siguientes ejercicios tendrás que escribir el output del código que te presentaré."
       ],
       "nextNodeId": "",
       "executeCommands": [
