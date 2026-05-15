@@ -3,6 +3,7 @@ package net.linkdarkar.testmod.screen.custom;
 import net.linkdarkar.testmod.TestMod;
 import net.linkdarkar.testmod.item.custom.questionHandler.QuestionData;
 import net.linkdarkar.testmod.item.custom.questionHandler.QuestionLoader;
+import net.linkdarkar.testmod.item.custom.questionHandler.QuizData;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
@@ -19,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class QuestionsPopupChiselScreen extends Screen {
+    private QuizData quizData;
     private QuestionData question;
     private int currentQuestion = 0;
     private final List<QuestionData> questionList;
@@ -37,12 +39,14 @@ public class QuestionsPopupChiselScreen extends Screen {
 
     public QuestionsPopupChiselScreen() {
         super(Text.literal("Quiz"));
-        this.questionList = QuestionLoader.LoadQuestions();
+        this.quizData = QuestionLoader.LoadQuestions();
+        this.questionList = this.quizData.questions;
     }
 
     public QuestionsPopupChiselScreen(String path) {
         super(Text.literal("Quiz"));
-        this.questionList = QuestionLoader.LoadQuestions(path);
+        this.quizData = QuestionLoader.LoadQuestions(path);
+        this.questionList = this.quizData.questions;
     }
 
     @Override
@@ -182,11 +186,11 @@ public class QuestionsPopupChiselScreen extends Screen {
         MinecraftClient client = MinecraftClient.getInstance();
         PlayerEntity player = client.player;
         assert player != null;
-//        player.sendMessage(Text.literal("thershpha = " + QuestionLoader.getThreshold()));
 
-        if (this.countCorrect >= this.questionList.size() - 2) {
+        if (this.countCorrect >= this.quizData.threshold) {
             player.sendMessage(Text.literal("bieniahoigpahsdfgoiasdf"));
             // TODO ADD FOR EXECUTION OF COMMAND
+            player.sendMessage(Text.literal("EXETCUTE : " + this.quizData.command));
         }
         else {
             player.sendMessage(Text.literal("NOOOOOOOOOSDHPOFIUSH"));

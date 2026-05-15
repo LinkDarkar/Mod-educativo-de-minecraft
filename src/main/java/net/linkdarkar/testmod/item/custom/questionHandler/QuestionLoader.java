@@ -16,29 +16,30 @@ public class QuestionLoader {
     private static final Gson GSON = new Gson();
 //    private static int threshold;
 
-    public static List<QuestionData> LoadQuestions() {
+    public static QuizData LoadQuestions() {
         try (InputStream stream = QuestionLoader.class.getClassLoader()
                 .getResourceAsStream("assets/testmod/questions/questionsTest_desall.json")) {
             if (stream == null) {
                 throw new RuntimeException("Resource not found!");
             }
 
+//            InputStreamReader reader = new InputStreamReader(stream);
+//            Type wrapperType = new TypeToken<Map<String, List<QuestionData>>>() {}.getType();
+//            Map<String, List<QuestionData>> wrapper = GSON.fromJson(reader, wrapperType);
+
             InputStreamReader reader = new InputStreamReader(stream);
-            Type wrapperType = new TypeToken<Map<String, List<QuestionData>>>() {}.getType();
-            Map<String, List<QuestionData>> wrapper = GSON.fromJson(reader, wrapperType);
+            Type wrapperType = new TypeToken<QuizData>() {}.getType();
+            QuizData quizData = GSON.fromJson(reader, wrapperType);
 
-//            Type wrapperTypeThreshold = new TypeToken<Map<String, Integer>>() {}.getType();
-//            Map<String, Integer> wrapperThreshold = GSON.fromJson(reader, wrapperTypeThreshold);
-//            threshold = wrapperThreshold.get("threshold");
-
-            return wrapper.get("questions");
+            return quizData;
         } catch (Exception e) {
             e.printStackTrace();
-            return List.of();
+            // TODO REPLACE FOR BETTER SHIT
+            return null;
         }
     }
 
-    public static List<QuestionData> LoadQuestions(String path) {
+    public static QuizData LoadQuestions(String path) {
         try (InputStream stream = QuestionLoader.class.getClassLoader()
                 .getResourceAsStream("assets/testmod/questions/" + path)) {
             if (stream == null) {
@@ -46,18 +47,20 @@ public class QuestionLoader {
             }
 
             InputStreamReader reader = new InputStreamReader(stream);
-            Type wrapperType = new TypeToken<Map<String, List<QuestionData>>>() {}.getType();
-            Map<String, List<QuestionData>> wrapper = GSON.fromJson(reader, wrapperType);
+            Type wrapperType = new TypeToken<QuizData>() {}.getType();
+            QuizData quizData = GSON.fromJson(reader, wrapperType);
 
-            return wrapper.get("questions");
+            return quizData;
         } catch (Exception e) {
             e.printStackTrace();
-            return List.of();
+            // TODO REPLACE FOR BETTER SHIT
+            return null;
         }
     }
 
     public static QuestionData getRandomQuestion(List<QuestionData> questionList) {
         if (questionList.isEmpty())
+            // TODO REPLACE FOR BETTER SHIT
             return null;
 
         Random random = new Random();

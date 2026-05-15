@@ -27,7 +27,7 @@
     {
       "id": "3",
       "question": "textoDisculpa = \"Lo siento, estoy ocupado\" \n \n PRINT \"textoDisculpa\"",
-      "answer": "\"textoDisculpa\"",
+      "answer": "textoDisculpa",
       "explanation": "Explicación: Aquí hay un ejemplo de lo que mencioné antes sobre tener cuidado con que los nombres de las variables no estén entre comillas. En este print, \"textoDisculpa\" se toma directamente como un string al estar rodeado entre comillas.",
       "type": 1,
       "verticalLineSpacing": 12,
@@ -72,5 +72,7 @@
       "public int textBoxWidth" : 300,
       "public int textBoxHeight" : 20
     }
-  ]
+  ],
+  "threshold" : 4,
+  "command" : "ingaturroña"
 }
