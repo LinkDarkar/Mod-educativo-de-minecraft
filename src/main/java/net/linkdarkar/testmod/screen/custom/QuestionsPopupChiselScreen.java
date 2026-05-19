@@ -1,9 +1,11 @@
 package net.linkdarkar.testmod.screen.custom;
 
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.linkdarkar.testmod.TestMod;
 import net.linkdarkar.testmod.item.custom.questionHandler.QuestionData;
 import net.linkdarkar.testmod.item.custom.questionHandler.QuestionLoader;
 import net.linkdarkar.testmod.item.custom.questionHandler.QuizData;
+import net.linkdarkar.testmod.networking.ModNetworking;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawContext;
@@ -188,13 +190,18 @@ public class QuestionsPopupChiselScreen extends Screen {
         assert player != null;
 
         if (this.countCorrect >= this.quizData.threshold) {
-            player.sendMessage(Text.literal("bieniahoigpahsdfgoiasdf"));
-            // TODO ADD FOR EXECUTION OF COMMAND
-            player.sendMessage(Text.literal("EXETCUTE : " + this.quizData.command));
+            player.sendMessage(Text.literal("Quiz Passed! Scoring: " + this.countCorrect + "/" + this.quizData.threshold));
+
+            if (this.quizData.commands != null && !this.quizData.commands.isEmpty()) {
+                for (String cmd : this.quizData.commands) {
+                    if (cmd != null && !cmd.trim().isEmpty()) {
+                        ClientPlayNetworking.send(new ModNetworking.ExecuteCommandAsPlayerPayload(cmd));
+                    }
+                }
+            }
         }
         else {
-            player.sendMessage(Text.literal("NOOOOOOOOOSDHPOFIUSH"));
-            // TODO ADD FOR EXECUTION OF COMMAND
+            player.sendMessage(Text.literal("Quiz Failed. You scored " + this.countCorrect + ", but need " + this.quizData.threshold));
         }
     }
 

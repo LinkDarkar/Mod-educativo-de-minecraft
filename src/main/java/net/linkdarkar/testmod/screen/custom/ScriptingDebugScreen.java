@@ -617,11 +617,11 @@ public class ScriptingDebugScreen extends ScriptingScreen {
         root.put("meta", ScriptingConfigManager.getInstance().exportAllToNbt(this.entityUuid));
 
         String nbtString = root.toString();
-        String command = "/scriptsummon " + this.entity.getType().getUntranslatedName() + " " + nbtString;
 
-        MinecraftClient.getInstance().keyboard.setClipboard(command);
+        MinecraftClient.getInstance().keyboard.setClipboard(nbtString);
         if (this.client != null && this.client.player != null) {
-            this.client.player.sendMessage(Text.literal("Command copied to clipboard!").formatted(Formatting.GREEN), true);
+            // Updated feedback text
+            this.client.player.sendMessage(Text.literal("Raw NBT copied to clipboard!").formatted(Formatting.GREEN), true);
         }
     }
 }

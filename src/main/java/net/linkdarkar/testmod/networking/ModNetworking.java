@@ -14,6 +14,7 @@ import net.minecraft.network.codec.PacketCodecs;
 import net.minecraft.network.packet.CustomPayload;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Uuids;
 
@@ -50,21 +51,40 @@ public class ModNetworking {
     }
 
     public record ExecuteCommandFromDialoguePayload(UUID entityUuid, String command) implements CustomPayload {
-        public static final CustomPayload.Id<ExecuteCommandFromDialoguePayload> ID =
-                new CustomPayload.Id<>(Identifier.of("testmod", "execute_command_from_dialogue"));
+        public static final CustomPayload.Id<ExecuteCommandFromDialoguePayload> ID = new CustomPayload.Id<>(Identifier.of("testmod", "execute_command_from_dialogue"));
+
         public static final PacketCodec<RegistryByteBuf, ExecuteCommandFromDialoguePayload> CODEC = PacketCodec.tuple(
                 Uuids.PACKET_CODEC, ExecuteCommandFromDialoguePayload::entityUuid,
                 PacketCodecs.STRING, ExecuteCommandFromDialoguePayload::command,
                 ExecuteCommandFromDialoguePayload::new
         );
+
         @Override
-        public CustomPayload.Id<? extends CustomPayload> getId() { return ID; }
+        public CustomPayload.Id<? extends CustomPayload> getId()
+        {
+            return ID;
+        }
+    }
+    public record ExecuteCommandAsPlayerPayload(String command) implements CustomPayload {
+        public static final CustomPayload.Id<ExecuteCommandAsPlayerPayload> ID = new CustomPayload.Id<>(Identifier.of("testmod", "execute_command_as_player"));
+
+        public static final PacketCodec<RegistryByteBuf, ExecuteCommandAsPlayerPayload> CODEC = PacketCodec.tuple(
+                PacketCodecs.STRING, ExecuteCommandAsPlayerPayload::command,
+                ExecuteCommandAsPlayerPayload::new
+        );
+
+        @Override
+        public Id<? extends CustomPayload> getId()
+        {
+            return ID;
+        }
     }
 
     public static void registerC2SPackets() {
         PayloadTypeRegistry.playC2S().register(ExecuteOncePayload.ID, ExecuteOncePayload.CODEC);
         PayloadTypeRegistry.playC2S().register(SetTickingPayload.ID, SetTickingPayload.CODEC);
         PayloadTypeRegistry.playC2S().register(ExecuteCommandFromDialoguePayload.ID, ExecuteCommandFromDialoguePayload.CODEC);
+        PayloadTypeRegistry.playC2S().register(ExecuteCommandAsPlayerPayload.ID, ExecuteCommandAsPlayerPayload.CODEC);
 
         ServerPlayNetworking.registerGlobalReceiver(ExecuteOncePayload.ID, (payload, context) -> {
             context.server().execute(() -> {
@@ -119,5 +139,18 @@ public class ModNetworking {
                 minecraftServer.getCommandManager().executeWithPrefix(source, payload.command());
             });
         }));
+
+        ServerPlayNetworking.registerGlobalReceiver(ModNetworking.ExecuteCommandAsPlayerPayload.ID, (payload, context) -> {
+            context.server().execute(() -> {
+                ServerPlayerEntity player = context.player();
+                if (player != null) {
+                    String command = payload.command();
+                    if (command.startsWith("/")) {
+                        command = command.substring(1);
+                    }
+                    player.server.getCommandManager().executeWithPrefix(player.getCommandSource().withLevel(2), command);
+                }
+            });
+        });
     }
 }

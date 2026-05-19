@@ -74,5 +74,7 @@
     }
   ],
   "threshold" : 4,
-  "command" : "ingaturroña"
+  "commands" : [
+    "/say EJECUCION DE COMANDO"
+  ]
 }

@@ -31,6 +31,7 @@ public class TestMod implements ModInitializer {
 		LOGGER.info("Hello Fabric world!");
         CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
             net.linkdarkar.testmod.scripting.ScriptSummonCommand.register(dispatcher);
+            net.linkdarkar.testmod.scripting.ScriptModifyCommand.register(dispatcher);
         });
 		ModItemGroups.registerItemGroups();
 		ModItems.registerModItems();
