@@ -1,0 +1,78 @@
+{
+  "questions": [
+    {
+      "id": "1",
+      "question": "PRINT (10 + 5)",
+      "answer": "15",
+      "explanation": "Explicación: Cuando ponemos una operación matemática sin comillas, el computador primero resuelve la operación y luego imprime el resultado.",
+      "type": 1,
+      "verticalLineSpacing": 12,
+      "public int textBoxXPos" : 30,
+      "public int textBoxYPos" : 150,
+      "public int textBoxWidth" : 300,
+      "public int textBoxHeight" : 20
+    },
+    {
+      "id": "2",
+      "question": "hierro = 12 \n \noro = 4 \n \nPRINT (hierro - oro)",
+      "answer": "8",
+      "explanation": "Explicación: Podemos hacer operaciones matemáticas utilizando directamente las variables numéricas. El computador toma el valor de \"hierro\" (12), le resta el de \"oro\" (4) y muestra el resultado.",
+      "type": 1,
+      "verticalLineSpacing": 12,
+      "public int textBoxXPos" : 30,
+      "public int textBoxYPos" : 150,
+      "public int textBoxWidth" : 300,
+      "public int textBoxHeight" : 20
+    },
+    {
+      "id": "3",
+      "question": "PRINT \"(8 * 2)\"",
+      "answer": "(8 * 2)",
+      "explanation": "Explicación: Trampa, Como la operación matemática está dentro de comillas, el computador la trata simplemente como texto. No va a resolver la multiplicación, solo va a imprimir los caracteres exactamente como están escritos.",
+      "type": 1,
+      "verticalLineSpacing": 12,
+      "public int textBoxXPos" : 30,
+      "public int textBoxYPos" : 150,
+      "public int textBoxWidth" : 300,
+      "public int textBoxHeight" : 20
+    },
+    {
+      "id": "4",
+      "question": "pociones = 3 \n \nPRINT \"Tienes \" + (pociones + 2) + \" pociones en total\"",
+      "answer": "Tienes 5 pociones en total",
+      "explanation": "Explicación: Aquí combinamos texto con una operación matemática. El computador primero resuelve la suma entre paréntesis (3 + 2) y luego junta ese resultado numérico con el resto del texto.",
+      "type": 1,
+      "verticalLineSpacing": 12,
+      "public int textBoxXPos" : 30,
+      "public int textBoxYPos" : 150,
+      "public int textBoxWidth" : 300,
+      "public int textBoxHeight" : 20
+    },
+    {
+      "id": "5",
+      "question": "pociones = 3 \n \nPRINT \"Tienes \" + pociones + 2 + \" pociones en total\"",
+      "answer": "Tienes 32 pociones en total",
+      "explanation": "Explicación: Cuando trabajes con texto, asegúrate de colocar las operaciones matemáticas entre paréntesis para que se resuelvan primero, ya que de lo contrario, al leer de izquierda a derecha, primero se juntará “Tienes “ con el valor de la variable posiones (quedando en “Tienes 3”) y luego se juntará eso con el 2 (quedando en “Tienes 32”).",
+      "type": 1,
+      "verticalLineSpacing": 12,
+      "public int textBoxXPos" : 30,
+      "public int textBoxYPos" : 150,
+      "public int textBoxWidth" : 300,
+      "public int textBoxHeight" : 20
+    },
+    {
+      "id": "6",
+      "question": "PRINT (10 + 5 * 2)",
+      "answer": "20",
+      "explanation": "Explicación: Aquí entra en juego el orden de las operaciones (PEMDAS). El computador siempre hará la multiplicación antes que la suma. Por lo tanto, multiplica 5 * 2 (que es 10) y luego le suma los otros 10. Si quisieras que sumara primero, tendrías que haber escrito ((10 + 5) * 2).",
+      "type": 1,
+      "verticalLineSpacing": 12,
+      "public int textBoxXPos" : 30,
+      "public int textBoxYPos" : 150,
+      "public int textBoxWidth" : 300,
+      "public int textBoxHeight" : 20
+    }
+  ],
+  "threshold" : 4,
+  "command" : "ingaturroña"
+}
