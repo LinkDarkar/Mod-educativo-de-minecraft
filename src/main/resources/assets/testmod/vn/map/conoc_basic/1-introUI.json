@@ -27,7 +27,7 @@
       ],
       "nextNodeId": "",
       "executeCommands": [
-        "/scriptsummon sheep {meta:{actions:{any:{cmds:\"\",count:1,max:1},correct:{cmds:'data modify entity @e[tag=cbasico, limit=1] DialoguePath set value \"map/conoc_basic/2-print1.json\"',count:0,max:1},wrong:{cmds:\"\",count:0,max:1}},config:{cmd:1b,else:0b,follow:0b,if:0b,lookAt:0b,place:1b,print:0b,var:0b,walkForward:0b,while:0b}},script_correct:{main:{lines:[{msg:'\"Hello\"',type:\"PRINT\"}],type:\"BLOCK\"}},script_current:{main:{lines:[{msg:'\"Hello\"',type:\"PRINT\"}],type:\"BLOCK\"}},script_default:{main:{lines:[{msg:'\"Hello\"',type:\"PRINT\"}],type:\"BLOCK\"}}}"
+        "/scriptsummon minecraft:sheep ~1 ~ ~ {Tags:[\"ovejacbasico\"]}, meta:{actions:{any:{cmds:\"\",count:1,max:1},correct:{cmds:'data modify entity @e[tag=cbasico, limit=1] DialoguePath set value \"map/conoc_basic/2-print1.json\"',count:0,max:1},wrong:{cmds:\"\",count:0,max:1}},config:{cmd:1b,else:0b,follow:0b,if:0b,lookAt:0b,place:1b,print:0b,var:0b,walkForward:0b,while:0b}},script_correct:{main:{lines:[{msg:'\"Hello\"',type:\"PRINT\"}],type:\"BLOCK\"}},script_current:{main:{lines:[{msg:'\"Hello\"',type:\"PRINT\"}],type:\"BLOCK\"}},script_default:{main:{lines:[{msg:'\"Hello\"',type:\"PRINT\"}],type:\"BLOCK\"}}}"
       ]
     }
   ]

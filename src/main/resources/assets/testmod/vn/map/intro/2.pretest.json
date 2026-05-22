@@ -5,7 +5,8 @@
       "id": "01_01",
       "speaker": "Intro",
       "text": [
-        "placeholder pretest"
+        "Recuerda que debes responder al formulario pre-test antes de empezar!",
+        "Este nos ayudará a conocer tu estado actual y con ello saber si este mapa fue útil."
       ],
       "nextNodeId": "01_02",
       "executeCommands": [

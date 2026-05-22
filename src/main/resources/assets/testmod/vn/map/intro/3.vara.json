@@ -5,11 +5,12 @@
       "id": "01_01",
       "speaker": "Intro",
       "text": [
-        "placeholder explicación vara"
+        "placeholder explicación vara",
+        "Toma la vara para avanzar."
       ],
       "nextNodeId": "01_02",
       "executeCommands": [
-        "/fill 0 2 -35 0 3 -35 air"
+        "/say Un gran poder conlleva una gran responsabilidad"
       ]
     }
   ]
