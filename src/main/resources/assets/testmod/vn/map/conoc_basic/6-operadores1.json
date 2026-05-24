@@ -33,7 +33,7 @@
       ],
       "nextNodeId": "",
       "executeCommands": [
-        "/say Give ejercicios de desarrollo 2"
+        "/give @p testmod:questions_popup_chisel[minecraft:custom_data={QuestionsPath:\"introduccion/ejercicios_desarrollo_2.json\"}]"
       ]
     }
   ]

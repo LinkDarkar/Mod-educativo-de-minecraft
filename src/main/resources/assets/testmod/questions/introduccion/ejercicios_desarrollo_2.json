@@ -74,5 +74,7 @@
     }
   ],
   "threshold" : 4,
-  "command" : "ingaturroña"
+  "commands" : [
+    "/data modify entity @e[tag=cbasico, limit=1] DialoguePath set value \"map/conoc_basic/7-operadores2.json\""
+  ]
 }

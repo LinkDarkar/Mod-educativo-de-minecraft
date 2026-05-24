@@ -16,15 +16,15 @@
       "speaker": "Intro",
       "text": [
         "var = \"Hello\" ",
-        "—En esta línea hemos declarado una variable llamada var que contiene el texto \"Hello\". ",
-        "Es importante que recuerdes esto, lo que va a la izquierda del signo = es el nombre de la variable, y lo que está a la derecha es el valor de la variable. ",
-        "Por lo que otra forma de leer esa línea sería, \"una variable llamada var que contiene el texto Hello\"... Que casi sería la frase con la que empecé este párrafo... En fin, ¿te acuerdas del ejercicio de antes? ",
+        "—En esta línea hemos declarado una variable llamada var que contiene el texto \"Hello\". \n ",
+        "Es importante que recuerdes esto, lo que va a la izquierda del signo = es el nombre de la variable, y lo que está a la derecha es el valor de la variable. \n ",
+        "Por lo que otra forma de leer esa línea sería, \"una variable llamada var que contiene el texto Hello\"... Que casi sería la frase con la que empecé este párrafo... ",
         "En fin, ¿te acuerdas del ejercicio de antes? El de cambiar el texto del print por \"Hello Player\"? prueba a cambiar el texto de la variable por eso y a imprimirla por pantalla. No tienes que cambiar el nombre de la variable, solo el texto que tiene.",
         ""
       ],
       "nextNodeId": "",
       "executeCommands": [
-        "/scriptmodify @e[tag=ovejacbasico, limit=1] {meta:{actions:{any:{cmds:\"\",count:0,max:1},correct:{cmds:'data modify entity @e[tag=cbasico, limit=1] DialoguePath set value \"map/conoc_basic/4-print3.json\"',count:0,max:1},wrong:{cmds:\"\",count:0,max:1}},config:{checkpoints:[],cmd:0b,dist:0b,else:0b,follow:0b,if:0b,lookAt:0b,persistentVars:[],place:0b,print:1b,testCases:[],userTestVars:[],var:1b,walkForward:0b,while:0b}},script_correct:{main:{lines:[{expr:'\"Hello\"',target:\"var\",type:\"MATH\"},{msg:\"var\",type:\"PRINT\"}],type:\"BLOCK\"}},script_current:{main:{lines:[{expr:'\"Hello\"',target:\"var\",type:\"MATH\"},{msg:\"var\",type:\"PRINT\"}],type:\"BLOCK\"}},script_default:{main:{lines:[{expr:'\"Hello\"',target:\"var\",type:\"MATH\"},{msg:\"var\",type:\"PRINT\"}],type:\"BLOCK\"}}}"
+        "/scriptmodify @e[tag=ovejacbasico, limit=1] {meta:{actions:{any:{cmds:\"\",count:0,max:1},correct:{cmds:'data modify entity @e[tag=cbasico, limit=1] DialoguePath set value \"map/conoc_basic/4-print3.json\"',count:0,max:1},wrong:{cmds:\"\",count:0,max:1}},config:{checkpoints:[],cmd:0b,dist:0b,else:0b,follow:0b,if:0b,lookAt:0b,persistentVars:[],place:0b,print:1b,testCases:[],userTestVars:[],var:1b,walkForward:0b,while:0b}},script_correct:{main:{lines:[{expr:'\"Hello Player!\"',target:\"var\",type:\"MATH\"},{msg:\"var\",type:\"PRINT\"}],type:\"BLOCK\"}},script_current:{main:{lines:[{expr:'\"Hello\"',target:\"var\",type:\"MATH\"},{msg:\"var\",type:\"PRINT\"}],type:\"BLOCK\"}},script_default:{main:{lines:[{expr:'\"Hello\"',target:\"var\",type:\"MATH\"},{msg:\"var\",type:\"PRINT\"}],type:\"BLOCK\"}}}"
       ]
     }
   ]
