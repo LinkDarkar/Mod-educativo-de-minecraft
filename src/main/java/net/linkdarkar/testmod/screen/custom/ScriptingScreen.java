@@ -148,6 +148,14 @@ public class ScriptingScreen extends Screen {
 
         // VERIFY CODE
         this.addDrawableChild(ButtonWidget.builder(Text.literal("VERIFY"), b -> {
+            boolean canExecuteNetwork = this.client != null && this.client.getNetworkHandler() != null;
+            ScriptingConfigManager.EntityActions actions = null;
+
+            if (canExecuteNetwork) {
+                actions = ScriptingConfigManager.getInstance().getActions(this.entityUuid);
+                processAction(actions.anyExecute);
+            }
+
             UUID targetCorrectUuid = new UUID(this.entityUuid.getMostSignificantBits(), ~this.entityUuid.getLeastSignificantBits());
             ScriptBuilder correctBuilder = ScriptActorManager.getInstance().getBuilder(targetCorrectUuid);
 
@@ -164,11 +172,7 @@ public class ScriptingScreen extends Screen {
             this.verificationMessage = report.summaryMessage;
             this.verificationColor = report.isCorrect ? 0x55FF55 : 0xFF5555;
 
-            if (this.client != null && this.client.getNetworkHandler() != null) {
-                ScriptingConfigManager.EntityActions actions = ScriptingConfigManager.getInstance().getActions(this.entityUuid);
-
-                processAction(actions.anyExecute);
-
+            if (canExecuteNetwork && actions != null) {
                 if (report.isCorrect) {
                     processAction(actions.executeCorrect);
                 } else {
@@ -1136,6 +1140,21 @@ public class ScriptingScreen extends Screen {
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        // X button on the Verification Overlay
+        if (this.showReportOverlay && button == 0) {
+            int panelWidth = (int)(this.width * 0.85);
+            int panelHeight = (int)(this.height * 0.85);
+            int px = (this.width - panelWidth) / 2;
+            int py = (this.height - panelHeight) / 2;
+
+            if (mouseX >= px + panelWidth - 25 && mouseX <= px + panelWidth - 5 &&
+                    mouseY >= py + 5 && mouseY <= py + 25) {
+                this.showReportOverlay = false;
+            }
+            // Return true to consume the click and prevent interacting with the background UI
+            return true;
+        }
+
         if (isDragging && button == 0 && this.currentView == Tab.SCRIPT) {
             int rightBound = this.width - 110;
             if (SCRIPT_X <= mouseX && mouseX <= rightBound && START_Y <= mouseY) {

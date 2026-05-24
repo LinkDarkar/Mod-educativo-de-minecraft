@@ -166,6 +166,11 @@ public class ScriptingDebugScreen extends ScriptingScreen {
                     this.builder.AddVarAssign();
                     this.rebuildUI();
                 }).dimensions(leftOffset, btnY, btnWidth, btnHeight).build());
+                this.addDrawableChild(ButtonWidget.builder(Text.literal(config.allowVarF ? "ON" : "OFF"), b -> {
+                    config.allowVarF = !config.allowVarF;
+                    ScriptingConfigManager.getInstance().markDirty();
+                    this.rebuildUI();
+                }).dimensions(toggleOffset, btnY, toggleWidth, btnHeight).build());
                 btnY += btnHeight + btnSpacing; // VAR and VARF share the config toggle visually
 
                 // PRINT
@@ -361,10 +366,10 @@ public class ScriptingDebugScreen extends ScriptingScreen {
         }
 
         // Reset to Default (Bottom Right)
-        this.addDrawableChild(ButtonWidget.builder(Text.literal("Reset to Default"), b -> {
-            this.resetToDefaultScript();
-            this.rebuildUI();
-        }).dimensions(this.width - 90, this.height - btnHeight - 5, 80, btnHeight).build());
+//        this.addDrawableChild(ButtonWidget.builder(Text.literal("Reset to Default"), b -> {
+//            this.resetToDefaultScript();
+//            this.rebuildUI();
+//        }).dimensions(this.width - 90, this.height - btnHeight - 5, 80, btnHeight).build());
 
         int finalY = this.generateWidgetsRecursive(this.builder.GetScript(), START_Y, 0);
         this.contentHeight = finalY - START_Y;

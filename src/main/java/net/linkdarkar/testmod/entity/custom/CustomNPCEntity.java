@@ -11,6 +11,7 @@ import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.registry.tag.DamageTypeTags;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
@@ -69,6 +70,9 @@ public class CustomNPCEntity extends MobEntity {
 
     @Override
     public boolean damage(DamageSource source, float amount) {
+        if (source.isIn(DamageTypeTags.BYPASSES_INVULNERABILITY)) {
+            return super.damage(source, amount);
+        }
         return false;
     }
 

@@ -83,6 +83,7 @@ public class ScriptingConfigManager {
 
     public static class ScriptingConfig {
         public boolean allowVar = true;
+        public boolean allowVarF = false;
         public boolean allowIf = true;
         public boolean allowElse = true;
         public boolean allowWhile = true;
@@ -91,8 +92,8 @@ public class ScriptingConfigManager {
         public boolean allowFollow = true;
         public boolean allowWalkForward = true;
         public boolean allowDistanceCheck = true;
-        public boolean allowPlace = true;
-        public boolean allowCommand = true;
+        public boolean allowPlace = false;
+        public boolean allowCommand = false;
 
         public List<PersistentVariable> persistentVariables = new ArrayList<>();
 
@@ -131,6 +132,7 @@ public class ScriptingConfigManager {
         ScriptingConfig config = getConfig(entityUuid);
         NbtCompound configNbt = new NbtCompound();
         configNbt.putBoolean("var", config.allowVar);
+        configNbt.putBoolean("varF", config.allowVarF);
         configNbt.putBoolean("if", config.allowIf);
         configNbt.putBoolean("else", config.allowElse);
         configNbt.putBoolean("while", config.allowWhile);
@@ -174,6 +176,7 @@ public class ScriptingConfigManager {
             NbtCompound c = nbt.getCompound("config");
             ScriptingConfig config = getConfig(entityUuid);
             config.allowVar = c.getBoolean("var");
+            config.allowVarF = c.getBoolean("varF");
             config.allowIf = c.getBoolean("if");
             config.allowElse = c.getBoolean("else");
             config.allowWhile = c.getBoolean("while");

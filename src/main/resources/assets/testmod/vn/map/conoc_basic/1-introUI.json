@@ -18,7 +18,7 @@
         "—\"Tab\" tiene dos modos, SCRIPT y VARIABLES. ",
         "SCRIPT es con el que vas a estar interactuando la mayor parte del tiempo, al fin y al cabo es donde estará tu código. ",
         "VARIABLES es donde estarán las variables persistentes que podrías necesitar. ",
-        "No es necesario que declares todas tus variables ahí, solo necesitarás aquellas en las que tienes que controlar sus valores en períodos más largos de tiempo. ",
+        "No es necesario que declares todas tus variables ahí, solo necesitarás aquellas en las que tienes que controlar sus valores para que persistan entre múltiples iteractiones y ticks del juego.",
         "Mucho más tarde vamos a ver ejercicios que requieren de su uso. \n \n",
         "—El campo BASIC por otro lado, tiene los botones necesarios para que programes en la entidad. ",
         "Si aprietas las flechas verás que podrás navegar entre pestañas. Hay tres: BASIC, ENTITY y MINECRAFT. Las últimas dos no son necesarias para lo que tenga que ver con manipulación de datos. ",
@@ -27,7 +27,7 @@
       ],
       "nextNodeId": "",
       "executeCommands": [
-        "/scriptsummon minecraft:sheep ~1 ~ ~ {Tags:[\"ovejacbasico\"]}, meta:{actions:{any:{cmds:\"\",count:1,max:1},correct:{cmds:'data modify entity @e[tag=cbasico, limit=1] DialoguePath set value \"map/conoc_basic/2-print1.json\"',count:0,max:1},wrong:{cmds:\"\",count:0,max:1}},config:{cmd:1b,else:0b,follow:0b,if:0b,lookAt:0b,place:1b,print:0b,var:0b,walkForward:0b,while:0b}},script_correct:{main:{lines:[{msg:'\"Hello\"',type:\"PRINT\"}],type:\"BLOCK\"}},script_current:{main:{lines:[{msg:'\"Hello\"',type:\"PRINT\"}],type:\"BLOCK\"}},script_default:{main:{lines:[{msg:'\"Hello\"',type:\"PRINT\"}],type:\"BLOCK\"}}}"
+        "/scriptsummon minecraft:sheep ~-0.5 ~ ~1 {Tags:[\"ovejacbasico\"], meta:{actions:{any:{cmds:'data modify entity @e[tag=cbasico, limit=1] DialoguePath set value \"map/conoc_basic/2-print1.json\"',count:0,max:1},correct:{cmds:\"\",count:0,max:0},wrong:{cmds:\"\",count:0,max:0}},config:{checkpoints:[],cmd:0b,dist:1b,else:1b,follow:1b,if:1b,lookAt:1b,persistentVars:[],place:0b,print:1b,testCases:[{vars:[]}],userTestVars:[],var:1b,walkForward:1b,while:1b}},script_correct:{main:{lines:[],type:\"BLOCK\"}},script_current:{main:{lines:[{msg:'\"This is a script! *Sheep noises*\"',type:\"PRINT\"}],type:\"BLOCK\"}},script_default:{main:{lines:[{msg:'\"This is a script! *Sheep noises*\"',type:\"PRINT\"}],type:\"BLOCK\"}}}"
       ]
     }
   ]
