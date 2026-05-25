@@ -5,11 +5,11 @@
       "id": "01_01",
       "speaker": "Intro",
       "text": [
-        "—Ahora vamos a hacer otro ejercicio. El script que haremos será uno que duplique el número de una variable y muestre el resultado por pantalla."
+        "Ahora vamos a hacer un código que modifique una variable. Para ello [explicación casos de prueba]. Por eso, como ejemplo, tu código sería var * 2 + 1, cuando se verifique, se probará X veces, la primera será con var = 1, la segunda var = 3, etc, esto se hará automáticamente, no debes declarar la variable en tu código o se sobre-escribirá, imagina que ya se está declarando automáticamente antes de cada ejecución. En la parte de abajo a la derecha puedes ver las variables de los casos de prueba y, para realizar tus propias pruebas de tu código, puedes cambiar el valor para tu execución, pero eso no afectará a los casos de prueba"
       ],
       "nextNodeId": "",
       "executeCommands": [
-        "/scriptmodify @e[tag=ovejacbasico, limit=1] {meta:{actions:{any:{cmds:\"\",count:1,max:1},correct:{cmds:'data modify entity @e[tag=cbasico, limit=1] DialoguePath set value \"map/conoc_basic/8-condicionales1.json\"',count:0,max:1},wrong:{cmds:\"\",count:0,max:1}},config:{cmd:1b,else:0b,follow:0b,if:0b,lookAt:0b,place:1b,print:0b,var:0b,walkForward:0b,while:0b}},script_correct:{main:{lines:[{msg:'\"Hello\"',type:\"PRINT\"}],type:\"BLOCK\"}},script_current:{main:{lines:[{msg:'\"Hello\"',type:\"PRINT\"}],type:\"BLOCK\"}},script_default:{main:{lines:[{msg:'\"Hello\"',type:\"PRINT\"}],type:\"BLOCK\"}}}"
+        "/scriptmodify @e[tag=ovejacbasico, limit=1] {meta:{actions:{any:{cmds:\"\",count:1,max:1},correct:{cmds:'data modify entity @e[tag=cbasico, limit=1] DialoguePath set value \"map/conoc_basic/8-condicionales1.json\"',count:1,max:1},wrong:{cmds:\"\",count:0,max:1}},config:{checkpoints:[],cmd:0b,dist:0b,else:0b,follow:0b,if:0b,lookAt:0b,persistentVars:[],place:0b,print:1b,testCases:[{vars:[{name:\"var1\",val:\"1\"},{name:\"var2\",val:\"2\"}]},{vars:[{name:\"var1\",val:\"25\"},{name:\"var2\",val:\"3\"}]},{vars:[{name:\"var1\",val:\"453\"},{name:\"var2\",val:\"628\"}]}],userTestVars:[{name:\"var1\",val:\"1\"},{name:\"var2\",val:\"2\"}],var:0b,varF:0b,walkForward:0b,while:0b}},script_correct:{main:{lines:[{msg:\"var1 - 12 * var2\",type:\"PRINT\"}],type:\"BLOCK\"}},script_current:{main:{lines:[],type:\"BLOCK\"}},script_default:{main:{lines:[],type:\"BLOCK\"}}}"
       ]
     }
   ]

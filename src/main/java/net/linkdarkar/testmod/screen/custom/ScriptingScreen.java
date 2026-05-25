@@ -296,7 +296,7 @@ public class ScriptingScreen extends Screen {
                 }
 
                 // ADD VAR = FUNCTION
-                if (config.allowVar) {
+                if (config.allowVarF) {
                     this.addDrawableChild(ButtonWidget.builder(Text.literal("Add VARF"), b -> {
                         this.builder.AddVarAssign();
                         this.rebuildUI();
