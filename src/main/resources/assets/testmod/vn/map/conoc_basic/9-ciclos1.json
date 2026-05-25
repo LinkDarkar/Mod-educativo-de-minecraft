@@ -29,7 +29,7 @@
       "text": [
         "—Cuando el computador llega al WHILE, va a revisar si la condición se cumple, y de ser el caso, va a ejecutar el código en su interior. Pero cuando termina, revisa de nuevo si la condición se cumple para ver si debería repetir el código de nuevo o no. Este ciclo se repetirá indefinidamente hasta que la condición sea falsa (así que hay que tener cuidado con como vamos a implementar estos ciclos).",
         "—Veamos una reimplementación del código de antes pero con un ciclo:\n\ncont = 1\n\nWHILE cont <= 10:\n\n    PRINT cont + \" \"\n\n    cont += 1\n\nPRINT \"Done!\" \n",
-        "—El programa es simple, declaramos una variable llamada cont que empieze con un valor de uno y entramos en un while en el que, mientras cont sea menor o igual que 10, va a imprimir en pantalla el valor de cont para luego incrementar este valor en 1. Efectivamente contando de 1 hasta 10."
+        "—El programa es simple, declaramos una variable llamada cont que empiece con un valor de uno y entramos en un while en el que, mientras cont sea menor o igual que 10, va a imprimir en pantalla el valor de cont para luego incrementar este valor en 1. Efectivamente contando de 1 hasta 10."
       ],
       "nextNodeId": "01_04"
     },
@@ -55,8 +55,7 @@
       "id": "01_06",
       "speaker": "Intro",
       "text": [
-        "",
-        "",
+        "Después de esta conversación serás teletransportado al hub principal.",
         ""
       ],
       "nextNodeId": "",

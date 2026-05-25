@@ -19,8 +19,7 @@
       "id": "01_02",
       "speaker": "Intro",
       "text": [
-        "—Los operadores disponibles aquí serán:\n\n    + -> para la suma\n\n    - -> para la resta\n\n    * -> para la multiplicación\n\n    / -> para la división\n\n    % -> para conseguir el resto de la división\n\n",
-        ""
+        "—Los operadores disponibles aquí serán:\n\n    + -> para la suma\n\n    - -> para la resta\n\n    * -> para la multiplicación\n\n    / -> para la división\n\n    % -> para conseguir el resto de la división\n\n"
       ],
       "nextNodeId": "01_03"
     },
