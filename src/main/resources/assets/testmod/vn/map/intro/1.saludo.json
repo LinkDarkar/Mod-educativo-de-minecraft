@@ -5,7 +5,10 @@
       "id": "01_01",
       "speaker": "Intro",
       "text": [
-        "placeholder introducción al mapa"
+        "Bienvenido al mapa instruccional del mod. \n \n",
+        "Aquí vas a aprender lo básico para ocupar las funcionalidades para scriptear con los mobs del juego. \n \n",
+        "Es importante que hables con todos lo NPCs y que leas con atención para avanzar. \n \n",
+        "Para continuar habla con el siguiente NPC."
       ],
       "nextNodeId": "01_02",
       "executeCommands": [

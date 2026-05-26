@@ -5,7 +5,8 @@
       "id": "01_01",
       "speaker": "Intro",
       "text": [
-        "placeholder explicación de lo que se aprenderá, y las formas en las que se ejercitará"
+        "El mapa va a estar dividido en 3 secciones, la que viene ahora es la de conocimientos básicos que te enseñará el funcionamiento de la interfaz de programación y el uso de las funcionalidades básicas. \n \n",
+        "Luego de la sección de conocimientos básicos vas a tener dos alas con diferentes tipos de ejercicios."
       ],
       "nextNodeId": "01_02",
       "executeCommands": [

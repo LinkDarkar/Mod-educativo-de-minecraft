@@ -16,14 +16,15 @@
       "speaker": "Intro",
       "text": [
         "—\"Tab\" tiene dos modos, SCRIPT y VARIABLES. ",
-        "SCRIPT es con el que vas a estar interactuando la mayor parte del tiempo, al fin y al cabo es donde estará tu código. ",
-        "VARIABLES es donde estarán las variables persistentes que podrías necesitar. ",
-        "No es necesario que declares todas tus variables ahí, solo necesitarás aquellas en las que tienes que controlar sus valores para que persistan entre múltiples iteractiones y ticks del juego.",
+        "SCRIPT es con el que vas a estar interactuando la mayor parte del tiempo, al fin y al cabo es donde estará tu código. \n \n",
+        "VARIABLES es donde estarán las variables persistentes que podrías necesitar. \n \n",
+        "No es necesario que declares todas tus variables ahí, solo necesitarás aquellas en las que tienes que controlar sus valores para que persistan entre múltiples iteractiones y ticks del juego. \n \n",
         "Mucho más tarde vamos a ver ejercicios que requieren de su uso. \n \n",
         "—El campo BASIC por otro lado, tiene los botones necesarios para que programes en la entidad. ",
-        "Si aprietas las flechas verás que podrás navegar entre pestañas. Hay tres: BASIC, ENTITY y MINECRAFT. Las últimas dos no son necesarias para lo que tenga que ver con manipulación de datos. ",
+        "Si aprietas las flechas verás que podrás navegar entre pestañas. Hay tres: BASIC, ENTITY y MINECRAFT. Las últimas dos no son necesarias para lo que tenga que ver con manipulación de datos. \n \n",
         "Pero en el Ala B, a la que tendrás acceso más tarde, vas a tener que utilizar las funciones que se encuentan aquí para controlar a las entidades y obtener información del mundo. \n \n",
-        "—Podrás ver estos campos que te mencioné en este mob que tienes aquí. Cuando estés listo, aprieta el botón VERIFY para continuar."
+        "—Podrás ver estos campos que te mencioné en este mob que tienes aquí. Cuando estés listo, aprieta el botón VERIFY para continuar. \n \n",
+        "—Para continuar con la siguiente parte aprieta el botón verificar en la interfaz del scripting de la oveja."
       ],
       "nextNodeId": "",
       "executeCommands": [

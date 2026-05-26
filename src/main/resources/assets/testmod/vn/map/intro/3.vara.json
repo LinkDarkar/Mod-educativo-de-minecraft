@@ -5,7 +5,8 @@
       "id": "01_01",
       "speaker": "Intro",
       "text": [
-        "placeholder explicación vara",
+        "Esta es la vara que ocuparás para programar a los mobs. \n \n ",
+        "Para ocuparla tienes que hacer click derecho en el mob. \n \n ",
         "Toma la vara para avanzar."
       ],
       "nextNodeId": "01_02",
