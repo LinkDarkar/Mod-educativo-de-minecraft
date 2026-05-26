@@ -5,8 +5,8 @@
       "id": "01_01",
       "speaker": "Intro",
       "text": [
-        "—Imagina una situación en la que vas a ir a minar y la otra persona con la que estas jugando te dice \"si encuentras hierro de sobra, dame una parte\". Esta es una declaración condicional, que significa que vas a ejecutar una acción (darle hierro) solo si la condición (consigues hierro de sobra) es verdadera... Si, ya se que es un ejemplo cursi pero eso no es lo importante.",
-        "—Dejando de lado lo poco efectivo que es conseguir hierro minando cuando podrías crear una granja de hierro y olvidarte de minar por el resto de la eternidad, condiciones como las que acabas de ver son muy comunes en programación. Aquí vamos a ver la condición \"IF\" que nos permitirá ejecutar una o más líneas de código si una condición es cierta. Estas funcionan de la siguiente manera:\n\nIF condición:\n\n\tDeclaración_verdadera",
+        "—Imagina una situación en la que vas a ir a minar y la otra persona con la que estas jugando te dice \"si encuentras hierro de sobra, dame una parte\". Esta es una declaración condicional, que significa que vas a ejecutar una acción (darle hierro) solo si la condición (consigues hierro de sobra) es verdadera... Si, ya se que es un ejemplo cursi pero eso no es lo importante. \n \n",
+        "—Dejando de lado lo poco efectivo que es conseguir hierro minando cuando podrías crear una granja de hierro y olvidarte de minar por el resto de la eternidad, condiciones como las que acabas de ver son muy comunes en programación. Aquí vamos a ver la condición \"IF\" que nos permitirá ejecutar una o más líneas de código si una condición es cierta. Estas funcionan de la siguiente manera: \n \nIF condición: \n \n    Declaración_verdadera \n \n",
         "—Una condición en este contexto son expresiones que dan como resultado \"verdadero\" o \"falso\". Si la condición en el if es verdadera, entonces la declaración_verdadera se ejecuta. Pero si ese no es el caso y, en su lugar, la condición es falsa, entonces la declaración_verdadera no se ejecuta."
       ],
       "nextNodeId": "01_02",
@@ -17,9 +17,9 @@
       "id": "01_02",
       "speaker": "Intro",
       "text": [
-        "—Ahora, el IF solo es algo que podemos ocupar SI es que algo ocurre, pero ¿cómo podemos lidiar también con algo que NO ocurre? No podemos simplemente lidiar con ese caso añadiendo más código normal después del IF. Es decir, si tenemos esto:\n\nIF condición:\n\n\tdeclaración_verdadera\n\nResto del código",
-        "—El resto del código se ejecutará independientemente del resultado de la condición IF. A veces queremos algo que se ejecute solo si es que algo no ocurre.",
-        "—Como una forma de conseguir ese comportamiento, podemos hacer algo como lo que tenemos en el siguiente ejercicio:\n\nnum = 5\n\nIF num == 0:\n\n\tPRINT \"el valor es igual a 0\"\n\nIF num != 0:\n\n\tPRINT \"el valor no es igual a 0\"",
+        "—Ahora, el IF solo es algo que podemos ocupar SI es que algo ocurre, pero ¿cómo podemos lidiar también con algo que NO ocurre? No podemos simplemente lidiar con ese caso añadiendo más código normal después del IF. Es decir, si tenemos esto:\n \nIF condición:\n \n    declaración_verdadera\n \nResto del código \n \n",
+        "—El resto del código se ejecutará independientemente del resultado de la condición IF. A veces queremos algo que se ejecute solo si es que algo no ocurre.\n \n",
+        "—Como una forma de conseguir ese comportamiento, podemos hacer algo como lo que tenemos en el siguiente ejercicio: \n \nnum = 5 \n \nIF num == 0: \n \n    PRINT \"el valor es igual a 0\" \n \nIF num != 0: \n \n    PRINT \"el valor no es igual a 0\" \n \n",
         "—Pero este programa es más complejo de lo que podría ser. Por lo que en vez de hacer otro IF, vamos a ocupar la instrucción ELSE."
       ],
       "nextNodeId": "01_03"
@@ -28,8 +28,10 @@
       "id": "01_03",
       "speaker": "Intro",
       "text": [
-        "—Un ELSE solo se puede colocar después de un IF y sirve para ejecutar líneas de código solo en caso de que la condición sea falsa, así que la instrucción ELSE no necesita una condición propia. Funcionaría de la siguiente forma:\n\nIF condición:\n\n\tdeclaración_verdadera\n\nELSE:\n\n\tdeclaración_falsa",
-        "—Entonces el ejercicio que vamos a hacer ahora consistirá en un código simple en el que revise si el valor de una variable es distinto o igual a 0.\n\n—El output esperado, por ejemplo si el valor de la variable creada es 3, sería:\n\n\t3 es distinto de 0\n\n—Y si el valor fuera 0:\n\n\t0 es igual a 0"
+        "—Un ELSE solo se puede colocar después de un IF y sirve para ejecutar líneas de código solo en caso de que la condición sea falsa, así que la instrucción ELSE no necesita una condición propia. Funcionaría de la siguiente forma: \n \nIF condición: \n \n    declaración_verdadera \n \nELSE: \n \n    declaración_falsa \n \n",
+        "—Entonces el ejercicio que vamos a hacer ahora consistirá en un código simple en el que revise si el valor de una variable es distinto o igual a 0. \n \n",
+        "—El output esperado, por ejemplo si el valor de la variable creada es 3, sería: \n \n    3 es distinto de 0 \n \n",
+        "—Y si el valor fuera 0: \n \n    0 es igual a 0"
       ],
       "nextNodeId": "",
       "executeCommands": [

@@ -5,12 +5,12 @@
       "id": "01_01",
       "speaker": "Intro",
       "text": [
-        "—Ahora vamos a hacer otro ejercicio, un código que realice una operación matemática y muestre el resultado por pantalla.",
-        "—Cuando abras la interfaz de scripting, verás que abajo a la derecha tendrás dos variables:\n\n    var1 = 1\n    var2 = 2\n\n",
-        "—No podrás cambiarles los nombres ni removerlas, pero sí los valores que tienen.",
-        "—Estas son las mismas variables que utilizarán los casos de prueba, que cambian los valores que tienen para para revisar tu código con diferentes valores la cantidad de veces que sea necesaria. Esto se hará automáticamente, no debes declarar la variable en tu código de nuevo o se sobreescribirán los valores.",
-        "—Para realizar tus propias pruebas de código, puedes cambiarle los valores de estas variables por los que quieras, no afectará a los casos de prueba.",
-        "—Ahora, el ejercicio consistirá en lo siguiente: Teniendo var1 y var2, tienes que multiplicar var2 por 12 y restar el resultado de la multiplicación a var1."
+        "—Ahora vamos a hacer otro ejercicio, un código que realice una operación matemática y muestre el resultado por pantalla. \n \n",
+        "—Cuando abras la interfaz de scripting, verás que abajo a la derecha tendrás dos variables: \n \n    var1 = 1 \n    var2 = 2 \n \n",
+        "—No podrás cambiarles los nombres ni removerlas, pero sí los valores que tienen.\n \n",
+        "—Estas son las mismas variables que utilizarán los casos de prueba, que cambian los valores que tienen para para revisar tu código con diferentes valores la cantidad de veces que sea necesaria. Esto se hará automáticamente, no debes declarar la variable en tu código de nuevo o se sobreescribirán los valores. \n \n",
+        "—Para realizar tus propias pruebas de código, puedes cambiarle los valores de estas variables por los que quieras, no afectará a los casos de prueba.\n \n",
+        "—Ahora, el ejercicio consistirá en lo siguiente: Teniendo var1 y var2, tienes que multiplicar var2 por 12 y restar el resultado de la multiplicación a var1.\n \n"
       ],
       "nextNodeId": "",
       "executeCommands": [

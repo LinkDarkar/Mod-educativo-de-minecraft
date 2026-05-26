@@ -5,8 +5,8 @@
       "id": "01_01",
       "speaker": "Intro",
       "text": [
-        "—Ahora es cuando empieza lo entretenido de verdad, con los Loops o Ciclos. Estos son los que nos permitirán ejecutar código hasta que se cumpla cierta condición. Por ejemplo si quisieramos hacer un código que cuente hasta 10, sin ocupar ciclos, nos quedaría algo como esto:",
-        "PRINT \"1 2 3 4 5 6 7 8 9 10\"\n\nPRINT \"Done!\"",
+        "—Ahora es cuando empieza lo entretenido de verdad, con los Loops o Ciclos. Estos son los que nos permitirán ejecutar código hasta que se cumpla cierta condición. Por ejemplo si quisieramos hacer un código que cuente hasta 10, sin ocupar ciclos, nos quedaría algo como esto: \n \n",
+        "PRINT \"1 2 3 4 5 6 7 8 9 10\" \n \nPRINT \"Done!\" \n \n",
         "—Esto, por supuesto, es válido. Pero deja de ser algo viable si es que quisieramos imprimir más o una cantidad variable de números."
       ],
       "nextNodeId": "01_02",
@@ -17,8 +17,8 @@
       "id": "01_02",
       "speaker": "Intro",
       "text": [
-        "—Sin embargo, si ocupamos un ciclo, tenemos no solo más espacio para adaptarnos a lo que necesitemos sino que también no tenemos que escribir tanto!",
-        "—La instrucción para hacer ciclos que vamos a ver es el WHILE, que va de la siguiente manera:\n\nWHILE condición:\n\n    declaración\n\n",
+        "—Sin embargo, si ocupamos un ciclo, tenemos no solo más espacio para adaptarnos a lo que necesitemos sino que también no tenemos que escribir tanto! \n \n",
+        "—La instrucción para hacer ciclos que vamos a ver es el WHILE, que va de la siguiente manera: \n \nWHILE condición: \n \n    declaración \n \n",
         "—Es similar al IF, no? "
       ],
       "nextNodeId": "01_03"
@@ -27,8 +27,8 @@
       "id": "01_03",
       "speaker": "Intro",
       "text": [
-        "—Cuando el computador llega al WHILE, va a revisar si la condición se cumple, y de ser el caso, va a ejecutar el código en su interior. Pero cuando termina, revisa de nuevo si la condición se cumple para ver si debería repetir el código de nuevo o no. Este ciclo se repetirá indefinidamente hasta que la condición sea falsa (así que hay que tener cuidado con como vamos a implementar estos ciclos).",
-        "—Veamos una reimplementación del código de antes pero con un ciclo:\n\ncont = 1\n\nWHILE cont <= 10:\n\n    PRINT cont + \" \"\n\n    cont += 1\n\nPRINT \"Done!\" \n",
+        "—Cuando el computador llega al WHILE, va a revisar si la condición se cumple, y de ser el caso, va a ejecutar el código en su interior. Pero cuando termina, revisa de nuevo si la condición se cumple para ver si debería repetir el código de nuevo o no. Este ciclo se repetirá indefinidamente hasta que la condición sea falsa (así que hay que tener cuidado con como vamos a implementar estos ciclos). \n \n",
+        "—Veamos una reimplementación del código de antes pero con un ciclo: \n \ncont = 1 \n \nWHILE cont <= 10: \n \n    PRINT cont + \" \" \n \n    cont += 1 \n \nPRINT \"Done!\" \n \n",
         "—El programa es simple, declaramos una variable llamada cont que empiece con un valor de uno y entramos en un while en el que, mientras cont sea menor o igual que 10, va a imprimir en pantalla el valor de cont para luego incrementar este valor en 1. Efectivamente contando de 1 hasta 10."
       ],
       "nextNodeId": "01_04"
@@ -38,7 +38,7 @@
       "speaker": "Intro",
       "text": [
         "—La ventaja de este código es que también si quisieramos cambiar el número hasta el que tenemos que contar, tan solo cambiamos el número de la condición. Como por ejemplo: \n ",
-        "cont = 1\n\nWHILE cont <= 1000000:\n\n    PRINT cont + \" \"\n\n    cont += 1\n\nPRINT \"Done!\"\n\n"
+        "cont = 1 \n \nWHILE cont <= 1000000: \n \n    PRINT cont + \" \" \n \n    cont += 1 \n \nPRINT \"Done!\" \n \n"
       ],
       "nextNodeId": "01_05"
     },
@@ -46,8 +46,8 @@
       "id": "01_05",
       "speaker": "Intro",
       "text": [
-        "—Y por supuesto si la condición evalúa a falso en el momento en el que intenta ejecutar el WHILE por primera vez, se saltará todo lo que está dentro por completo:\n\n",
-        "cont = 15\n\nWHILE cont <= 10:\n\n    PRINT cont + \" \"\n\n    cont += 1\n\nPRINT \"Done!\"\n\n—El output de este código solo será:\n\n    \"Done!\"\n"
+        "—Y por supuesto si la condición evalúa a falso en el momento en el que intenta ejecutar el WHILE por primera vez, se saltará todo lo que está dentro por completo: \n \n",
+        "cont = 15 \n \nWHILE cont <= 10: \n \n    PRINT cont + \" \" \n \n    cont += 1 \n \nPRINT \"Done!\" \n \n—El output de este código solo será: \n \n    \"Done!\" \n"
       ],
       "nextNodeId": "01_06"
     },
@@ -55,8 +55,8 @@
       "id": "01_06",
       "speaker": "Intro",
       "text": [
-        "Después de esta conversación serás teletransportado al hub principal.",
-        ""
+        "Y con esto terminamos con la sección de conocimientos básicos. \n \n",
+        "Después de esta conversación serás teletransportado al hub principal para continuar con los contenidos."
       ],
       "nextNodeId": "",
       "executeCommands": [
