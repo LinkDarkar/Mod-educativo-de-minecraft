@@ -62,7 +62,8 @@
       "executeCommands": [
         "/say Perfecto! Ahora eres libre y puedes continuar.",
         "/fill 0 1 -56 0 2 -56 air",
-        "/fill 0 1 -64 0 2 -64 air"
+        "/fill 0 1 -64 0 2 -64 air",
+        "/tp @p 0.5 0.00 -88.5"
       ]
     }
   ]
