@@ -12,7 +12,9 @@
       ],
       "nextNodeId": "",
       "executeCommands": [
-        "/data modify entity @e[tag=cbasico,limit=1] DialoguePath set value \"map/conoc_basic/1-introUI.json\""
+        "/scriptsummon minecraft:sheep ~-0.5 ~ ~1 {Tags:[\"ovejacbasico\"], meta:{actions:{any:{cmds:'data modify entity @e[tag=cbasico, limit=1] DialoguePath set value \"map/conoc_basic/2-print1.json\"',count:0,max:1},correct:{cmds:\"\",count:0,max:0},wrong:{cmds:\"\",count:0,max:0}},config:{checkpoints:[],cmd:0b,dist:1b,else:1b,follow:1b,if:1b,lookAt:1b,persistentVars:[],place:0b,print:1b,testCases:[{vars:[]}],userTestVars:[],var:1b,walkForward:1b,while:1b}},script_correct:{main:{lines:[],type:\"BLOCK\"}},script_current:{main:{lines:[{msg:'\"This is a script! *Sheep noises*\"',type:\"PRINT\"}],type:\"BLOCK\"}},script_default:{main:{lines:[{msg:'\"This is a script! *Sheep noises*\"',type:\"PRINT\"}],type:\"BLOCK\"}}}",
+        "/data modify entity @e[tag=cbasico,limit=1] DialoguePath set value \"map/conoc_basic/1-introUI.json\"",
+        "/fill 0 1 -48 0 2 -48 quartz_bricks"
       ]
     }
   ]
