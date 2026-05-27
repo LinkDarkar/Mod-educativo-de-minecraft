@@ -1,0 +1,25 @@
+{
+  "id": "intro1",
+  "Nodes": [
+    {
+      "id": "01_01",
+      "speaker": "Intro",
+      "text": [
+        "Tercer Ejercicio: \n \nEn este ejercicio hay 3 ovejas, roja, azul y negra. \n \n",
+        "Tienes que hacer un script que haga que la negra, que está entremedio de las otras dos, camine hacia la roja, luego hacia la azul, luego a la roja, y así sucesivamente. La condición para el cambio de objetivo es que la distancia entre la negra y la otra oveja sea de menos de 4."
+      ],
+      "nextNodeId": "01_02",
+      "executeCommands": [
+      ]
+    },
+    {
+      "id": "01_02",
+      "speaker": "Intro",
+      "text": [
+        "Puedes poner UUIDs en variables. Estos se van a interpretar como Strings, así que acuérdate de ponerlos entre comillas. \n \n",
+        "Otra cosa a tener en consideración para este ejercicio es la existencia de la tab VARIABLES. Las variables que estén dentro de esta tab son persistentes entre ciclos, es decir, su valor no se va a reiniciar cada tick como con las variables que estén dentro de la tab SCRIPT. Lo que las hace útiles para trackear estados como verás para este ejercicio."
+      ],
+      "nextNodeId": ""
+    }
+  ]
+}

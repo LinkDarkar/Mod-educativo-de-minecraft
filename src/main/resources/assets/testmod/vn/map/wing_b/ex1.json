@@ -1,0 +1,27 @@
+{
+  "id": "intro1",
+  "Nodes": [
+    {
+      "id": "01_01",
+      "speaker": "Intro",
+      "text": [
+        "Primer ejercicio: \n \nPara este ejercicios vamos a ocupar dos cosas nuevas, el UUID Extractor y las funciones para manipular mobs. \n \n",
+        "Para ocupar las funciones vas a ver que a los lados del bloque que dice BASIC van a haber flechas, con esas podrás navegar entre las distintas pestañas, BASIC (con lo básico para programar), ENTITY (con funciones para manipular a la entidad), y MINECRAFT (con funciones para obtener información y alterar el mundo). \n \n",
+        "El UUID Extractor es un ítem con el que, al hacer click derecho en otra entidad va a guardar dentro de si el UUID de la entidad (el identificador que esta tiene dentro del juego). Cuando hayas guardado alguno de estos UUIDs, verás que dentro de la interfaz de scripting, esta UUID saldrá en la parte derecha bajo la sección \"UUIDs in Inventory\". Esto va a ser muy importante para hacer los ejercicios a continuación."
+      ],
+      "nextNodeId": "01_02",
+      "executeCommands": [
+      ]
+    },
+    {
+      "id": "01_02",
+      "speaker": "Intro",
+      "text": [
+        "Ahora viene el ejercicio de verdad. \n \nTienes que hacer que esta oveja blanca siga a la oveja negra hasta su posición. \n \n",
+        "Para conseguir esto necesitarás ocupar la función \"Follow Entity\", esta función solo recibe UUIDs (es lo que necesita para saber a qué entidad debe seguir), por lo que deberás extraer el UUID de la oveja objetivo con el UUID Extractor. \n \n",
+        "Para poner el UUID en la función \"Follow Entity\" deberás seleccionar la caja de texto y hacer click en el UUID que quieres poner."
+      ],
+      "nextNodeId": ""
+    }
+  ]
+}

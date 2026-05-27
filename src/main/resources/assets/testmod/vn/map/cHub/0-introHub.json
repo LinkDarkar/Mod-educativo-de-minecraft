@@ -1,0 +1,27 @@
+{
+  "id": "intro1",
+  "Nodes": [
+    {
+      "id": "01_01",
+      "speaker": "Intro",
+      "text": [
+        "Este es el hub central. A la izquierda tienes el Ala A y a la derecha el Ala B. \n \n",
+        "El Ala A está compuesta por ejercicios centrados en matemática y manipulación de datos. \n \n",
+        "El Ala B, por otra parte, se centra en la manipulación de entidades. \n \n"
+      ],
+      "nextNodeId": "01_02",
+      "executeCommands": [
+      ]
+    },
+    {
+      "id": "01_02",
+      "speaker": "Intro",
+      "text": [
+        "Puedes ir a la que tu quieras y escoger los ejercicios que te plazcan. \n \n",
+        "Pero por supuesto esto está pensado para que los hagas en orden. \n \n",
+        "¡Buena suerte!"
+      ],
+      "nextNodeId": ""
+    }
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "id": "intro1",
+  "Nodes": [
+    {
+      "id": "01_01",
+      "speaker": "Intro",
+      "text": [
+        "Este ala consiste en la manipulación de entidades. A diferencia del Ala A, tus \"outputs\" serán las acciones que realice el mob al que le hayas dado las instrucciones. Dependiendo del ejercicio, puede que tengas que esperar más o menos a que todas estas acciones terminen de realizarse. \n \n",
+        "La sección consistirá en seis ejercicios en los que tendrás que utilizar varias funciones, que le dirán al mob lo que tendrá que hacer, en conjunto con los ciclos, condicionales, variables, y prints que ya viste en la introducción. \n \n"
+      ],
+      "nextNodeId": "01_02",
+      "executeCommands": [
+      ]
+    },
+    {
+      "id": "01_02",
+      "speaker": "Intro",
+      "text": [
+        "Una parte esencial de este Ala es el uso del botón START LOOP y END LOOP. \n \n",
+        "Para darte algo más de contexto, y para que sepas lo que está ocurriendo, te voy a hacer una pequeña clase de como funcionan los juegos. \n \n",
+        "Casi todos los videojuegos--entre los que se encuentra Minecraft--son manejados por un gran Loop. Cada tarea que esté involucrada en avanzar esta simulación del juego esta sincronizada con este Game Loop. Y cada ciclo de este loop, es lo que llamamos Game Tick."
+      ],
+      "nextNodeId": "01_03"
+    },
+    {
+      "id": "01_03",
+      "speaker": "Intro",
+      "text": [
+        "Minecraft corre a 20 Ticks por segundo. Es decir, el Game Loop corre 20 veces por segundo, con cada uno de sus ciclos, o Ticks, ocurriendo cada 50 milisegundos. \n \n",
+        "Para los ejercicios que estás por hacer en esta Ala vas a correr los scripts que hagas con este Loop, así que ten en consideración que lo que sea que hagas se va a ejecutar 20 veces por segundo."
+      ],
+      "nextNodeId": ""
+    }
+  ]
+}

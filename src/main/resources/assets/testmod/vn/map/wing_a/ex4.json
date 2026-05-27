@@ -5,7 +5,7 @@
       "id": "01_01",
       "speaker": "Intro",
       "text": [
-        "Cuarto ejercicio:\n\nPara este ejercicio se va a tener por defecto la variable:\n - cant = 10\n\n",
+        "Cuarto ejercicio: \n \nPara este ejercicio se va a tener por defecto la variable: \n - cant = 10 \n \n",
         "El ejercicio consiste en imprimir la cantidad de números de la secuencia de Fibonacci (empezando por el 1) indicada por la variable cant.\n\n",
         "Cada número debe mostrarse en PRINTS por separado."
       ],

@@ -1,0 +1,25 @@
+{
+  "id": "intro1",
+  "Nodes": [
+    {
+      "id": "01_01",
+      "speaker": "Intro",
+      "text": [
+        "Segundo Ejercicio: \n \nPara este ejercicio deberás hacer que la oveja bebé siga a la mayor cuando esta se aleje a más de 5 metros. \n \n",
+        "Deberás ocupar el UUID extractor y la función Follow Entity de antes junto con una nueva función, Dist to Ent (Distance to Entity), ubicada en la pestaña MINECRAFT."
+      ],
+      "nextNodeId": "01_02",
+      "executeCommands": [
+      ]
+    },
+    {
+      "id": "01_02",
+      "speaker": "Intro",
+      "text": [
+        "Con la función Distance to Entity te darás cuenta de que se guarda automáticamente en una variable llamada \"dist\" por defecto. Eso quiere decir que--a no ser que llames a esa función dentro de otro ciclo que hayas creado en el script--, al darle al botón START LOOP, esa función se va a llamar una vez por tick, guardando en la variable \"dist\" la distancia entre estas dos entidades 20 veces por segundo. \n \n",
+        "Podemos ocupar este valor para luego revisar, con un condicional, si esta distancia cumple los requisitos para realizar cierta acción."
+      ],
+      "nextNodeId": ""
+    }
+  ]
+}
