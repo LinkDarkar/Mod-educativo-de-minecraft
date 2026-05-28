@@ -1,0 +1,18 @@
+{
+  "id": "intro1",
+  "Nodes": [
+    {
+      "id": "01_01",
+      "speaker": "Intro",
+      "text": [
+        "Quinto ejercicio: \n \nLa variable que estará puesta por defecto será la siguiente: \n - nivelProfundidad = 6 \n \n",
+        "Para este ejercicio tienes que escribir un código que escriba la siguiente serie: \n \n1 \n232 \n34543 \n4567654 \n567898765 \n........... \n \n",
+        "Para este ejemplo de arriba nivelProfundidad = 4 (considerando la punta como el nivel 0). \n \n",
+        "La variable nivelProfundidad podrá tener cualquier número desde 1 hasta el 20 (el algoritmo deberá validar que el valor de nivelProfundidad no sea menor a 1 ni mayor que 20)."
+      ],
+      "nextNodeId": "",
+      "executeCommands": [
+      ]
+    }
+  ]
+}
