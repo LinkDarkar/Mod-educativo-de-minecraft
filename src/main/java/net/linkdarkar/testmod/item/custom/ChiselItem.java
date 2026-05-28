@@ -142,7 +142,7 @@ public class ChiselItem extends Item {
     }
 
     private void killAi(PlayerEntity user, LivingEntity entity) {
-        user.sendMessage(Text.literal("KILLED AI"));
+//        user.sendMessage(Text.literal("KILLED AI"));
         ((MobEntity)entity).clearGoalsAndTasks();
     }
 }

@@ -6,8 +6,8 @@
       "speaker": "Intro",
       "text": [
         "Quinto ejercicio: \n \nDadas las variables: \nn1, n2, n3, n4 y n5 (cada una con números, que cambian con los casos de prueba) \n \nObjetivo: concatenar los números como si fuesen un string. De manera que no se sumen, sino que se escriban uno al lado del otro. \n \n",
-        "Ejemplo: \nn1 = 1 \nn2 = 2 \nn3 = 3 \nn4 = 4 \n \nAl ejecutar: \n    Print n1 + n2 + n3 + n4 \n \nEl resultado esperado debería ser: \n1234",
-        "Tip: Si quieres convertir un valor de una variable numérica a una de texto (lo que se conoce como \"castear a string\") puedes sumar un string vacío: \"\" + var. Entonces si hacemos: \n \nn1 = \"\" + n1 \n \nEl nuevo valor que se guardará será el de un String."
+        "Ejemplo: \nn1 = 1 \nn2 = 2 \nn3 = 3 \nn4 = 4 \n \nEl output esperado es: \n1234",
+        "\n\nTip: Si quieres convertir un valor de una variable numérica a una de texto (lo que se conoce como \"castear a string\") puedes sumar un string vacío: \"\" + var. Entonces si hacemos: \n \nn1 = \"\" + n1 \n \nEl nuevo valor que se guardará será el de un String."
       ],
       "nextNodeId": "",
       "executeCommands": [

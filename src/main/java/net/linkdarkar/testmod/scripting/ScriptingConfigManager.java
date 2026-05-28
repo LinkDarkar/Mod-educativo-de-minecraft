@@ -285,6 +285,40 @@ public class ScriptingConfigManager {
         }
     }
 
+    // Forces all Test Cases to share the exact same variable names as Case 1
+    public void ensureTestCaseSync(UUID entityUuid) {
+        ScriptingConfig config = getConfig(entityUuid);
+        if (config.testCases.isEmpty()) return;
+
+        TestCase master = config.testCases.get(0);
+
+        for (int i = 1; i < config.testCases.size(); i++) {
+            TestCase current = config.testCases.get(i);
+            List<PersistentVariable> newVars = new ArrayList<>();
+
+            for (int v = 0; v < master.variables.size(); v++) {
+                PersistentVariable masterVar = master.variables.get(v);
+                PersistentVariable existing = null;
+
+                // Try to find by index first (fastest for identical ordering)
+                if (v < current.variables.size()) {
+                    existing = current.variables.get(v);
+                }
+
+                // If names don't match, search by name (handles legacy backwards-compatibility)
+                if (existing == null || !existing.name.equals(masterVar.name)) {
+                    existing = current.variables.stream().filter(pv -> pv.name.equals(masterVar.name)).findFirst().orElse(null);
+                }
+
+                PersistentVariable toAdd = new PersistentVariable();
+                toAdd.name = masterVar.name; // Force name to match master
+                toAdd.value = existing != null ? existing.value : masterVar.value; // Keep existing value, or default to master's value
+                newVars.add(toAdd);
+            }
+            current.variables = newVars;
+        }
+    }
+
     // Clear data when switching worlds
     public void clear() {
         configs.clear();

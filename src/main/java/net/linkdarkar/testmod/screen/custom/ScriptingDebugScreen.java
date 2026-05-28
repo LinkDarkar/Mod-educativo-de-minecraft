@@ -15,7 +15,6 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -28,7 +27,7 @@ public class ScriptingDebugScreen extends ScriptingScreen {
     private enum TabDebug {
         SCRIPT("Script Editor"),
         ACTIONS("Event Actions"),
-        VARIABLES("Persistent Variables"),
+        PERSISTENT_VARIABLES("Persistent Variables"),
         TEST_CASES("Test Cases"),
         CHECKPOINTS("Checkpoints");
 
@@ -69,15 +68,15 @@ public class ScriptingDebugScreen extends ScriptingScreen {
         }).dimensions(leftOffset, this.height - btnHeight - 5, btnWidth, btnHeight).build());
 
         // Tab Switcher Button
-        this.addDrawableChild(ButtonWidget.builder(Text.literal("Tab: " + currentTab.name()), b -> {
+        this.addDrawableChild(ButtonWidget.builder(Text.literal("Tab: " + currentTab.getDisplayName()), b -> {
             if (this.currentTab == TabDebug.SCRIPT) this.currentTab = TabDebug.ACTIONS;
-            else if (this.currentTab == TabDebug.ACTIONS) this.currentTab = TabDebug.VARIABLES;
-            else if (this.currentTab == TabDebug.VARIABLES) this.currentTab = TabDebug.TEST_CASES;
+            else if (this.currentTab == TabDebug.ACTIONS) this.currentTab = TabDebug.PERSISTENT_VARIABLES;
+            else if (this.currentTab == TabDebug.PERSISTENT_VARIABLES) this.currentTab = TabDebug.TEST_CASES;
             else if (this.currentTab == TabDebug.TEST_CASES) this.currentTab = TabDebug.CHECKPOINTS;
             else this.currentTab = TabDebug.SCRIPT;
 
             if (this.currentTab == TabDebug.SCRIPT) this.currentView = Tab.SCRIPT;
-            else if (this.currentTab == TabDebug.VARIABLES) this.currentView = Tab.VARIABLES;
+            else if (this.currentTab == TabDebug.PERSISTENT_VARIABLES) this.currentView = Tab.VARIABLES;
             else this.currentView = Tab.OTHER;
 
             this.rebuildUI();
@@ -100,7 +99,7 @@ public class ScriptingDebugScreen extends ScriptingScreen {
             case ACTIONS:
                 initActionsTab();
                 break;
-            case VARIABLES:
+            case PERSISTENT_VARIABLES:
                 initVariablesTab();
                 break;
             case TEST_CASES:
@@ -365,6 +364,34 @@ public class ScriptingDebugScreen extends ScriptingScreen {
             listY += btnHeight + btnSpacing;
         }
 
+        // User Test Variables
+        ScriptingConfigManager.getInstance().syncUserTestVariables(this.entityUuid);
+
+        int testVarY = this.height - btnHeight - 25; // Place above Reset button
+
+        // We draw from bottom to top, so we reverse iterate
+        for (int i = config.userTestVariables.size() - 1; 0 <= i; i--) {
+            ScriptingConfigManager.PersistentVariable pv = config.userTestVariables.get(i);
+
+            // Un-editable Variable Name Label
+            ButtonWidget varLabel = ButtonWidget.builder(Text.literal(pv.name + " ="), b -> {})
+                    .dimensions(this.width - 200, testVarY, 65, btnHeight).build();
+            varLabel.active = false;
+            this.addDrawableChild(varLabel);
+
+            // Editable Value Field
+            TextFieldWidget valField = new TextFieldWidget(this.textRenderer, this.width - 130, testVarY, 120, btnHeight, Text.literal(""));
+            valField.setMaxLength(1024);
+            valField.setText(pv.value);
+            valField.setChangedListener(text -> {
+                pv.value = text;
+                ScriptingConfigManager.getInstance().markDirty();
+            });
+            this.addDrawableChild(valField);
+
+            testVarY -= (btnHeight + 4);
+        }
+
         // Reset to Default (Bottom Right)
 //        this.addDrawableChild(ButtonWidget.builder(Text.literal("Reset to Default"), b -> {
 //            this.resetToDefaultScript();
@@ -391,6 +418,10 @@ public class ScriptingDebugScreen extends ScriptingScreen {
         if (config.testCases.isEmpty()) {
             config.testCases.add(new ScriptingConfigManager.TestCase());
         }
+
+        // Auto-migrate and sync variables
+        ScriptingConfigManager.getInstance().ensureTestCaseSync(this.entityUuid);
+
         if (config.testCases.size() <= currentTestCaseIndex) currentTestCaseIndex = Math.max(0, config.testCases.size() - 1);
 
         int listY = 70;
@@ -411,7 +442,19 @@ public class ScriptingDebugScreen extends ScriptingScreen {
         }).dimensions(SCRIPT_X + 80, listY, 20, 20).build());
 
         this.addDrawableChild(ButtonWidget.builder(Text.literal("+ Case"), b -> {
-            config.testCases.add(new ScriptingConfigManager.TestCase());
+            ScriptingConfigManager.TestCase newCase = new ScriptingConfigManager.TestCase();
+
+            // Copy to the new case so it matches
+            if (!config.testCases.isEmpty()) {
+                for (ScriptingConfigManager.PersistentVariable pv : config.testCases.get(0).variables) {
+                    ScriptingConfigManager.PersistentVariable newVar = new ScriptingConfigManager.PersistentVariable();
+                    newVar.name = pv.name;
+                    newVar.value = pv.value;
+                    newCase.variables.add(newVar);
+                }
+            }
+
+            config.testCases.add(newCase);
             currentTestCaseIndex = config.testCases.size() - 1;
             ScriptingConfigManager.getInstance().markDirty();
             this.rebuildUI();
@@ -434,32 +477,59 @@ public class ScriptingDebugScreen extends ScriptingScreen {
             ScriptingConfigManager.PersistentVariable pv = currentCase.variables.get(i);
             int finalI = i;
 
-            TextFieldWidget nameField = new TextFieldWidget(this.textRenderer, SCRIPT_X, listY, 80, 20, Text.literal(""));
-            nameField.setMaxLength(1024);
-            nameField.setText(pv.name);
-            nameField.setChangedListener(text -> { pv.name = text; ScriptingConfigManager.getInstance().markDirty(); });
-            addScrollableChild(nameField, SCRIPT_X, listY);
+            // Only Case 1 (Index 0) allows changing Names or Deleting rows
+            if (currentTestCaseIndex == 0) {
+                TextFieldWidget nameField = new TextFieldWidget(this.textRenderer, SCRIPT_X, listY, 80, 20, Text.literal(""));
+                nameField.setMaxLength(1024);
+                nameField.setText(pv.name);
+                nameField.setChangedListener(text -> {
+                    pv.name = text;
+                    // Instantly sync the name edit across all other cases
+                    for(int j = 1; j < config.testCases.size(); j++) {
+                        if (finalI < config.testCases.get(j).variables.size()) {
+                            config.testCases.get(j).variables.get(finalI).name = text;
+                        }
+                    }
+                    ScriptingConfigManager.getInstance().markDirty();
+                });
+                addScrollableChild(nameField, SCRIPT_X, listY);
 
+                addScrollableChild(ButtonWidget.builder(Text.literal("X"), b -> {
+                    // Delete this variable row across ALL cases
+                    for (ScriptingConfigManager.TestCase tc : config.testCases) {
+                        if (finalI < tc.variables.size()) tc.variables.remove(finalI);
+                    }
+                    ScriptingConfigManager.getInstance().markDirty();
+                    this.rebuildUI();
+                }).dimensions(SCRIPT_X + 250, listY, 20, 20).build(), SCRIPT_X + 250, listY);
+            } else {
+                // If on Case 2+, show name as an un-editable locked label
+                ButtonWidget nameLabel = ButtonWidget.builder(Text.literal(pv.name), b -> {}).dimensions(SCRIPT_X, listY, 80, 20).build();
+                nameLabel.active = false;
+                addScrollableChild(nameLabel, SCRIPT_X, listY);
+            }
+
+            // Value field is always editable
             TextFieldWidget valField = new TextFieldWidget(this.textRenderer, SCRIPT_X + 95, listY, 150, 20, Text.literal(""));
             valField.setMaxLength(1024);
             valField.setText(pv.value);
             valField.setChangedListener(text -> { pv.value = text; ScriptingConfigManager.getInstance().markDirty(); });
             addScrollableChild(valField, SCRIPT_X + 95, listY);
 
-            addScrollableChild(ButtonWidget.builder(Text.literal("X"), b -> {
-                currentCase.variables.remove(finalI);
-                ScriptingConfigManager.getInstance().markDirty();
-                this.rebuildUI();
-            }).dimensions(SCRIPT_X + 250, listY, 20, 20).build(), SCRIPT_X + 250, listY);
-
             listY += LINE_HEIGHT;
         }
 
-        addScrollableChild(ButtonWidget.builder(Text.literal("+ Add Start Var"), b -> {
-            currentCase.variables.add(new ScriptingConfigManager.PersistentVariable());
-            ScriptingConfigManager.getInstance().markDirty();
-            this.rebuildUI();
-        }).dimensions(SCRIPT_X, listY, 100, 20).build(), SCRIPT_X, listY);
+        // Only allow adding new variables if we are editing the Master Schema (Case 1)
+        if (currentTestCaseIndex == 0) {
+            addScrollableChild(ButtonWidget.builder(Text.literal("+ Add Start Var"), b -> {
+                // Add a blank variable row to ALL cases
+                for (ScriptingConfigManager.TestCase tc : config.testCases) {
+                    tc.variables.add(new ScriptingConfigManager.PersistentVariable());
+                }
+                ScriptingConfigManager.getInstance().markDirty();
+                this.rebuildUI();
+            }).dimensions(SCRIPT_X, listY, 100, 20).build(), SCRIPT_X, listY);
+        }
 
         this.contentHeight = listY - START_Y + 40;
     }

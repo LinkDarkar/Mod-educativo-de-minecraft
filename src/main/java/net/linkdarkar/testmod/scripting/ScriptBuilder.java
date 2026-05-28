@@ -41,22 +41,35 @@ public class ScriptBuilder {
     private void Insert(ScriptLine line) {
         if (selectedLine != null && parentBlockOfSelection != null)
         {
-            int index = parentBlockOfSelection.blockLines.indexOf(selectedLine);
-            if (index != -1)
-            {
-                parentBlockOfSelection.blockLines.add(index + 1, line);
-            }
-            else
-            {
-                parentBlockOfSelection.blockLines.add(line);
+            // If the selected line is a Block Owner, inject inside it
+            if (selectedLine instanceof InstructionIF ifLine) {
+                ifLine.trueBlock.blockLines.add(0, line);
+                Select(ifLine.trueBlock, line);
+            } else if (selectedLine instanceof InstructionELSE elseLine) {
+                elseLine.elseBlock.blockLines.add(0, line);
+                Select(elseLine.elseBlock, line);
+            } else if (selectedLine instanceof InstructionWHILE whileLine) {
+                whileLine.loopBlock.blockLines.add(0, line);
+                Select(whileLine.loopBlock, line);
+            } else if (selectedLine instanceof InstructionVarAssign varAssignLine) {
+                varAssignLine.valueBlock.blockLines.add(0, line);
+                Select(varAssignLine.valueBlock, line);
+            } else {
+                // Otherwise, insert immediately beneath the selected line
+                int index = parentBlockOfSelection.blockLines.indexOf(selectedLine);
+                if (index != -1) {
+                    parentBlockOfSelection.blockLines.add(index + 1, line);
+                } else {
+                    parentBlockOfSelection.blockLines.add(line);
+                }
+                Select(parentBlockOfSelection, line);
             }
         }
         else
         {
             mainScript.blockLines.add(line);
+            Select(mainScript, line);
         }
-
-        Select(parentBlockOfSelection != null ? parentBlockOfSelection : mainScript, line);
     }
 
     /*private void Add(ScriptLine line) {

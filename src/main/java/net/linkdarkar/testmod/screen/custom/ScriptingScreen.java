@@ -245,11 +245,12 @@ public class ScriptingScreen extends Screen {
             testVarY -= (btnHeight + 4);
         }
 
-        // Reset Button
-        this.addDrawableChild(ButtonWidget.builder(Text.literal("Reset To Default!"), b -> {
-            this.resetToDefaultScript();
-            this.rebuildUI();
-        }).dimensions(this.width - 90, this.height - btnHeight - 5, 80, btnHeight).build());
+        // TODO: Make it require a confirmation, or multiple clicks.
+//        // Reset Button
+//        this.addDrawableChild(ButtonWidget.builder(Text.literal("Reset To Default!"), b -> {
+//            this.resetToDefaultScript();
+//            this.rebuildUI();
+//        }).dimensions(this.width - 90, this.height - btnHeight - 5, 80, btnHeight).build());
 
         updateScroll();
     }
@@ -460,8 +461,36 @@ public class ScriptingScreen extends Screen {
     }
 
     protected void rebuildUI() {
+        // Find which index the focused text field is BEFORE deleting everything
+        int focusedTfIndex = -1;
+        int tfCount = 0;
+        for (PlacedWidget pw : scrollableWidgets) {
+            if (pw.widget instanceof TextFieldWidget tf) {
+                if (tf == this.getFocused() || tf.isFocused()) {
+                    focusedTfIndex = tfCount;
+                    break;
+                }
+                tfCount++;
+            }
+        }
+
         this.clearChildren();
         this.init();
+
+        // After rebuilding, iterate and force-focus the matching index
+        if (focusedTfIndex != -1) {
+            int tfCount2 = 0;
+            for (PlacedWidget pw : scrollableWidgets) {
+                if (pw.widget instanceof TextFieldWidget tf) {
+                    if (tfCount2 == focusedTfIndex) {
+                        this.setFocused(tf);
+                        tf.setFocused(true);
+                        break;
+                    }
+                    tfCount2++;
+                }
+            }
+        }
     }
 
     protected ScriptLine findLineAt(int mouseY, ScriptBlock block, int currentY) {
@@ -1154,9 +1183,9 @@ public class ScriptingScreen extends Screen {
             // Return true to consume the click and prevent interacting with the background UI
             return true;
         }
+        int rightBound = this.width - 110;
 
         if (isDragging && button == 0 && this.currentView == Tab.SCRIPT) {
-            int rightBound = this.width - 110;
             if (SCRIPT_X <= mouseX && mouseX <= rightBound && START_Y <= mouseY) {
                 if (bestDropTarget != null && isValidDrop(draggedLine, bestDropTarget.block)) {
                     executeDrop(bestDropTarget);
@@ -1167,27 +1196,34 @@ public class ScriptingScreen extends Screen {
             }
         }
 
-        if (super.mouseClicked(mouseX, mouseY, button)) return true;
-
-        // Left Click
+        // Track clicked line before super consumes the click
+        ScriptLine clickedLine = null;
         if (button == 0 && this.currentView == Tab.SCRIPT) {
-            double virtualY = mouseY + scrollOffset;
-
-            ScriptLine clicked = findLineAt((int)virtualY, this.builder.GetScript(), START_Y);
-            if (clicked != null) {
-                ScriptBlock parent = findParentOfLine(this.builder.GetScript(), clicked);
-                if (parent != null) {
-                    this.builder.Select(parent, clicked);
-                    this.rebuildUI();
-                    return true;
-                }
-            } else {
-                // Clicked Empty Space
-                this.builder.Deselect();
-                this.rebuildUI();
+            if (mouseX >= SCRIPT_X && mouseX <= rightBound && mouseY >= START_Y) {
+                double virtualY = mouseY + scrollOffset;
+                clickedLine = findLineAt((int)virtualY, this.builder.GetScript(), START_Y);
             }
         }
-        return false;
+
+        boolean consumed = super.mouseClicked(mouseX, mouseY, button);
+
+        // Update selection logic
+        if (button == 0 && this.currentView == Tab.SCRIPT) {
+            if (clickedLine != null) {
+                ScriptBlock parent = findParentOfLine(this.builder.GetScript(), clickedLine);
+                if (parent != null && this.builder.selectedLine != clickedLine) {
+                    this.builder.Select(parent, clickedLine);
+                    this.rebuildUI();
+                }
+            } else if (mouseX >= SCRIPT_X && mouseX <= this.width - 110) {
+                if (this.builder.selectedLine != null) {
+                    this.builder.Deselect();
+                    this.rebuildUI();
+                }
+            }
+        }
+
+        return consumed || clickedLine != null;
     }
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
@@ -1231,7 +1267,6 @@ public class ScriptingScreen extends Screen {
 
                 context.disableScissor();
 
-                // If NOT showing overlay, we can draw tooltips and small verif message
                 if (!this.showReportOverlay) {
                     if (!this.verificationMessage.isEmpty()) {
                         context.drawTextWithShadow(this.textRenderer, this.verificationMessage, SCRIPT_X, this.height - 20, this.verificationColor);

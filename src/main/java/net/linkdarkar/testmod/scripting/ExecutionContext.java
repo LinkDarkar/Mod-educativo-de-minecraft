@@ -48,6 +48,7 @@ public class ExecutionContext
     {
         executionSteps++;
         if (executionSteps > MAX_STEPS) {
+            // TODO: Send message in-game
             throw new RuntimeException("Infinite loop detected or script too long!");
         }
     }

@@ -102,26 +102,35 @@ public class ScriptVerifier {
                 tr.actualVars.put(varName, userVal != null ? userVal.toString() : "UNDEFINED");
             }
 
-            // Verify Prints
-            int userPrintIndex = 0;
-            for (String expectedMsg : correctCtx.printedMessages) {
-                boolean found = false;
-                while (userPrintIndex < userCtx.printedMessages.size()) {
-                    if (userCtx.printedMessages.get(userPrintIndex).equals(expectedMsg)) {
-                        found = true;
-                        userPrintIndex++;
-                        break;
-                    }
-                    userPrintIndex++;
-                }
+            // STRICT PRINT VERIFICATION
+            List<String> expectedPrints = correctCtx.printedMessages;
+            List<String> actualPrints = userCtx.printedMessages;
 
-                if (!found) {
+            int minSize = Math.min(expectedPrints.size(), actualPrints.size());
+
+            // Check for any mismatches in the overlapping sequence
+            for (int i = 0; i < minSize; i++) {
+                String expectedMsg = expectedPrints.get(i);
+                String actualMsg = actualPrints.get(i);
+
+                if (!expectedMsg.equals(actualMsg)) {
                     tr.passed = false;
-                    tr.errorReason = "Missing or out-of-order PRINT output.";
+                    tr.errorReason = "Print #" + (i + 1) + " mismatch. Expected: '" + expectedMsg + "', Got: '" + actualMsg + "'";
+                    break;
                 }
             }
 
-            // Verify Variables
+            // If the sequence matched perfectly so far, check if the total amount of prints is correct
+            if (tr.passed && expectedPrints.size() != actualPrints.size()) {
+                tr.passed = false;
+                if (actualPrints.size() < expectedPrints.size()) {
+                    tr.errorReason = "Missing prints. Expected " + expectedPrints.size() + " total, but got " + actualPrints.size() + ". (Next expected was: '" + expectedPrints.get(actualPrints.size()) + "')";
+                } else {
+                    tr.errorReason = "Too many prints. Expected " + expectedPrints.size() + " total, but got " + actualPrints.size() + ". (Extra print: '" + actualPrints.get(expectedPrints.size()) + "')";
+                }
+            }
+
+            // Verify Variables (Only if Prints already passed)
             if (tr.passed) {
                 for (Map.Entry<String, Object> expectedEntry : correctCtx.variables.entrySet()) {
                     String varName = expectedEntry.getKey().trim();
