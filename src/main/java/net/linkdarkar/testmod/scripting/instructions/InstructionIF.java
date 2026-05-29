@@ -12,12 +12,12 @@ public class InstructionIF extends ScriptLine {
     public ScriptBlock elseBlock = null;
 
     public InstructionIF() {
-        this.color = 0xFF0000;
+        this.color = 0xFFFF00;
         this.condition = new ScriptCondition();
     }
     public InstructionIF(ScriptCondition cond) {
         this.condition = cond;
-        this.color = 0xFF0000;
+        this.color = 0xFFFF00;
     }
 
     @Override

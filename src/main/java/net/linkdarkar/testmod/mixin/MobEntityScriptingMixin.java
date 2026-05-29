@@ -2,6 +2,7 @@ package net.linkdarkar.testmod.mixin;
 
 import net.linkdarkar.testmod.TestMod;
 import net.linkdarkar.testmod.scripting.*;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.mob.MobEntity;
@@ -15,6 +16,8 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import java.util.UUID;
 
 @Mixin(MobEntity.class)
 public abstract class MobEntityScriptingMixin extends LivingEntity implements IScriptableEntity {
@@ -73,22 +76,55 @@ public abstract class MobEntityScriptingMixin extends LivingEntity implements IS
             if (!config.checkpoints.isEmpty() && this.currentCheckpointIndex < config.checkpoints.size()) {
                 ScriptingConfigManager.CheckpointData targetCp = config.checkpoints.get(this.currentCheckpointIndex);
 
-                // Calculate distance
-                double distSq = this.squaredDistanceTo(targetCp.x, targetCp.y, targetCp.z);
+                // Handle dynamic target position based on the mode (Entity vs POS)
+                double targetX = targetCp.x;
+                double targetY = targetCp.y;
+                double targetZ = targetCp.z;
+                boolean validTarget = true;
 
-                // Check if within ~1 block to be slightly forgiving with entity pathing
-                if (distSq <= 1) {
-                    this.currentCheckpointIndex++;
-                    TestMod.LOGGER.info("Entity reached checkpoint " + this.currentCheckpointIndex);
+                if (targetCp.useEntity) {
+                    validTarget = false; // Default to false until we find the entity
+                    try {
+                        // Strip quotes if they were added via the GUI's "Insert UUID" button
+                        String rawUuid = targetCp.entityUuid.replace("\"", "").trim();
+                        UUID targetUuid = UUID.fromString(rawUuid);
 
-                    // If all checkpoints are reached
-                    if (this.currentCheckpointIndex >= config.checkpoints.size()) {
-                        TestMod.LOGGER.info("Entity completed all checkpoints!");
-                        ScriptingConfigManager.EntityActions actions = ScriptingConfigManager.getInstance().getActions(this.getUuid());
-                        executeServerAction(actions.executeCorrect);
+                        // Look up the entity on the server world
+                        if (this.getWorld() instanceof net.minecraft.server.world.ServerWorld serverWorld) {
+                            Entity targetEntity = serverWorld.getEntity(targetUuid);
+                            if (targetEntity != null) {
+                                targetX = targetEntity.getX();
+                                targetY = targetEntity.getY();
+                                targetZ = targetEntity.getZ();
+                                validTarget = true;
+                            }
+                        }
+                    } catch (IllegalArgumentException ignored) {
+                        // Invalid UUID format
+                    }
+                }
 
-                        // Stop the script/checkpoints from firing continuously after success
-                        this.isScriptRunning = false;
+                if (validTarget) {
+                    // Calculate distance
+                    double distSq = this.squaredDistanceTo(targetX, targetY, targetZ);
+
+                    // Use the dynamic radius squared instead of hardcoded 1
+                    double radiusSq = targetCp.radius * targetCp.radius;
+
+                    // Check if within the defined radius
+                    if (distSq <= radiusSq) {
+                        this.currentCheckpointIndex++;
+                        TestMod.LOGGER.info("Entity reached checkpoint " + this.currentCheckpointIndex);
+
+                        // If all checkpoints are reached
+                        if (this.currentCheckpointIndex >= config.checkpoints.size()) {
+                            TestMod.LOGGER.info("Entity completed all checkpoints!");
+                            ScriptingConfigManager.EntityActions actions = ScriptingConfigManager.getInstance().getActions(this.getUuid());
+                            executeServerAction(actions.executeCorrect);
+
+                            // Stop the script/checkpoints from firing continuously after success
+                            this.isScriptRunning = false;
+                        }
                     }
                 }
             }

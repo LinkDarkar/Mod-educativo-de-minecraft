@@ -16,12 +16,12 @@ public class InstructionMinecraft_ExecuteCommand extends ScriptLine {
 
     public InstructionMinecraft_ExecuteCommand() {
         this.commandExpression = "\"say Hello World\"";
-        this.color = 0xFFAA00;
+        this.color = 0x00FF80;
     }
 
     public InstructionMinecraft_ExecuteCommand(String cmd) {
         this.commandExpression = cmd;
-        this.color = 0xFFAA00;
+        this.color = 0x00FF80;
     }
 
     @Override

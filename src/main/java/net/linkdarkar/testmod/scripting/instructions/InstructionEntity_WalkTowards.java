@@ -21,7 +21,7 @@ public class InstructionEntity_WalkTowards extends ScriptLine {
 
     public InstructionEntity_WalkTowards()
     {
-        this.color = 0x999999;
+        this.color = 0x0080FF;
     }
 
     @Override
@@ -58,34 +58,35 @@ public class InstructionEntity_WalkTowards extends ScriptLine {
 
     @Override
     public Object Execute(ExecutionContext context) {
-        // If it's a simulation, skips changing the world
-        if (context.isSimulation) {
-            return null;
-        }
+        try {
+            double x = ((Number) ExpressionEvaluator.evaluate(xExp, context)).doubleValue();
+            double y = ((Number) ExpressionEvaluator.evaluate(yExp, context)).doubleValue();
+            double z = ((Number) ExpressionEvaluator.evaluate(zExp, context)).doubleValue();
+            double speed = ((Number) ExpressionEvaluator.evaluate(speedExp, context)).doubleValue();
 
-        TestMod.LOGGER.info("Executing Walk Forward Instruction...");
+            // Log action for simulation
+            if (context.isSimulation) {
+                context.recordedActions.add("ACTION_WALK_TOWARDS:" + x + "," + y + "," + z + "@" + speed);
+                return null;
+            }
 
-        World world = context.executorEntity.getWorld();
+            TestMod.LOGGER.info("Executing Walk Towards Instruction...");
 
-        if (world instanceof ServerWorld serverWorld) {
-            try {
-                double x = ((Number) ExpressionEvaluator.evaluate(xExp, context)).doubleValue();
-                double y = ((Number) ExpressionEvaluator.evaluate(yExp, context)).doubleValue();
-                double z = ((Number) ExpressionEvaluator.evaluate(zExp, context)).doubleValue();
-                double speed = ((Number) ExpressionEvaluator.evaluate(speedExp, context)).doubleValue();
+            if (context.executorEntity == null) return null;
+            World world = context.executorEntity.getWorld();
 
+            if (world instanceof ServerWorld serverWorld) {
                 boolean success = FunctionCaller.walkTowards(context.executorEntity, 1, new Vec3d(x, y, z));
 
                 System.out.println("Walk towards "+ new Vec3d(x, y, z));
 
                 TestMod.LOGGER.info("Walk Towards command sent. Success: {}", success);
-
-            } catch (Exception e) {
-                TestMod.LOGGER.error("Error executing Walk Towards: {}", e.getMessage());
             }
-        }
-        else {
-            TestMod.LOGGER.warn("Script tried to run on Client Side. Ignoring.");
+            else {
+                TestMod.LOGGER.warn("Script tried to run on Client Side. Ignoring.");
+            }
+        } catch (Exception e) {
+            TestMod.LOGGER.error("Error executing Walk Towards: {}", e.getMessage());
         }
         return null;
     }

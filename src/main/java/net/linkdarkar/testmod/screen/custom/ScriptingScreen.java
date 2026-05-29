@@ -147,7 +147,7 @@ public class ScriptingScreen extends Screen {
         execY -= btnHeight;
 
         // VERIFY CODE
-        this.addDrawableChild(ButtonWidget.builder(Text.literal("VERIFY"), b -> {
+        this.addDrawableChild(ButtonWidget.builder(Text.literal("VALIDATE"), b -> {
             boolean canExecuteNetwork = this.client != null && this.client.getNetworkHandler() != null;
             ScriptingConfigManager.EntityActions actions = null;
 
@@ -289,7 +289,7 @@ public class ScriptingScreen extends Screen {
 
                 // ADD VAR
                 if (config.allowVar) {
-                    this.addDrawableChild(ButtonWidget.builder(Text.literal("Add VAR"), b -> {
+                    this.addDrawableChild(ButtonWidget.builder(Text.literal("Add VAR").withColor(0xAAAAFF), b -> {
                         this.builder.AddMath();
                         this.rebuildUI();
                     }).dimensions(leftOffset, btnY, btnWidth, btnHeight).build());
@@ -298,7 +298,7 @@ public class ScriptingScreen extends Screen {
 
                 // ADD VAR = FUNCTION
                 if (config.allowVarF) {
-                    this.addDrawableChild(ButtonWidget.builder(Text.literal("Add VARF"), b -> {
+                    this.addDrawableChild(ButtonWidget.builder(Text.literal("Add VARF").withColor(0xFFFF55), b -> {
                         this.builder.AddVarAssign();
                         this.rebuildUI();
                     }).dimensions(leftOffset, btnY, btnWidth, btnHeight).build());
@@ -307,7 +307,7 @@ public class ScriptingScreen extends Screen {
 
                 // ADD PRINT (to chat)
                 if (config.allowPrint) {
-                    this.addDrawableChild(ButtonWidget.builder(Text.literal("Add PRINT"), b -> {
+                    this.addDrawableChild(ButtonWidget.builder(Text.literal("Add PRINT").withColor(0xFFFFFF), b -> {
                         this.builder.AddPrint();
                         this.rebuildUI();
                     }).dimensions(leftOffset, btnY, btnWidth, btnHeight).build());
@@ -316,7 +316,7 @@ public class ScriptingScreen extends Screen {
 
                 // ADD IF
                 if (config.allowIf) {
-                    this.addDrawableChild(ButtonWidget.builder(Text.literal("Add IF"), b -> {
+                    this.addDrawableChild(ButtonWidget.builder(Text.literal("Add IF").withColor(0xFFFF00), b -> {
                         this.builder.AddIf();
                         this.rebuildUI();
                     }).dimensions(leftOffset, btnY, btnWidth, btnHeight).build());
@@ -325,7 +325,7 @@ public class ScriptingScreen extends Screen {
 
                 // ADD ELSE
                 if (config.allowElse) {
-                    this.addDrawableChild(ButtonWidget.builder(Text.literal("Add ELSE"), b -> {
+                    this.addDrawableChild(ButtonWidget.builder(Text.literal("Add ELSE").withColor(0xFF8000), b -> {
                         this.builder.AddElse();
                         this.rebuildUI();
                     }).dimensions(leftOffset, btnY, btnWidth, btnHeight).build());
@@ -334,7 +334,7 @@ public class ScriptingScreen extends Screen {
 
                 // ADD WHILE
                 if (config.allowWhile) {
-                    this.addDrawableChild(ButtonWidget.builder(Text.literal("Add WHILE"), b -> {
+                    this.addDrawableChild(ButtonWidget.builder(Text.literal("Add WHILE").withColor(0x80FF00), b -> {
                         this.builder.AddWhile();
                         this.rebuildUI();
                     }).dimensions(leftOffset, btnY, btnWidth, btnHeight).build());
@@ -345,7 +345,7 @@ public class ScriptingScreen extends Screen {
 
                 // ADD LOOK_AT_ENTITY
                 if (config.allowLookAt) {
-                    this.addDrawableChild(ButtonWidget.builder(Text.literal("Look At"), b -> {
+                    this.addDrawableChild(ButtonWidget.builder(Text.literal("Look At").withColor(0x0080FF), b -> {
                         this.builder.AddLookAtEntity();
                         this.rebuildUI();
                     }).dimensions(leftOffset, btnY, btnWidth, btnHeight).build());
@@ -354,7 +354,7 @@ public class ScriptingScreen extends Screen {
 
                 // ADD FOLLOW_ENTITY
                 if (config.allowFollow) {
-                    this.addDrawableChild(ButtonWidget.builder(Text.literal("Follow Entity"), b -> {
+                    this.addDrawableChild(ButtonWidget.builder(Text.literal("Follow Entity").withColor(0x002C58), b -> {
                         this.builder.AddFollowEntity();
                         this.rebuildUI();
                     }).dimensions(leftOffset, btnY, btnWidth, btnHeight).build());
@@ -363,7 +363,7 @@ public class ScriptingScreen extends Screen {
 
                 // ADD WALK_TOWARDS
                 if (config.allowWalkForward) {
-                    this.addDrawableChild(ButtonWidget.builder(Text.literal("Walk Towards"), b -> {
+                    this.addDrawableChild(ButtonWidget.builder(Text.literal("Walk Towards").withColor(0x0080FF), b -> {
                         this.builder.AddWalkTowards();
                         this.rebuildUI();
                     }).dimensions(leftOffset, btnY, btnWidth, btnHeight).build());
@@ -372,7 +372,7 @@ public class ScriptingScreen extends Screen {
 
                 // ADD WALK_FORWARD
                 if (config.allowWalkForward) {
-                    this.addDrawableChild(ButtonWidget.builder(Text.literal("Walk Forward"), b -> {
+                    this.addDrawableChild(ButtonWidget.builder(Text.literal("Walk Forward").withColor(0xADD6FF), b -> {
                         this.builder.AddWalkForward();
                         this.rebuildUI();
                     }).dimensions(leftOffset, btnY, btnWidth, btnHeight).build());
@@ -382,13 +382,13 @@ public class ScriptingScreen extends Screen {
             case MINECRAFT -> {
                 // ADD DISTANCE
                 if (config.allowDistanceCheck) {
-                    this.addDrawableChild(ButtonWidget.builder(Text.literal("Dist to Ent"), b -> {
+                    this.addDrawableChild(ButtonWidget.builder(Text.literal("Dist to Ent").withColor(0x00FFFF), b -> {
                         this.builder.AddDistanceFromEntity();
                         this.rebuildUI();
                     }).dimensions(leftOffset, btnY, btnWidth, btnHeight).build());
                     btnY += btnHeight + btnSpacing;
 
-                    this.addDrawableChild(ButtonWidget.builder(Text.literal("Dist to Pos"), b -> {
+                    this.addDrawableChild(ButtonWidget.builder(Text.literal("Dist to Pos").withColor(0x00FFFF), b -> {
                         this.builder.AddDistanceFromPosition();
                         this.rebuildUI();
                     }).dimensions(leftOffset, btnY, btnWidth, btnHeight).build());
@@ -397,7 +397,7 @@ public class ScriptingScreen extends Screen {
 
                 // ADD PLACE_BLOCK
                 if (config.allowPlace) {
-                    this.addDrawableChild(ButtonWidget.builder(Text.literal("Place Block"), b -> {
+                    this.addDrawableChild(ButtonWidget.builder(Text.literal("Place Block").withColor(0x00FF80), b -> {
                         this.builder.AddPlaceBlock();
                         this.rebuildUI();
                     }).dimensions(leftOffset, btnY, btnWidth, btnHeight).build());
@@ -406,7 +406,7 @@ public class ScriptingScreen extends Screen {
 
                 // ADD COMMAND
                 if (config.allowCommand) {
-                    this.addDrawableChild(ButtonWidget.builder(Text.literal("Add Command"), b -> {
+                    this.addDrawableChild(ButtonWidget.builder(Text.literal("Add Command").withColor(0x00FF80), b -> {
                         this.builder.AddCommand();
                         this.rebuildUI();
                     }).dimensions(leftOffset, btnY, btnWidth, btnHeight).build());
@@ -1060,7 +1060,7 @@ public class ScriptingScreen extends Screen {
                     int innerHeight = getBlockHeight(ifLine.trueBlock);
                     int actualX = SCRIPT_X + xOffset - (int) horizontalScrollOffset;
 
-                    int bracketColor = 0xFFFF0000;
+                    int bracketColor = 0xFFFFFF00;
                     context.fill(actualX + 5, currentY + LINE_HEIGHT, actualX + 7, currentY + LINE_HEIGHT + innerHeight, bracketColor);
 
                     currentY += LINE_HEIGHT;
@@ -1069,7 +1069,7 @@ public class ScriptingScreen extends Screen {
                 case InstructionELSE elseLine -> {
                     int innerHeight = getBlockHeight(elseLine.elseBlock);
                     int actualX = SCRIPT_X + xOffset - (int) horizontalScrollOffset;
-                    int bracketColor = 0xFFFFAA00;
+                    int bracketColor = 0xFFFF8000;
                     context.fill(actualX + 5, currentY + LINE_HEIGHT, actualX + 7, currentY + LINE_HEIGHT + innerHeight, bracketColor);
                     currentY += LINE_HEIGHT;
                     currentY = drawIndentationLines(context, elseLine.elseBlock, currentY, indent + 1);
@@ -1078,7 +1078,7 @@ public class ScriptingScreen extends Screen {
                     int innerHeight = getBlockHeight(whileLine.loopBlock);
                     int actualX = SCRIPT_X + xOffset - (int) horizontalScrollOffset;
 
-                    int bracketColor = 0xFF00FF00;
+                    int bracketColor = 0xFFFFFF55;
                     context.fill(actualX + 5, currentY + LINE_HEIGHT, actualX + 7, currentY + LINE_HEIGHT + innerHeight, bracketColor);
 
                     currentY += LINE_HEIGHT;
@@ -1144,11 +1144,11 @@ public class ScriptingScreen extends Screen {
                         line instanceof InstructionEntity_DistanceFromEntity ||
                         line instanceof InstructionEntity_DistanceFromPosition)
                 {
-                    context.drawTextWithShadow(this.textRenderer, line.GetLineHandle(), actualX + 55, textY, line.color);
+                    context.drawTextWithShadow(this.textRenderer, line.GetLineHandle(), actualX + 55, textY, currentErrors.containsKey(line) ? 0xFF0000 : line.color);
                 }
                 else
                 {
-                    context.drawTextWithShadow(this.textRenderer, line.GetLineHandle(), actualX, textY, line.color);
+                    context.drawTextWithShadow(this.textRenderer, line.GetLineHandle(), actualX, textY, currentErrors.containsKey(line) ? 0xFF0000 : line.color);
                 }
             }
 

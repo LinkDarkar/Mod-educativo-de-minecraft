@@ -17,8 +17,13 @@ public class InstructionEntity_LookAtEntity extends ScriptLine {
     public String targetUUIDExp;
 
     public InstructionEntity_LookAtEntity() {
-        this.color = 0x55FFFF;
+        this.color = 0x0080FF;
         this.targetUUIDExp = "";
+    }
+
+    public InstructionEntity_LookAtEntity(String target) {
+        this.color = 0x0080FF;
+        this.targetUUIDExp = target;
     }
 
     @Override
@@ -51,37 +56,38 @@ public class InstructionEntity_LookAtEntity extends ScriptLine {
     public Object Execute(ExecutionContext context) {
         if (targetUUIDExp == null || targetUUIDExp.isEmpty()) return null;
 
-        // If it's a simulation, skips changing the world
-        if (context.isSimulation) {
-            return null;
-        }
+        try {
+            // Evaluate the expression to get the actual UUID string
+            Object res = ExpressionEvaluator.evaluate(targetUUIDExp, context);
+            String cleanUUID = res.toString().replace("\"", "").trim();
 
-        TestMod.LOGGER.info("Executing Look At Entity Instruction...");
+            if (cleanUUID.isEmpty()) return null;
 
-        World world = context.executorEntity.getWorld();
+            // Log action for simulation
+            if (context.isSimulation) {
+                context.recordedActions.add("ACTION_LOOK_AT:" + cleanUUID);
+                return null;
+            }
 
-        if (world instanceof ServerWorld serverWorld) {
-            try {
-                // Evaluate the expression to get the actual UUID string
-                Object res = ExpressionEvaluator.evaluate(targetUUIDExp, context);
-                String cleanUUID = res.toString().replace("\"", "").trim();
+            TestMod.LOGGER.info("Executing Look At Entity Instruction...");
 
-                if (cleanUUID.isEmpty()) return null;
+            if (context.executorEntity == null) return null;
+            World world = context.executorEntity.getWorld();
 
+            if (world instanceof ServerWorld serverWorld) {
                 UUID uuid = UUID.fromString(cleanUUID);
 
                 boolean success = FunctionCaller.lookAtEntity(serverWorld, context.executorEntity.getUuid(), uuid);
 
                 TestMod.LOGGER.info("Look at command sent. Success: {}", success);
-
-            } catch (IllegalArgumentException e) {
-                TestMod.LOGGER.error("Invalid UUID format in script: {}", targetUUIDExp);
-            } catch (Exception e) {
-                TestMod.LOGGER.error("Error executing Look at: {}", e.getMessage());
             }
-        }
-        else {
-            TestMod.LOGGER.warn("Script tried to run on Client Side. Ignoring.");
+            else {
+                TestMod.LOGGER.warn("Script tried to run on Client Side. Ignoring.");
+            }
+        } catch (IllegalArgumentException e) {
+            TestMod.LOGGER.error("Invalid UUID format in script: {}", targetUUIDExp);
+        } catch (Exception e) {
+            TestMod.LOGGER.error("Error executing Look at: {}", e.getMessage());
         }
         return null;
     }

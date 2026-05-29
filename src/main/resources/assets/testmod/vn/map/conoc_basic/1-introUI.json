@@ -6,7 +6,7 @@
       "speaker": "Intro",
       "text": [
         "—Antes de empezar vamos a ver como funciona la interfaz. \n \n ",
-        "—Si ves a la oveja que está aquí, te darás cuenta de que, en el lado izquierdo de la pantalla, tienes, empezando por arriba, un botón que dirá \"Tab: SCRIPT\", le sigue un campo con flechas a los lados que dice \"BASIC\", más abajo botones para añadir cosas al código (que va al centro de la pantalla), y en la esquina inferior izquierda un botón para Verificar y controlar la ejecución del código (Verify, Execute Once, Start Loop y End Loop). \n \n",
+        "—Si ves a la oveja que está aquí, te darás cuenta de que, en el lado izquierdo de la pantalla, tienes, empezando por arriba, un botón que dirá \"Tab: SCRIPT\", le sigue un campo con flechas a los lados que dice \"BASIC\", más abajo botones para añadir cosas al código (que va al centro de la pantalla), y en la esquina inferior izquierda un botón para Verificar y controlar la ejecución del código (Validate, Execute Once, Start Loop y End Loop). \n \n",
         "—El funcionamiento de estos últimos lo vamos a ver más adelante. Ahora nos vamos a enfocar en los primeros dos botones, Tab y BASIC. \n \n"
       ],
       "nextNodeId": "01_02"
@@ -23,7 +23,7 @@
         "—El campo BASIC por otro lado, tiene los botones necesarios para que programes en la entidad. ",
         "Si aprietas las flechas verás que podrás navegar entre pestañas. Hay tres: BASIC, ENTITY y MINECRAFT. Las últimas dos no son necesarias para lo que tenga que ver con manipulación de datos. \n \n",
         "Pero en el Ala B, a la que tendrás acceso más tarde, vas a tener que utilizar las funciones que se encuentan aquí para controlar a las entidades y obtener información del mundo. \n \n",
-        "—Podrás ver estos campos que te mencioné en este mob que tienes aquí. Cuando estés listo, aprieta el botón VERIFY para continuar. \n \n",
+        "—Podrás ver estos campos que te mencioné en este mob que tienes aquí. Cuando estés listo, aprieta el botón VALIDATE para continuar. \n \n",
         "—Para continuar con la siguiente parte aprieta el botón verificar en la interfaz del scripting de la oveja."
       ],
       "nextNodeId": "",

@@ -18,14 +18,14 @@ public class InstructionBlock_Place extends ScriptLine {
         this.xExp = "0";
         this.yExp = "0";
         this.zExp = "0";
-        this.color = 0x55FFFF;
+        this.color = 0x00FF80;
     }
 
     public InstructionBlock_Place(String x, String y, String z) {
         this.xExp = x;
         this.yExp = y;
         this.zExp = z;
-        this.color = 0x55FFFF;
+        this.color = 0x00FF80;
     }
 
     @Override

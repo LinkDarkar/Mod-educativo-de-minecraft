@@ -9,7 +9,7 @@ public class InstructionELSE extends ScriptLine {
     public ScriptBlock elseBlock = new ScriptBlock();
 
     public InstructionELSE() {
-        this.color = 0xFFFFAA00;
+        this.color = 0xFF8000;
     }
 
     @Override

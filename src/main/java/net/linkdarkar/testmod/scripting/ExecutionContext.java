@@ -44,6 +44,9 @@ public class ExecutionContext
     // List of the "print output" to later verify when validating
     public List<String> printedMessages = new ArrayList<>();
 
+    // List to track physical actions the script tries to perform (like FollowEntity)
+    public List<String> recordedActions = new ArrayList<>();
+
     public void incrementSteps()
     {
         executionSteps++;

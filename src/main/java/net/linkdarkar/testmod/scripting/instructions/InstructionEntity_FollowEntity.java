@@ -17,11 +17,11 @@ public class InstructionEntity_FollowEntity extends ScriptLine {
     public String targetUUIDExp;
 
     public InstructionEntity_FollowEntity() {
-        this.color = 0x999999;
+        this.color = 0x0080FF;
         this.targetUUIDExp = "";
     }
     public InstructionEntity_FollowEntity(String target) {
-        this.color = 0x999999;
+        this.color = 0x0080FF;
         this.targetUUIDExp = target;
     }
 
@@ -57,37 +57,38 @@ public class InstructionEntity_FollowEntity extends ScriptLine {
     public Object Execute(ExecutionContext context) {
         if (targetUUIDExp == null || targetUUIDExp.isEmpty()) return null;
 
-        // If it's a simulation, skips changing the world
-        if (context.isSimulation) {
-            return null;
-        }
+        try {
+            // Evaluate the expression to get the actual UUID string
+            Object res = ExpressionEvaluator.evaluate(targetUUIDExp, context);
+            String cleanUUID = res.toString().replace("\"", "").trim();
 
-        TestMod.LOGGER.info("Executing Follow Entity Instruction...");
+            if (cleanUUID.isEmpty()) return null;
 
-        World world = context.executorEntity.getWorld();
+            // If it's a simulation, log the action and skip physical movement
+            if (context.isSimulation) {
+                context.recordedActions.add("ACTION_FOLLOW:" + cleanUUID);
+                return null;
+            }
 
-        if (world instanceof ServerWorld serverWorld) {
-            try {
-                // Evaluate the expression to get the actual UUID string
-                Object res = ExpressionEvaluator.evaluate(targetUUIDExp, context);
-                String cleanUUID = res.toString().replace("\"", "").trim();
+            TestMod.LOGGER.info("Executing Follow Entity Instruction...");
 
-                if (cleanUUID.isEmpty()) return null;
+            if (context.executorEntity == null) return null;
+            World world = context.executorEntity.getWorld();
 
+            if (world instanceof ServerWorld serverWorld) {
                 UUID uuid = UUID.fromString(cleanUUID);
 
                 boolean success = FunctionCaller.follow(serverWorld, context.executorEntity.getUuid(), uuid, 1.0);
 
                 TestMod.LOGGER.info("Follow command sent. Success: {}", success);
-
-            } catch (IllegalArgumentException e) {
-                TestMod.LOGGER.error("Invalid UUID format in script: {}", targetUUIDExp);
-            } catch (Exception e) {
-                TestMod.LOGGER.error("Error executing follow: {}", e.getMessage());
             }
-        }
-        else {
-            TestMod.LOGGER.warn("Script tried to run on Client Side. Ignoring.");
+            else {
+                TestMod.LOGGER.warn("Script tried to run on Client Side. Ignoring.");
+            }
+        } catch (IllegalArgumentException e) {
+            TestMod.LOGGER.error("Invalid UUID format in script: {}", targetUUIDExp);
+        } catch (Exception e) {
+            TestMod.LOGGER.error("Error executing follow: {}", e.getMessage());
         }
         return null;
     }

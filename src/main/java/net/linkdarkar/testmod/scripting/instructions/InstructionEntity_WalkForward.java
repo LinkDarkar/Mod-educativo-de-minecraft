@@ -20,7 +20,7 @@ public class InstructionEntity_WalkForward extends ScriptLine {
     public String speedExp;
 
     public InstructionEntity_WalkForward() {
-        this.color = 0x999999;
+        this.color = 0x0080FF;
         this.speedExp = "1";
     }
 
@@ -52,30 +52,30 @@ public class InstructionEntity_WalkForward extends ScriptLine {
 
     @Override
     public Object Execute(ExecutionContext context) {
-        // If it's a simulation, skips changing the world
-        if (context.isSimulation) {
-            return null;
-        }
+        try {
+            Object result = ExpressionEvaluator.evaluate(speedExp, context);
+            double speed = result instanceof Number ? ((Number) result).doubleValue() : 1.0;
 
-        TestMod.LOGGER.info("Executing Walk Forward Instruction...");
-
-        World world = context.executorEntity.getWorld();
-
-        if (world instanceof ServerWorld serverWorld) {
-            try {
-                Object result = ExpressionEvaluator.evaluate(speedExp, context);
-                double speed = result instanceof Number ? ((Number) result).doubleValue() : 1.0;
-
-                boolean success = FunctionCaller.walkForward(context.executorEntity, speed, 10);
-
-                TestMod.LOGGER.info("Walk Forward command sent. Success: {}", success);
-
-            } catch (Exception e) {
-                TestMod.LOGGER.error("Error executing Walk Forward: {}", e.getMessage());
+            // Log action for simulation
+            if (context.isSimulation) {
+                context.recordedActions.add("ACTION_WALK_FORWARD:" + speed);
+                return null;
             }
-        }
-        else {
-            TestMod.LOGGER.warn("Script tried to run on Client Side. Ignoring.");
+
+            TestMod.LOGGER.info("Executing Walk Forward Instruction...");
+
+            if (context.executorEntity == null) return null;
+            World world = context.executorEntity.getWorld();
+
+            if (world instanceof ServerWorld serverWorld) {
+                boolean success = FunctionCaller.walkForward(context.executorEntity, speed, 10);
+                TestMod.LOGGER.info("Walk Forward command sent. Success: {}", success);
+            }
+            else {
+                TestMod.LOGGER.warn("Script tried to run on Client Side. Ignoring.");
+            }
+        } catch (Exception e) {
+            TestMod.LOGGER.error("Error executing Walk Forward: {}", e.getMessage());
         }
         return null;
     }

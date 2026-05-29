@@ -42,13 +42,21 @@ public class ScriptingConfigManager {
     }
 
     public static class CheckpointData {
-        public double x, y, z;
+        public double x;
+        public double y;
+        public double z;
+        public double radius = 2.0;
+        public String entityUuid = "";
+        public boolean useEntity = false;
 
         public NbtCompound toNbt() {
             NbtCompound nbt = new NbtCompound();
             nbt.putDouble("x", x);
             nbt.putDouble("y", y);
             nbt.putDouble("z", z);
+            nbt.putDouble("radius", radius);
+            nbt.putString("uuid", entityUuid);
+            nbt.putBoolean("useEntity", useEntity);
             return nbt;
         }
 
@@ -56,6 +64,9 @@ public class ScriptingConfigManager {
             this.x = nbt.getDouble("x");
             this.y = nbt.getDouble("y");
             this.z = nbt.getDouble("z");
+            this.radius = nbt.contains("radius") ? nbt.getDouble("radius") : 2.0;
+            this.entityUuid = nbt.getString("uuid");
+            this.useEntity = nbt.getBoolean("useEntity");
         }
     }
 

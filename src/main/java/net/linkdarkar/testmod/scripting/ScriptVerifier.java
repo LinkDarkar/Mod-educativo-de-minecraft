@@ -24,6 +24,9 @@ public class ScriptVerifier {
 
         public List<String> expectedPrints = new ArrayList<>();
         public List<String> actualPrints = new ArrayList<>();
+
+        public List<String> expectedActions = new ArrayList<>();
+        public List<String> actualActions = new ArrayList<>();
     }
 
     public static VerificationReport verify(ScriptBlock userScript, ScriptBlock correctScript, LivingEntity dummyEntity) {
@@ -87,6 +90,32 @@ public class ScriptVerifier {
                 report.caseResults.add(tr);
                 allPassed = false;
                 break;
+            }
+
+            // STRICT ACTION VERIFICATION
+            tr.expectedActions.addAll(correctCtx.recordedActions);
+            tr.actualActions.addAll(userCtx.recordedActions);
+
+            List<String> expectedActions = correctCtx.recordedActions;
+            List<String> actualActions = userCtx.recordedActions;
+
+            int minActionSize = Math.min(expectedActions.size(), actualActions.size());
+
+            for (int i = 0; i < minActionSize; i++) {
+                if (!expectedActions.get(i).equals(actualActions.get(i))) {
+                    tr.passed = false;
+                    tr.errorReason = "Action mismatch. Expected to: '" + expectedActions.get(i) + "', but tried to: '" + actualActions.get(i) + "'";
+                    break;
+                }
+            }
+
+            if (tr.passed && expectedActions.size() != actualActions.size()) {
+                tr.passed = false;
+                if (actualActions.size() < expectedActions.size()) {
+                    tr.errorReason = "Missing actions. Expected " + expectedActions.size() + " actions, got " + actualActions.size() + ".";
+                } else {
+                    tr.errorReason = "Too many actions performed.";
+                }
             }
 
             // Record Output for the UI

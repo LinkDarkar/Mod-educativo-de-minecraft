@@ -17,7 +17,7 @@ public class InstructionEntity_DistanceFromPosition extends ScriptLine {
         this.xExp = "0";
         this.yExp = "0";
         this.zExp = "0";
-        this.color = 0x55FFFF;
+        this.color = 0x00FFFF;
     }
 
     @Override
@@ -56,12 +56,23 @@ public class InstructionEntity_DistanceFromPosition extends ScriptLine {
 
     @Override
     public Object Execute(ExecutionContext c) {
-        if (c.isSimulation || c.executorEntity == null) return null;
-
         try {
             double x = getDouble(c, xExp);
             double y = getDouble(c, yExp);
             double z = getDouble(c, zExp);
+
+            // Intercept simulation to inject mock distances mapped by coordinates
+            if (c.isSimulation) {
+                String mockVarName = "_MOCK_DIST_POS_" + (int)x + "_" + (int)y + "_" + (int)z;
+                if (c.variables.containsKey(mockVarName)) {
+                    c.SetVar(targetVarName, Double.parseDouble(c.variables.get(mockVarName).toString()));
+                } else {
+                    c.SetVar(targetVarName, 0.0);
+                }
+                return null;
+            }
+
+            if (c.executorEntity == null) return null;
 
             Vec3d targetPos = new Vec3d(x, y, z);
             double dist = c.executorEntity.getPos().distanceTo(targetPos);

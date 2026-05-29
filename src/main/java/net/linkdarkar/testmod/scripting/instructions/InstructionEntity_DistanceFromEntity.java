@@ -17,7 +17,7 @@ public class InstructionEntity_DistanceFromEntity extends ScriptLine {
     public InstructionEntity_DistanceFromEntity() {
         this.targetVarName = "dist";
         this.targetUUIDExp = "\"\"";
-        this.color = 0x55FFFF;
+        this.color = 0x00FFFF;
     }
 
     @Override
@@ -48,14 +48,25 @@ public class InstructionEntity_DistanceFromEntity extends ScriptLine {
 
     @Override
     public Object Execute(ExecutionContext c) {
-        if (c.isSimulation || c.executorEntity == null) return null;
+        try {
+            Object uuidRes = ExpressionEvaluator.evaluate(targetUUIDExp, c);
+            String uuidStr = uuidRes.toString().replace("\"", "");
 
-        net.minecraft.world.World world = c.executorEntity.getWorld();
-        if (world instanceof ServerWorld serverWorld) {
-            try {
-                Object uuidRes = ExpressionEvaluator.evaluate(targetUUIDExp, c);
-                String uuidStr = uuidRes.toString().replace("\"", "");
+            // Intercept simulation to inject mock distances
+            if (c.isSimulation) {
+                String mockVarName = "_MOCK_DIST_" + uuidStr;
+                if (c.variables.containsKey(mockVarName)) {
+                    c.SetVar(targetVarName, Double.parseDouble(c.variables.get(mockVarName).toString()));
+                } else {
+                    c.SetVar(targetVarName, 0.0);
+                }
+                return null;
+            }
 
+            if (c.executorEntity == null) return null;
+
+            net.minecraft.world.World world = c.executorEntity.getWorld();
+            if (world instanceof ServerWorld serverWorld) {
                 UUID uuid = UUID.fromString(uuidStr);
                 Entity target = serverWorld.getEntity(uuid);
 
@@ -65,9 +76,9 @@ public class InstructionEntity_DistanceFromEntity extends ScriptLine {
                 } else {
                     c.SetVar(targetVarName, -1.0); // Target not found or dead
                 }
-            } catch (Exception e) {
-                TestMod.LOGGER.error("Failed to execute DistanceFromEntity: " + e.getMessage());
             }
+        } catch (Exception e) {
+            TestMod.LOGGER.error("Failed to execute DistanceFromEntity: " + e.getMessage());
         }
         return null;
     }

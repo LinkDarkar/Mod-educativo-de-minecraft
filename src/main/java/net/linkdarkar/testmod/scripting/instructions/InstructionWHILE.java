@@ -11,11 +11,11 @@ public class InstructionWHILE extends ScriptLine {
 
     public InstructionWHILE(ScriptCondition cond) {
         this.condition = cond;
-        this.color = 0x66FF66;
+        this.color = 0x80FF00;
     }
 
     public InstructionWHILE() {
-        this.color = 0x66FF66;
+        this.color = 0x80FF00;
         this.condition = new ScriptCondition();
     }
 

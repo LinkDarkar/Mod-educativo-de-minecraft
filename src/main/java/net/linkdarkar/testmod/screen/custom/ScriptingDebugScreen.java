@@ -548,31 +548,59 @@ public class ScriptingDebugScreen extends ScriptingScreen {
             ScriptingConfigManager.CheckpointData cp = config.checkpoints.get(i);
             int finalI = i;
             int currentX = SCRIPT_X;
-            int fieldW = 50;
+            int fieldW = 35;
 
-            TextFieldWidget xF = new TextFieldWidget(this.textRenderer, currentX, listY, fieldW, 20, Text.literal(""));
-            xF.setText(String.valueOf(cp.x));
-            xF.setChangedListener(text -> { try { cp.x = Double.parseDouble(text); ScriptingConfigManager.getInstance().markDirty(); } catch(Exception ignored){} });
-            this.addDrawableChild(xF);
-            currentX += fieldW + 5;
+            // Toggle button between ENTITY and POS coordinates
+            this.addScrollableChild(ButtonWidget.builder(Text.literal(cp.useEntity ? "ENT" : "POS"), b -> {
+                cp.useEntity = !cp.useEntity;
+                ScriptingConfigManager.getInstance().markDirty();
+                this.rebuildUI();
+            }).dimensions(currentX, listY, 35, 20).build(), currentX, listY);
+            currentX += 40;
 
-            TextFieldWidget yF = new TextFieldWidget(this.textRenderer, currentX, listY, fieldW, 20, Text.literal(""));
-            yF.setText(String.valueOf(cp.y));
-            yF.setChangedListener(text -> { try { cp.y = Double.parseDouble(text); ScriptingConfigManager.getInstance().markDirty(); } catch(Exception ignored){} });
-            this.addDrawableChild(yF);
-            currentX += fieldW + 5;
+            if (!cp.useEntity) {
+                // Coordinate Fields
+                TextFieldWidget xF = new TextFieldWidget(this.textRenderer, currentX, listY, fieldW, 20, Text.literal(""));
+                xF.setText(String.valueOf(cp.x));
+                xF.setChangedListener(text -> { try { cp.x = Double.parseDouble(text); ScriptingConfigManager.getInstance().markDirty(); } catch(Exception ignored){} });
+                // Changed to addScrollableChild so it moves when scrolling
+                this.addScrollableChild(xF, currentX, listY);
+                currentX += fieldW + 2;
 
-            TextFieldWidget zF = new TextFieldWidget(this.textRenderer, currentX, listY, fieldW, 20, Text.literal(""));
-            zF.setText(String.valueOf(cp.z));
-            zF.setChangedListener(text -> { try { cp.z = Double.parseDouble(text); ScriptingConfigManager.getInstance().markDirty(); } catch(Exception ignored){} });
-            this.addDrawableChild(zF);
-            currentX += fieldW + 10;
+                TextFieldWidget yF = new TextFieldWidget(this.textRenderer, currentX, listY, fieldW, 20, Text.literal(""));
+                yF.setText(String.valueOf(cp.y));
+                yF.setChangedListener(text -> { try { cp.y = Double.parseDouble(text); ScriptingConfigManager.getInstance().markDirty(); } catch(Exception ignored){} });
+                this.addScrollableChild(yF, currentX, listY);
+                currentX += fieldW + 2;
 
-            this.addDrawableChild(ButtonWidget.builder(Text.literal("X"), b -> {
+                TextFieldWidget zF = new TextFieldWidget(this.textRenderer, currentX, listY, fieldW, 20, Text.literal(""));
+                zF.setText(String.valueOf(cp.z));
+                zF.setChangedListener(text -> { try { cp.z = Double.parseDouble(text); ScriptingConfigManager.getInstance().markDirty(); } catch(Exception ignored){} });
+                this.addScrollableChild(zF, currentX, listY);
+                currentX += fieldW + 5;
+            } else {
+                // Single elongated UUID TextField when ENT mode is active
+                TextFieldWidget uuidF = new TextFieldWidget(this.textRenderer, currentX, listY, fieldW * 3 + 4, 20, Text.literal(""));
+                uuidF.setMaxLength(1024);
+                uuidF.setText(cp.entityUuid);
+                uuidF.setChangedListener(text -> { cp.entityUuid = text; ScriptingConfigManager.getInstance().markDirty(); });
+                this.addScrollableChild(uuidF, currentX, listY);
+                currentX += (fieldW * 3 + 4) + 5;
+            }
+
+            // Radius Field
+            TextFieldWidget rF = new TextFieldWidget(this.textRenderer, currentX, listY, 30, 20, Text.literal(""));
+            rF.setText(String.valueOf(cp.radius));
+            rF.setChangedListener(text -> { try { cp.radius = Double.parseDouble(text); ScriptingConfigManager.getInstance().markDirty(); } catch(Exception ignored){} });
+            this.addScrollableChild(rF, currentX, listY);
+            currentX += 35;
+
+            // Delete Checkpoint Button
+            this.addScrollableChild(ButtonWidget.builder(Text.literal("X"), b -> {
                 config.checkpoints.remove(finalI);
                 ScriptingConfigManager.getInstance().markDirty();
                 this.rebuildUI();
-            }).dimensions(currentX, listY, 20, 20).build());
+            }).dimensions(currentX, listY, 20, 20).build(), currentX, listY);
 
             listY += 25;
         }
@@ -623,9 +651,9 @@ public class ScriptingDebugScreen extends ScriptingScreen {
                 context.drawTextWithShadow(this.textRenderer, "Max", SCRIPT_X + 210, startY - 10, 0xAAAAAA);
             }
             case CHECKPOINTS -> {
-                context.drawTextWithShadow(this.textRenderer, "X", SCRIPT_X + 20, 60, 0xAAAAAA);
-                context.drawTextWithShadow(this.textRenderer, "Y", SCRIPT_X + 75, 60, 0xAAAAAA);
-                context.drawTextWithShadow(this.textRenderer, "Z", SCRIPT_X + 130, 60, 0xAAAAAA);
+                context.drawTextWithShadow(this.textRenderer, "Mode", SCRIPT_X, 60, 0xAAAAAA);
+                context.drawTextWithShadow(this.textRenderer, "Pos / UUID", SCRIPT_X + 45, 60, 0xAAAAAA);
+                context.drawTextWithShadow(this.textRenderer, "Rad", SCRIPT_X + 155, 60, 0xAAAAAA);
 
                 for (PlacedWidget pw : scrollableWidgets) {
                     if (pw.widget().visible) pw.widget().render(context, mouseX, mouseY, delta);
