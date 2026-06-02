@@ -5,7 +5,7 @@
       "id": "01_01",
       "speaker": "Intro",
       "text": [
-        "Segundo Ejercicio: \n \nPara este ejercicio deberás hacer que la oveja bebé siga a la mayor cuando esta se aleje a más de 5 metros. \n \n",
+        "Segundo Ejercicio: \n \nPara este ejercicio deberás hacer que la vaca bebé, la cual perdió a su madre, siga a la cerda cuando esta se aleje a más de 5 metros, ya que la ve como su nueva figura materna. \n \n",
         "Deberás ocupar el UUID extractor y la función Follow Entity de antes junto con una nueva función, Dist to Ent (Distance to Entity), ubicada en la pestaña MINECRAFT."
       ],
       "nextNodeId": "01_02",

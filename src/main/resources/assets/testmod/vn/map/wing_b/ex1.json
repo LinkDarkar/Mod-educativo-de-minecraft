@@ -17,7 +17,7 @@
       "id": "01_02",
       "speaker": "Intro",
       "text": [
-        "Ahora viene el ejercicio de verdad. \n \nTienes que hacer que esta oveja blanca siga a la oveja negra hasta su posición. \n \n",
+        "Ahora viene el ejercicio de verdad. \n \nTienes que hacer que la vaca pequeña siga a al cerdo hasta su posición. \n \n",
         "Para conseguir esto necesitarás ocupar la función \"Follow Entity\", esta función solo recibe UUIDs (es lo que necesita para saber a qué entidad debe seguir), por lo que deberás extraer el UUID de la oveja objetivo con el UUID Extractor. \n \n",
         "Para poner el UUID en la función \"Follow Entity\" deberás seleccionar la caja de texto y hacer click en el UUID que quieres poner."
       ],

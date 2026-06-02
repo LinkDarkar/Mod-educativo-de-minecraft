@@ -1,0 +1,16 @@
+{
+  "id": "intro1",
+  "Nodes": [
+    {
+      "id": "01_01",
+      "speaker": "Intro",
+      "text": [
+        "Cuarto Ejercicio: \n \nEste ejercicio trata de hacer que el panda navege el área saludando a todos sus amigos. \n \n",
+        "Para ello, deberá caminar a todos los bambús en orden: Caballo, Cerdo, Gallina, Oveja, Vaca."
+      ],
+      "nextNodeId": "01_02",
+      "executeCommands": [
+      ]
+    }
+  ]
+}

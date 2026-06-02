@@ -1,0 +1,25 @@
+{
+  "id": "intro1",
+  "Nodes": [
+    {
+      "id": "01_01",
+      "speaker": "Intro",
+      "text": [
+        "Sexto Ejercicio: \n \nEn este ejercicio . \n \n",
+        "a"
+      ],
+      "nextNodeId": "01_02",
+      "executeCommands": [
+      ]
+    },
+    {
+      "id": "01_02",
+      "speaker": "Intro",
+      "text": [
+        "b",
+        "c"
+      ],
+      "nextNodeId": ""
+    }
+  ]
+}
