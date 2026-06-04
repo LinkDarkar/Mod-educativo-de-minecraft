@@ -1,8 +1,6 @@
 package net.linkdarkar.testmod.entity.custom;
 
-import net.fabricmc.fabric.api.event.player.AttackEntityCallback;
-import net.linkdarkar.testmod.vn.VisualNovelDialogueScreen;
-import net.minecraft.client.MinecraftClient;
+import net.linkdarkar.testmod.util.ClientInteractionUtil;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.data.DataTracker;
@@ -56,8 +54,7 @@ public class CustomNPCEntity extends MobEntity {
     @Override
     protected ActionResult interactMob(PlayerEntity player, Hand hand) {
         if (this.getWorld().isClient()) {
-            String dialogue = this.getDialoguePath();
-            MinecraftClient.getInstance().setScreen(new VisualNovelDialogueScreen(this, dialogue));
+            ClientInteractionUtil.openDialogueScreen(this, this.getDialoguePath());
         }
 
         return ActionResult.SUCCESS;
@@ -77,7 +74,6 @@ public class CustomNPCEntity extends MobEntity {
     }
 
     public void checkIfServerNPCThing() {
-        // en caso de que lo queramos llamar desde el payload de comando a través de dialogo
         if (this.getWorld().isClient()) return;
         if (!(this.getWorld() instanceof ServerWorld serverWorld)) return;
     }

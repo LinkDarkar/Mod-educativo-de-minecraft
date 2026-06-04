@@ -7,11 +7,22 @@
       "text": [
         "Bienvenido al mapa instruccional del mod. \n \n",
         "Aquí vas a aprender lo básico para ocupar las funcionalidades para scriptear con los mobs del juego. \n \n",
-        "Es importante que hables con todos lo NPCs y que leas con atención para avanzar. \n \n",
-        "Para continuar habla con el siguiente NPC."
+        "Es importante que hables con todos lo NPCs y que leas con atención para avanzar. \n \n"
       ],
       "nextNodeId": "01_02",
       "executeCommands": [
+      ]
+    },
+    {
+      "id": "01_02",
+      "speaker": "Intro",
+      "text": [
+        "Recuerda que debes responder al formulario pre-test antes de empezar!",
+        "Este nos ayudará a conocer tu estado actual y con ello saber si este mapa fue útil."
+      ],
+      "nextNodeId": "01_03",
+      "executeCommands": [
+        "/fill 0 0 -10 0 1 -10 air"
       ]
     }
   ]

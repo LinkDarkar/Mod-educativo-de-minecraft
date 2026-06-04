@@ -124,7 +124,7 @@ public class ScriptVerifier {
 
             for (Map.Entry<String, Object> expectedEntry : correctCtx.variables.entrySet()) {
                 String varName = expectedEntry.getKey().trim();
-                if (!varName.startsWith("_")) continue; // Only track vars with "_"
+                if (!varName.startsWith("_") || varName.startsWith("_MOCK_")) continue; // Only track vars with "_"
 
                 tr.expectedVars.put(varName, expectedEntry.getValue().toString());
                 Object userVal = userCtx.variables.get(varName);
@@ -163,7 +163,7 @@ public class ScriptVerifier {
             if (tr.passed) {
                 for (Map.Entry<String, Object> expectedEntry : correctCtx.variables.entrySet()) {
                     String varName = expectedEntry.getKey().trim();
-                    if (!varName.startsWith("_")) continue;
+                    if (!varName.startsWith("_") || varName.startsWith("_MOCK_")) continue;
 
                     Object expectedValue = expectedEntry.getValue();
                     Object userValue = userCtx.variables.get(varName);

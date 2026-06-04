@@ -279,13 +279,17 @@ public class ScriptingConfigManager {
 
         TestCase templateCase = config.testCases.get(0);
 
-        // Remove any variables the user has that no longer exist in the template
+        // Remove any variables the user has that no longer exist in the template OR are mock variables
         config.userTestVariables.removeIf(userVar ->
-                templateCase.variables.stream().noneMatch(templateVar -> templateVar.name.equals(userVar.name))
+                userVar.name.startsWith("_MOCK_") ||
+                        templateCase.variables.stream().noneMatch(templateVar -> templateVar.name.equals(userVar.name))
         );
 
         // Add any missing variables from the template to the user's list
         for (PersistentVariable templateVar : templateCase.variables) {
+            // Ignore mock variables so they don't appear in the user's tab
+            if (templateVar.name.startsWith("_MOCK_")) continue;
+
             boolean exists = config.userTestVariables.stream().anyMatch(userVar -> userVar.name.equals(templateVar.name));
             if (!exists) {
                 PersistentVariable newVar = new PersistentVariable();
